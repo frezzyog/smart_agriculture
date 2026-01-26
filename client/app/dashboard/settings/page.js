@@ -1,0 +1,230 @@
+'use client'
+
+import React, { useState } from 'react'
+import {
+    RefreshCw,
+    Sprout,
+    Zap,
+    Bell,
+    Check,
+    Save
+} from 'lucide-react'
+
+export default function SettingsPage() {
+    const [autoPowerSaving, setAutoPowerSaving] = useState(true)
+
+    const notificationMatrix = [
+        { trigger: 'Critical Battery Warning', push: true, sms: true, email: false },
+        { trigger: 'Soil Moisture Breach', push: true, sms: false, email: true },
+        { trigger: 'EC (Nutrient) Variance', push: true, sms: false, email: false },
+        { trigger: 'System Maintenance', push: false, sms: false, email: false },
+    ]
+
+    return (
+        <div className="ml-64 p-10 min-h-screen bg-background text-white pb-32">
+            <div className="max-w-[1200px] mx-auto">
+                {/* Header */}
+                <div className="flex justify-between items-start mb-12">
+                    <div>
+                        <h1 className="text-5xl font-black text-white tracking-tighter mb-4">System Alert Settings</h1>
+                        <p className="text-gray-500 font-medium max-w-2xl text-lg leading-relaxed">
+                            Configure IoT thresholds and notification preferences for your smart lettuce farm.
+                            Changes are applied to all active sensor nodes.
+                        </p>
+                    </div>
+                    <div className="bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-col items-end">
+                        <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">Last Synced</span>
+                        <div className="flex items-center gap-2 text-accent">
+                            <RefreshCw size={14} className="animate-spin-slow" />
+                            <span className="text-xs font-black">2 minutes ago</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="space-y-8">
+                    {/* Soil Health Thresholds */}
+                    <div className="bg-card rounded-[2.5rem] border border-white/5 p-10 relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-accent/5 rounded-full blur-[100px] -mr-20 -mt-20"></div>
+
+                        <div className="flex justify-between items-center mb-10">
+                            <div className="flex items-center gap-4">
+                                <div className="p-3 bg-accent/10 rounded-2xl text-accent">
+                                    <Sprout size={24} />
+                                </div>
+                                <h2 className="text-2xl font-black tracking-tight">Soil Health Thresholds</h2>
+                            </div>
+                            <span className="px-3 py-1 bg-accent/10 border border-accent/20 text-accent text-[10px] font-black uppercase tracking-[0.2em] rounded-lg">
+                                Automated Monitoring
+                            </span>
+                        </div>
+
+                        <div className="space-y-12">
+                            {/* Moisture Range */}
+                            <div className="grid grid-cols-1 md:grid-cols-12 gap-10 items-center">
+                                <div className="md:col-span-3">
+                                    <h3 className="text-lg font-bold mb-1">Moisture Range (%)</h3>
+                                    <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Target moisture for lettuce growth.</p>
+                                </div>
+                                <div className="md:col-span-7 px-4">
+                                    <div className="relative h-2 bg-white/5 rounded-full">
+                                        <div className="absolute left-[30%] right-[20%] h-full bg-accent rounded-full shadow-[0_0_15px_rgba(21,255,113,0.3)]"></div>
+                                        <div className="absolute left-[30%] top-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 flex flex-col items-center">
+                                            <div className="w-5 h-5 rounded-full bg-accent border-4 border-background shadow-[0_0_15px_rgba(21,255,113,0.5)] cursor-pointer"></div>
+                                            <span className="text-[10px] font-black text-accent mt-3">30%</span>
+                                        </div>
+                                        <div className="absolute left-[80%] top-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 flex flex-col items-center">
+                                            <div className="w-5 h-5 rounded-full bg-accent border-4 border-background shadow-[0_0_15px_rgba(21,255,113,0.5)] cursor-pointer"></div>
+                                            <span className="text-[10px] font-black text-accent mt-3">80%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="md:col-span-2 flex gap-4">
+                                    <div className="flex-1 bg-white/5 border border-white/10 rounded-xl py-4 text-center text-sm font-black">30</div>
+                                    <div className="flex-1 bg-white/5 border border-white/10 rounded-xl py-4 text-center text-sm font-black">80</div>
+                                </div>
+                            </div>
+
+                            {/* EC (mS/cm) */}
+                            <div className="grid grid-cols-1 md:grid-cols-12 gap-10 items-center">
+                                <div className="md:col-span-3">
+                                    <h3 className="text-lg font-bold mb-1">EC (mS/cm)</h3>
+                                    <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Nutrient concentration levels.</p>
+                                </div>
+                                <div className="md:col-span-7 px-4">
+                                    <div className="relative h-2 bg-white/5 rounded-full">
+                                        <div className="absolute left-[40%] right-[30%] h-full bg-accent rounded-full shadow-[0_0_15px_rgba(21,255,113,0.3)]"></div>
+                                        <div className="absolute left-[40%] top-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 flex flex-col items-center">
+                                            <div className="w-5 h-5 rounded-full bg-accent border-4 border-background shadow-[0_0_15px_rgba(21,255,113,0.5)] cursor-pointer"></div>
+                                            <span className="text-[10px] font-black text-accent mt-3">1.2</span>
+                                        </div>
+                                        <div className="absolute left-[70%] top-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 flex flex-col items-center">
+                                            <div className="w-5 h-5 rounded-full bg-accent border-4 border-background shadow-[0_0_15px_rgba(21,255,113,0.5)] cursor-pointer"></div>
+                                            <span className="text-[10px] font-black text-accent mt-3">2.5</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="md:col-span-2 flex gap-4">
+                                    <div className="flex-1 bg-white/5 border border-white/10 rounded-xl py-4 text-center text-sm font-black">1.2</div>
+                                    <div className="flex-1 bg-white/5 border border-white/10 rounded-xl py-4 text-center text-sm font-black">2.5</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Power Management */}
+                    <div className="bg-card rounded-[2.5rem] border border-white/5 p-10 relative overflow-hidden group">
+                        <div className="flex items-center gap-4 mb-10">
+                            <div className="p-3 bg-accent/10 rounded-2xl text-accent">
+                                <Zap size={24} />
+                            </div>
+                            <h2 className="text-2xl font-black tracking-tight">Power Management</h2>
+                        </div>
+
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+                            <div className="lg:col-span-8 flex flex-col">
+                                <div className="flex justify-between items-end mb-6">
+                                    <div className="space-y-1">
+                                        <h3 className="text-lg font-bold">Critical Battery Percentage (%)</h3>
+                                        <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Trigger power-saving mode when node battery reaches this level.</p>
+                                    </div>
+                                    <span className="text-4xl font-black text-accent">20%</span>
+                                </div>
+                                <div className="relative h-2 bg-white/5 rounded-full mt-2">
+                                    <div className="absolute left-0 w-[20%] h-full bg-accent rounded-full shadow-[0_0_15px_rgba(21,255,113,0.3)]"></div>
+                                    <div className="absolute left-[20%] top-1/2 -translate-y-1/2 -translate-x-1/2 w-5 h-5 rounded-full bg-accent border-4 border-background shadow-[0_0_15px_rgba(21,255,113,0.5)] cursor-pointer"></div>
+                                </div>
+                            </div>
+
+                            <div className="lg:col-span-4 flex justify-end">
+                                <div className="bg-white/5 border border-white/10 p-8 rounded-[2rem] flex items-center justify-between gap-10 w-full lg:w-auto">
+                                    <div>
+                                        <div className="text-xs font-black text-white uppercase tracking-wider mb-1">Auto-Power Saving</div>
+                                        <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Optimization Enabled</div>
+                                    </div>
+                                    <button
+                                        onClick={() => setAutoPowerSaving(!autoPowerSaving)}
+                                        className={`w-16 h-9 rounded-full p-1.5 transition-all duration-300 ${autoPowerSaving ? 'bg-accent shadow-[0_0_20px_rgba(21,255,113,0.3)]' : 'bg-white/10'}`}
+                                    >
+                                        <div className={`w-6 h-6 rounded-full bg-white shadow-xl transform transition-transform duration-300 ${autoPowerSaving ? 'translate-x-7' : 'translate-x-0'}`}></div>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Notification Matrix */}
+                    <div className="bg-card rounded-[2.5rem] border border-white/5 overflow-hidden">
+                        <div className="p-10 border-b border-white/5">
+                            <div className="flex items-center gap-4">
+                                <div className="p-3 bg-accent/10 rounded-2xl text-accent">
+                                    <Bell size={24} />
+                                </div>
+                                <h2 className="text-2xl font-black tracking-tight">Notification Matrix</h2>
+                            </div>
+                        </div>
+                        <div className="w-full overflow-x-auto">
+                            <table className="w-full text-left">
+                                <thead className="bg-white/[0.02] border-b border-white/5">
+                                    <tr>
+                                        <th className="p-10 text-[10px] font-black text-gray-500 uppercase tracking-widest">Alert Trigger</th>
+                                        <th className="p-10 text-[10px] font-black text-gray-500 uppercase tracking-widest text-center">Push App</th>
+                                        <th className="p-10 text-[10px] font-black text-gray-500 uppercase tracking-widest text-center">SMS</th>
+                                        <th className="p-10 text-[10px] font-black text-gray-500 uppercase tracking-widest text-center">Email</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-white/5">
+                                    {notificationMatrix.map((item, i) => (
+                                        <tr key={i} className="hover:bg-white/[0.01] transition-colors group">
+                                            <td className="p-10 font-bold text-xl text-gray-300 group-hover:text-white transition-colors">{item.trigger}</td>
+                                            <td className="p-10">
+                                                <div className="flex justify-center">
+                                                    <div className={`w-7 h-7 rounded-full flex items-center justify-center border-2 transition-all ${item.push ? 'bg-accent border-accent text-background shadow-[0_0_15px_rgba(21,255,113,0.3)]' : 'border-white/10'}`}>
+                                                        {item.push && <Check size={16} strokeWidth={4} />}
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="p-10">
+                                                <div className="flex justify-center">
+                                                    <div className={`w-7 h-7 rounded-full flex items-center justify-center border-2 transition-all ${item.sms ? 'bg-accent border-accent text-background shadow-[0_0_15px_rgba(21,255,113,0.3)]' : 'border-white/10'}`}>
+                                                        {item.sms && <Check size={16} strokeWidth={4} />}
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="p-10">
+                                                <div className="flex justify-center">
+                                                    <div className={`w-7 h-7 rounded-full flex items-center justify-center border-2 transition-all ${item.email ? 'bg-accent border-accent text-background shadow-[0_0_15px_rgba(21,255,113,0.3)]' : 'border-white/10'}`}>
+                                                        {item.email && <Check size={16} strokeWidth={4} />}
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Floating Action Bar */}
+            <div className="fixed bottom-10 left-1/2 -translate-x-1/2 w-full max-w-[1200px] px-10 z-50">
+                <div className="bg-card/80 backdrop-blur-2xl border border-white/10 rounded-[2.5rem] p-6 shadow-2xl flex items-center justify-between ml-[128px]">
+                    <div className="flex items-center gap-4 px-6">
+                        <div className="text-gray-400 text-sm font-bold italic opacity-60">
+                            Settings will be broadcast to 12 active sensor nodes instantly.
+                        </div>
+                    </div>
+                    <div className="flex gap-4">
+                        <button className="px-12 py-5 bg-white/5 hover:bg-white/10 rounded-2xl text-xs font-black uppercase tracking-widest transition-all">
+                            Discard
+                        </button>
+                        <button className="px-12 py-5 bg-accent text-[#020603] hover:scale-[1.05] active:scale-[0.95] rounded-2xl text-xs font-black uppercase tracking-widest shadow-[0_10px_30px_rgba(21,255,113,0.3)] transition-all flex items-center gap-3">
+                            <Save size={18} />
+                            Save All Changes
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+}

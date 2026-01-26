@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Ag AI - System Workflow Flowchart</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        h2 {
+            color: #2E7D32;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            font-size: 2em;
+            border-bottom: 3px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+
+        h3 {
+            color: #4CAF50;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .component-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .component-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .component-card h3 {
+            margin-top: 0;
+            color: #2E7D32;
+            font-size: 1.3em;
+        }
+
+        .flowchart-container {
+            background: #f9fafb;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .mermaid {
+            text-align: center;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th {
+            background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        tr:hover {
+            background: #f5f5f5;
+        }
+
+        .hardware-list, .workflow-list {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .hardware-list li, .workflow-list li {
+            padding: 10px 0;
+            padding-left: 30px;
+            position: relative;
+        }
+
+        .hardware-list li:before {
+            content: "🔧";
+            position: absolute;
+            left: 0;
+        }
+
+        .workflow-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #4CAF50;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .data-flow {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+            text-align: center;
+            font-size: 1.1em;
+            line-height: 2;
+        }
+
+        .data-flow-arrow {
+            font-size: 1.5em;
+            display: block;
+            margin: 10px 0;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin: 5px;
+        }
+
+        .badge-device { background: #4CAF50; color: white; }
+        .badge-backend { background: #2196F3; color: white; }
+        .badge-database { background: #009688; color: white; }
+        .badge-frontend { background: #00BCD4; color: white; }
+
+        .alert {
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 5px solid;
+        }
+
+        .alert-info {
+            background: #e3f2fd;
+            border-color: #2196F3;
+            color: #1565C0;
+        }
+
+        .alert-success {
+            background: #e8f5e9;
+            border-color: #4CAF50;
+            color: #2E7D32;
+        }
+
+        .alert-warning {
+            background: #fff3e0;
+            border-color: #FF9800;
+            color: #E65100;
+        }
+
+        footer {
+            background: #2E7D32;
+            color: white;
+            text-align: center;
+            padding: 30px;
+            margin-top: 50px;
+        }
+
+        code {
+            background: #f5f5f5;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #d32f2f;
+        }
+
+        .timing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .timing-item {
+            background: #e8f5e9;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .timing-item strong {
+            color: #2E7D32;
+            display: block;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌾 Smart Ag AI - System Workflow</h1>
+            <p>Complete End-to-End IoT System Architecture & Data Flow</p>
+        </header>
+
+        <div class="content">
+            <div class="alert alert-success">
+                <strong>📊 System Overview</strong><br>
+                This flowchart illustrates the complete end-to-end workflow of the Smart Agriculture IoT system, from device initialization to real-time dashboard visualization and control.
+            </div>
+
+            <h2>🏗️ System Architecture Overview</h2>
+            <div class="overview-grid">
+                <div class="component-card">
+                    <h3>🔧 IoT Device</h3>
+                    <span class="badge badge-device">ESP32/ESP8266</span>
+                    <p>Hardware sensors and controllers that collect environmental data and control irrigation systems.</p>
+                </div>
+                <div class="component-card">
+                    <h3>⚙️ Backend Server</h3>
+                    <span class="badge badge-backend">Node.js + Express</span>
+                    <p>MQTT Broker, REST API, and Socket.io server for real-time communication.</p>
+                </div>
+                <div class="component-card">
+                    <h3>🗄️ Database</h3>
+                    <span class="badge badge-database">PostgreSQL</span>
+                    <p>Supabase-hosted database with Prisma ORM for data persistence.</p>
+                </div>
+                <div class="component-card">
+                    <h3>🖥️ Dashboard</h3>
+                    <span class="badge badge-frontend">Next.js 15</span>
+                    <p>Modern web application for monitoring and controlling devices in real-time.</p>
+                </div>
+            </div>
+
+            <h2>📊 Complete System Workflow Diagram</h2>
+            <div class="flowchart-container">
+                <div class="mermaid">
+flowchart TB
+    Start([👤 Farmer Starts System]) --> StartBackend[⚙️ Start Backend Server]
+    
+    StartBackend --> BackendInit{Backend Initialization}
+    BackendInit --> HTTPServer[🌐 HTTP Server<br/>Port 5000]
+    BackendInit --> MQTTBroker[📡 MQTT Broker<br/>Port 1883]
+    BackendInit --> SocketIO[🔌 Socket.io Server<br/>WebSocket Ready]
+    BackendInit --> Database[(🗄️ PostgreSQL<br/>via Supabase)]
+    
+    Start --> ConfigDevice[⚙️ Configure ESP32 Device]
+    ConfigDevice --> SetWiFi[📝 Set WiFi Credentials<br/>SSID & Password]
+    SetWiFi --> SetMQTT[📝 Set MQTT Server IP<br/>PC IP Address]
+    SetMQTT --> UploadCode[⬆️ Upload Arduino Code<br/>to ESP32]
+    
+    UploadCode --> DevicePower([🔌 Power On Device])
+    DevicePower --> DeviceInit[⚙️ Device Initialization]
+    
+    DeviceInit --> WiFiConnect{WiFi<br/>Connected?}
+    WiFiConnect -->|No| WiFiRetry[⏳ Retry in 5s]
+    WiFiRetry --> WiFiConnect
+    WiFiConnect -->|Yes| WiFiSuccess[✅ WiFi Connected]
+    
+    WiFiSuccess --> MQTTConnect{MQTT<br/>Connected?}
+    MQTTConnect -->|No| MQTTRetry[⏳ Retry in 5s]
+    MQTTRetry --> MQTTConnect
+    MQTTConnect -->|Yes| MQTTSuccess[✅ MQTT Connected]
+    
+    MQTTSuccess --> RegisterDevice[📋 Register Device<br/>POST /api/devices/register]
+    RegisterDevice --> DeviceDB[(💾 Store in Database<br/>Device Table)]
+    
+    DeviceDB --> SensorLoop[🔄 Start Sensor Loop<br/>Every 10 seconds]
+    
+    SensorLoop --> ReadSensors[📊 Read Sensors]
+    ReadSensors --> DHTSensor[🌡️ DHT22 Sensor<br/>Temperature & Humidity]
+    ReadSensors --> MoistureSensor[💧 Soil Moisture<br/>Capacitive Sensor]
+    ReadSensors --> RainSensor[🌧️ Rain Sensor<br/>Analog Reading]
+    
+    DHTSensor --> BuildJSON[📦 Build JSON Payload]
+    MoistureSensor --> BuildJSON
+    RainSensor --> BuildJSON
+    
+    BuildJSON --> PublishMQTT[📤 Publish to MQTT<br/>Topic: smartag/DEVICE_ID/sensors]
+    
+    PublishMQTT --> MQTTBroker
+    MQTTBroker --> BrokerReceive[📨 Broker Receives Data]
+    BrokerReceive --> ParseTopic{Parse<br/>Topic}
+    
+    ParseTopic -->|sensors| SaveData[💾 Save Sensor Data<br/>saveSensorData]
+    ParseTopic -->|pump/status| LogPump[📝 Log Pump Action<br/>logPumpAction]
+    
+    SaveData --> FindDevice{Device<br/>Exists?}
+    FindDevice -->|No| WarnDevice[⚠️ Warning: Device Not Found]
+    FindDevice -->|Yes| CreateRecord[✍️ Create SensorData Record]
+    
+    CreateRecord --> UpdateStatus[🔄 Update Device Status<br/>ACTIVE]
+    UpdateStatus --> BroadcastSocket[📡 Broadcast via Socket.io<br/>Event: sensorData]
+    
+    LogPump --> CreatePumpLog[✍️ Create PumpLog Record]
+    CreatePumpLog --> BroadcastPump[📡 Broadcast via Socket.io<br/>Event: pumpStatus]
+    
+    Start --> StartDashboard[🖥️ Start Dashboard<br/>npm run dev]
+    StartDashboard --> NextJS[⚛️ Next.js Application<br/>Port 3000]
+    NextJS --> UserLogin[🔐 User Login<br/>Supabase Auth]
+    
+    UserLogin --> FetchDevices[📥 Fetch User Devices<br/>GET /api/devices?userId=XXX]
+    FetchDevices --> DisplayDevices[📱 Display Device Cards]
+    
+    DisplayDevices --> ConnectSocket[🔌 Connect to Socket.io]
+    ConnectSocket --> SubscribeDevice[📍 Subscribe to Device Updates<br/>socket.on sensorData]
+    
+    BroadcastSocket --> SocketReceive[📨 Dashboard Receives Update]
+    SocketReceive --> UpdateUI[🔄 Update Real-time UI]
+    
+    UpdateUI --> ShowMetrics[📊 Display Metrics]
+    ShowMetrics --> TempCard[🌡️ Temperature Card]
+    ShowMetrics --> HumidityCard[💧 Humidity Card]
+    ShowMetrics --> MoistureCard[🌱 Soil Moisture Card]
+    ShowMetrics --> RainCard[🌧️ Rain Status Card]
+    
+    UpdateUI --> UpdateCharts[📈 Update Charts<br/>Historical Data]
+    UpdateUI --> UpdateMap[🗺️ Update Digital Twin Map<br/>Device Markers]
+    
+    ShowMetrics --> UserAction{User<br/>Action?}
+    UserAction -->|Control Pump| PumpControl[🚰 Click Pump Control]
+    UserAction -->|View Analytics| Analytics[📊 View Analytics Page]
+    UserAction -->|Monitor| ContinueMonitor[👀 Continue Monitoring]
+    
+    PumpControl --> SendCommand[📤 POST /api/devices/DEVICE_ID/pump<br/>status: ON/OFF]
+    SendCommand --> PublishCommand[📡 Publish MQTT Command<br/>Topic: smartag/DEVICE_ID/pump/command]
+    
+    PublishCommand --> DeviceReceive[📥 Device Receives Command]
+    DeviceReceive --> ParseCommand{Parse<br/>Command}
+    ParseCommand -->|ON| TurnPumpOn[⚡ Turn Relay ON<br/>digitalWrite HIGH]
+    ParseCommand -->|OFF| TurnPumpOff[⏹️ Turn Relay OFF<br/>digitalWrite LOW]
+    
+    TurnPumpOn --> PublishStatus[📤 Publish Pump Status<br/>Topic: smartag/DEVICE_ID/pump/status]
+    TurnPumpOff --> PublishStatus
+    
+    PublishStatus --> LogPump
+    BroadcastPump --> UpdatePumpUI[🔄 Update Pump Status UI]
+    
+    ContinueMonitor --> SensorLoop
+    UpdatePumpUI --> SensorLoop
+    Analytics --> SensorLoop
+    
+    WiFiConnect -.->|Timeout| ErrorWiFi[❌ WiFi Connection Failed]
+    MQTTConnect -.->|Timeout| ErrorMQTT[❌ MQTT Connection Failed]
+    ErrorWiFi -.-> Troubleshoot[🔧 Troubleshoot<br/>Check Credentials/Network]
+    ErrorMQTT -.-> Troubleshoot
+    
+    style Start fill:#4CAF50,stroke:#2E7D32,stroke-width:3px,color:#fff
+    style DevicePower fill:#4CAF50,stroke:#2E7D32,stroke-width:3px,color:#fff
+    style HTTPServer fill:#2196F3,stroke:#1565C0,stroke-width:2px,color:#fff
+    style MQTTBroker fill:#FF9800,stroke:#E65100,stroke-width:2px,color:#fff
+    style SocketIO fill:#9C27B0,stroke:#4A148C,stroke-width:2px,color:#fff
+    style Database fill:#009688,stroke:#004D40,stroke-width:2px,color:#fff
+    style NextJS fill:#00BCD4,stroke:#006064,stroke-width:2px,color:#fff
+    style ErrorWiFi fill:#F44336,stroke:#B71C1C,stroke-width:2px,color:#fff
+    style ErrorMQTT fill:#F44336,stroke:#B71C1C,stroke-width:2px,color:#fff
+    style WiFiSuccess fill:#8BC34A,stroke:#33691E,stroke-width:2px,color:#fff
+    style MQTTSuccess fill:#8BC34A,stroke:#33691E,stroke-width:2px,color:#fff
+                </div>
+            </div>
+
+            <h2>🔧 Component Details</h2>
+
+            <h3>1. IoT Device (ESP32/ESP8266)</h3>
+            <div class="alert alert-info">
+                <strong>Hardware Components:</strong>
+                <ul class="hardware-list">
+                    <li>DHT22 Temperature & Humidity Sensor (GPIO 4)</li>
+                    <li>Capacitive Soil Moisture Sensor (GPIO 34)</li>
+                    <li>Rain Sensor (GPIO 35)</li>
+                    <li>Relay Module for Pump Control (GPIO 5)</li>
+                </ul>
+            </div>
+
+            <strong>Device Workflow:</strong>
+            <ol class="workflow-list">
+                <li>Power on and initialize</li>
+                <li>Connect to WiFi network (2.4GHz)</li>
+                <li>Connect to MQTT broker (PC's IP address)</li>
+                <li>Subscribe to command topic: <code>smartag/{deviceId}/pump/command</code></li>
+                <li>Read sensors every 10 seconds</li>
+                <li>Publish sensor data to: <code>smartag/{deviceId}/sensors</code></li>
+                <li>Listen for pump control commands</li>
+                <li>Execute pump commands and publish status</li>
+            </ol>
+
+            <h3>2. Backend Server (Node.js + Express)</h3>
+            <p><strong>Server Components:</strong></p>
+            <ul>
+                <li><strong>HTTP Server</strong> (Port 5000): REST API endpoints</li>
+                <li><strong>MQTT Broker</strong> (Port 1883): Aedes MQTT broker for device communication</li>
+                <li><strong>Socket.io Server</strong>: Real-time updates to dashboard</li>
+                <li><strong>Prisma ORM</strong>: Database operations</li>
+            </ul>
+
+            <p><strong>Key API Endpoints:</strong></p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Method</th>
+                        <th>Endpoint</th>
+                        <th>Purpose</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>POST</code></td>
+                        <td>/api/devices/register</td>
+                        <td>Register new device</td>
+                    </tr>
+                    <tr>
+                        <td><code>GET</code></td>
+                        <td>/api/devices?userId=XXX</td>
+                        <td>Get user's devices</td>
+                    </tr>
+                    <tr>
+                        <td><code>GET</code></td>
+                        <td>/api/sensors/:deviceId</td>
+                        <td>Get sensor history</td>
+                    </tr>
+                    <tr>
+                        <td><code>POST</code></td>
+                        <td>/api/devices/:deviceId/pump</td>
+                        <td>Control pump</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p><strong>MQTT Topics:</strong></p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Topic</th>
+                        <th>Direction</th>
+                        <th>Purpose</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>smartag/{deviceId}/sensors</code></td>
+                        <td>Device → Broker</td>
+                        <td>Sensor data from device</td>
+                    </tr>
+                    <tr>
+                        <td><code>smartag/{deviceId}/pump/command</code></td>
+                        <td>Broker → Device</td>
+                        <td>Pump commands to device</td>
+                    </tr>
+                    <tr>
+                        <td><code>smartag/{deviceId}/pump/status</code></td>
+                        <td>Device → Broker</td>
+                        <td>Pump status from device</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>3. Database (PostgreSQL via Supabase)</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Table</th>
+                        <th>Purpose</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>users</code></td>
+                        <td>User accounts and authentication</td>
+                    </tr>
+                    <tr>
+                        <td><code>devices</code></td>
+                        <td>Registered IoT devices</td>
+                    </tr>
+                    <tr>
+                        <td><code>sensor_data</code></td>
+                        <td>Time-series sensor readings</td>
+                    </tr>
+                    <tr>
+                        <td><code>pump_logs</code></td>
+                        <td>Pump action history</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>4. Dashboard (Next.js 15 + React)</h3>
+            <p><strong>Pages:</strong></p>
+            <ul>
+                <li><code>/login</code> - User authentication</li>
+                <li><code>/dashboard</code> - Real-time monitoring with device cards</li>
+                <li><code>/analytics</code> - Historical data visualization</li>
+                <li><code>/settings</code> - User and device management</li>
+            </ul>
+
+            <p><strong>Key Components:</strong></p>
+            <ul>
+                <li><strong>Device Cards</strong> - Show real-time metrics (temperature, humidity, moisture, rain)</li>
+                <li><strong>DigitalTwinMap</strong> - Interactive map with device locations</li>
+                <li><strong>Charts</strong> - Historical trends using Recharts</li>
+                <li><strong>Pump Controls</strong> - Manual/auto pump operation</li>
+            </ul>
+
+            <h2>📈 Data Flow Summary</h2>
+            <div class="data-flow">
+                <strong>Monitoring Flow (Sensors → Dashboard):</strong>
+                <div class="data-flow-arrow">↓</div>
+                [ESP32 Device] → [MQTT Broker] → [Backend Server] → [PostgreSQL Database] → [Socket.io] → [Next.js Dashboard] → [User Interface]
+            </div>
+
+            <div class="data-flow">
+                <strong>Control Flow (Dashboard → Device):</strong>
+                <div class="data-flow-arrow">↓</div>
+                [User Interface] → [Backend API] → [MQTT Broker] → [ESP32 Device] → [Relay/Pump Hardware] → [Status Update Back to Dashboard]
+            </div>
+
+            <h2>⚙️ Technology Stack</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Layer</th>
+                        <th>Technology</th>
+                        <th>Purpose</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Device</strong></td>
+                        <td>ESP32/ESP8266</td>
+                        <td>Microcontroller</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Communication</strong></td>
+                        <td>MQTT</td>
+                        <td>Lightweight IoT messaging</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Backend</strong></td>
+                        <td>Node.js + Express</td>
+                        <td>REST API server</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Broker</strong></td>
+                        <td>Aedes</td>
+                        <td>MQTT broker implementation</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Database</strong></td>
+                        <td>PostgreSQL + Prisma</td>
+                        <td>Data persistence</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Real-time</strong></td>
+                        <td>Socket.io</td>
+                        <td>WebSocket bidirectional communication</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Frontend</strong></td>
+                        <td>Next.js 15 + React</td>
+                        <td>Modern web framework</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Styling</strong></td>
+                        <td>Tailwind CSS</td>
+                        <td>Utility-first CSS</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Auth</strong></td>
+                        <td>Supabase</td>
+                        <td>User authentication</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Charts</strong></td>
+                        <td>Recharts</td>
+                        <td>Data visualization</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>⏱️ System Timing</h2>
+            <div class="timing-grid">
+                <div class="timing-item">
+                    <strong>Sensor Reading</strong>
+                    Every 10 seconds
+                </div>
+                <div class="timing-item">
+                    <strong>WiFi Reconnect</strong>
+                    Retry every 5 seconds
+                </div>
+                <div class="timing-item">
+                    <strong>MQTT Reconnect</strong>
+                    Retry every 5 seconds
+                </div>
+                <div class="timing-item">
+                    <strong>Dashboard Update</strong>
+                    Real-time (&lt; 1 second)
+                </div>
+                <div class="timing-item">
+                    <strong>Database Write</strong>
+                    Immediate on receipt
+                </div>
+            </div>
+
+            <h2>🔧 Error Handling & Recovery</h2>
+            <div class="alert alert-warning">
+                <strong>1. WiFi Connection Failed:</strong>
+                <ul>
+                    <li>Check SSID and password</li>
+                    <li>Ensure 2.4GHz network (ESP32 doesn't support 5GHz)</li>
+                    <li>Auto-retry every 5 seconds</li>
+                </ul>
+            </div>
+
+            <div class="alert alert-warning">
+                <strong>2. MQTT Connection Failed:</strong>
+                <ul>
+                    <li>Verify backend server is running</li>
+                    <li>Check PC IP address matches device config</li>
+                    <li>Ensure firewall allows port 1883</li>
+                    <li>Auto-retry every 5 seconds</li>
+                </ul>
+            </div>
+
+            <div class="alert alert-warning">
+                <strong>3. Device Not Registered:</strong>
+                <ul>
+                    <li>Backend logs warning</li>
+                    <li>Data is not saved</li>
+                    <li>User must register device via API</li>
+                </ul>
+            </div>
+        </div>
+
+        <footer>
+            <h3>🌾 Smart Ag AI - IoT Agriculture System</h3>
+            <p>Real-time, end-to-end monitoring and control for modern smart agriculture</p>
+            <p style="margin-top: 20px; opacity: 0.8;">Developed with ❤️ for the future of Farming</p>
+        </footer>
+    </div>
+
+    <script>
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            }
+        });
+    </script>
+</body>
+</html>

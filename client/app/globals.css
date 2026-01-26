@@ -1,0 +1,34 @@
+@import "tailwindcss";
+
+:root {
+  --background: #020603;
+  --foreground: #ffffff;
+  --card: #0d1a11;
+  --sidebar: #061008;
+  --accent: #15ff71;
+  --accent-muted: #1a3a24;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-sidebar: var(--sidebar);
+  --color-accent: var(--accent);
+  --color-accent-muted: var(--accent-muted);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.glass-card {
+  background: rgba(13, 26, 17, 0.6);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}

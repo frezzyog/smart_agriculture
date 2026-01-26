@@ -1,0 +1,26 @@
+node_modules
+.env
+.env.local
+.env.*.local
+.venv
+venv
+/generated/prisma
+
+# Logs
+*.log
+*_log.txt
+client/build_log*.txt
+
+# Next.js
+client/.next/
+client/out/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# OS files
+.DS_Store
+Thumbs.db
