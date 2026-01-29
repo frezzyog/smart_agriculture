@@ -74,7 +74,7 @@ const AIInsightsPage = () => {
     const unreadAlertsCount = alerts.data?.filter(a => !a.isRead).length || 0
 
     return (
-        <div className="ml-64 p-10 min-h-screen bg-background transition-colors duration-300">
+        <div className="lg:ml-64 p-4 md:p-10 min-h-screen bg-background transition-all duration-500">
             <div className="max-w-[1600px] mx-auto space-y-8 animate-in fade-in duration-700">
                 {/* Header Section */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">

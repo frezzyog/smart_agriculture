@@ -29,7 +29,7 @@ export default function DashboardPage() {
     }, [])
 
     return (
-        <div className="ml-64 p-10 min-h-screen bg-background">
+        <div className="lg:ml-64 p-4 md:p-10 min-h-screen bg-background transition-all duration-500">
             <div className="max-w-[1600px] mx-auto space-y-10">
                 {/* Top Row: KPIs */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

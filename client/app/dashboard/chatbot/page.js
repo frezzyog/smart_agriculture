@@ -92,7 +92,7 @@ export default function ChatbotPage() {
     }
 
     return (
-        <div className="ml-64 p-10 min-h-screen bg-background text-white">
+        <div className="lg:ml-64 p-4 md:p-10 min-h-screen bg-background text-white transition-all duration-500">
             <div className="max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10">
                 {/* Chat Section */}
                 <div className="lg:col-span-8 flex flex-col h-[calc(100vh-160px)]">

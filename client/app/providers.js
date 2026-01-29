@@ -5,6 +5,8 @@ import { useState } from 'react'
 import { Toaster } from 'react-hot-toast'
 import { ThemeProvider } from 'next-themes'
 
+import { SidebarProvider } from '@/context/SidebarContext'
+
 export default function Providers({ children }) {
     const [queryClient] = useState(() => new QueryClient({
         defaultOptions: {
@@ -18,7 +20,9 @@ export default function Providers({ children }) {
     return (
         <QueryClientProvider client={queryClient}>
             <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-                {children}
+                <SidebarProvider>
+                    {children}
+                </SidebarProvider>
                 <Toaster position="top-right" />
             </ThemeProvider>
         </QueryClientProvider>

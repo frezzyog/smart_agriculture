@@ -195,7 +195,7 @@ export default function ReportBuilderPage() {
 
     if (loading) {
         return (
-            <div className="ml-64 flex items-center justify-center min-h-screen bg-background">
+            <div className="lg:ml-64 flex items-center justify-center min-h-screen bg-background transition-all duration-500">
                 <div className="flex flex-col items-center gap-4">
                     <Loader2 className="w-12 h-12 text-accent animate-spin" />
                     <p className="text-gray-500 font-bold uppercase tracking-widest text-xs">Loading Farm Data...</p>
@@ -205,7 +205,7 @@ export default function ReportBuilderPage() {
     }
 
     return (
-        <div className="ml-64 flex flex-col min-h-screen bg-background text-foreground">
+        <div className="lg:ml-64 flex flex-col min-h-screen bg-background text-foreground transition-all duration-500">
             {/* Top Toolbar */}
             <header className="h-20 border-b border-border bg-sidebar/50 backdrop-blur-xl flex items-center justify-between px-10 sticky top-0 z-40">
                 <div className="flex items-center gap-4">
