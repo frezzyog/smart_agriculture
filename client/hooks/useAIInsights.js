@@ -46,7 +46,9 @@ export function useAIInsights(zoneId = 'main-zone') {
         queryFn: async () => {
             const devices = await getDevices()
             if (devices && devices.length > 0) {
-                const data = await getSensorData(devices[0].device_id, { limit: 1 })
+                const device = devices[0]
+                const id = device.deviceId || device.device_id || device.id
+                const data = await getSensorData(id, { limit: 1 })
                 return data && data.length > 0 ? data[0] : null
             }
             return null
