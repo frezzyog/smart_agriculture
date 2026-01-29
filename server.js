@@ -255,24 +255,39 @@ async function logPumpAction(deviceId, data) {
             where: { deviceId }
         })
 
-        if (!device) return
+        if (!device) {
+            console.warn(`⚠️ Cannot log pump action: Device ${deviceId} not found`)
+            return
+        }
+
+        // Normalize action for Prisma enum (ON, OFF, AUTO)
+        let normalizedAction = 'OFF'
+        const rawAction = (data.status || data.action || '').toString().toUpperCase()
+
+        if (rawAction === 'ON' || rawAction === '1' || rawAction === 'TRUE' || rawAction === 'START') {
+            normalizedAction = 'ON'
+        } else if (rawAction === 'AUTO' || rawAction === 'SMART') {
+            normalizedAction = 'AUTO'
+        }
 
         await prisma.pumpLog.create({
             data: {
                 deviceId: device.id,
-                action: data.action || 'OFF',
-                duration: data.duration || null,
+                action: normalizedAction,
+                duration: parseInt(data.duration) || null,
                 triggeredBy: data.triggeredBy || 'manual',
                 metadata: JSON.stringify({
-                    pump_type: data.type || 'WATER'
+                    pump_type: data.type || 'WATER',
+                    raw_status: data.status || data.action,
+                    timestamp_ms: Date.now()
                 }),
                 timestamp: new Date()
             }
         })
 
-        console.log(`✅ ${data.type || 'WATER'} Pump action logged for device: ${deviceId}`)
+        console.log(`✅ ${data.type || 'WATER'} Pump (${normalizedAction}) logged for device: ${deviceId}`)
     } catch (error) {
-        console.error('❌ Error logging pump action:', error)
+        console.error(`❌ Error logging pump action for ${deviceId}:`, error.message)
     }
 }
 
@@ -398,6 +413,38 @@ app.get('/api/alerts', async (req, res) => {
     } catch (error) {
         console.error('Error fetching alerts:', error)
         res.status(500).json({ error: 'Failed to fetch alerts' })
+    }
+})
+
+// Get irrigation logs (pump logs)
+app.get('/api/irrigation-logs', async (req, res) => {
+    try {
+        const userId = req.query.userId || req.headers['x-user-id']
+        const deviceId = req.query.deviceId
+
+        const logs = await prisma.pumpLog.findMany({
+            where: {
+                device: {
+                    ...(userId ? { userId } : {}),
+                    ...(deviceId ? { deviceId } : {})
+                }
+            },
+            orderBy: { timestamp: 'desc' },
+            take: 100,
+            include: {
+                device: {
+                    include: {
+                        zone: true
+                    }
+                }
+            }
+        })
+
+        // Transform for frontend if needed, but we'll keep it raw for now and let frontend handle it
+        res.json(logs)
+    } catch (error) {
+        console.error('Error fetching irrigation logs:', error)
+        res.status(500).json({ error: 'Failed to fetch irrigation logs' })
     }
 })
 

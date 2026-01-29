@@ -19,7 +19,8 @@ export const getSensorData = async (deviceId, params = {}) => {
 }
 
 export const controlPump = async (deviceId, status) => {
-    const response = await api.post(`/api/devices/${deviceId}/pump`, { status })
+    const payload = typeof status === 'object' ? status : { status }
+    const response = await api.post(`/api/devices/${deviceId}/pump`, payload)
     return response.data
 }
 
@@ -71,6 +72,11 @@ export const getDigitalTwin = async (zoneId) => {
         ]
     }
     const response = await api.get(`/api/ai/digital-twin/${zoneId}`)
+    return response.data
+}
+
+export const getIrrigationLogs = async (params = {}) => {
+    const response = await api.get('/api/irrigation-logs', { params })
     return response.data
 }
 
