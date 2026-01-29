@@ -48,17 +48,17 @@ const AIRecommendations = () => {
                             <div className={`mt-1 ${rec.color}`}>
                                 <rec.icon size={18} />
                             </div>
-                            <div className="flex-1">
-                                <div className="flex items-center justify-between mb-1">
-                                    <h4 className="text-sm font-bold text-foreground">{rec.title}</h4>
-                                    <span className={`text-[10px] font-black uppercase tracking-widest ${rec.impact === 'High' ? 'text-red-500' :
+                            <div className="flex-1 min-w-0">
+                                <div className="flex flex-col xs:flex-row xs:items-center justify-between mb-1 gap-1">
+                                    <h4 className="text-sm font-bold text-foreground truncate">{rec.title}</h4>
+                                    <span className={`text-[9px] md:text-[10px] font-black uppercase tracking-widest shrink-0 ${rec.impact === 'High' ? 'text-red-500' :
                                         rec.impact === 'Medium' ? 'text-yellow-500' :
                                             'text-blue-500'
                                         }`}>
                                         Impact: {rec.impact}
                                     </span>
                                 </div>
-                                <p className="text-xs text-foreground/40 group-hover/item:text-foreground/60 transition-all">{rec.description}</p>
+                                <p className="text-xs text-foreground/40 group-hover/item:text-foreground/60 transition-all leading-relaxed">{rec.description}</p>
                             </div>
                             <button className="self-center p-2 text-foreground/40 hover:text-foreground transition-all opacity-0 group-hover/item:opacity-100">
                                 <ArrowRight size={16} />

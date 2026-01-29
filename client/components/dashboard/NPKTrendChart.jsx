@@ -16,12 +16,12 @@ const data = [
 const NPKTrendChart = () => {
     return (
         <div className="bg-card rounded-[2.5rem] p-8 border border-border h-full">
-            <div className="flex justify-between items-start mb-8">
+            <div className="flex flex-col sm:flex-row justify-between items-start mb-8 gap-4">
                 <div>
                     <h3 className="text-2xl font-bold text-foreground tracking-tight">NPK Levels (7-Day Trend)</h3>
                     <p className="text-foreground/50 text-sm font-medium mt-1">Measured in mg/kg Soil Mass</p>
                 </div>
-                <div className="flex gap-4">
+                <div className="flex flex-wrap gap-x-4 gap-y-2">
                     <div className="flex items-center gap-2">
                         <div className="w-2 h-2 rounded-full bg-[#ff6b6b]"></div>
                         <span className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest">Nitrogen (N)</span>

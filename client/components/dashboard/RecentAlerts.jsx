@@ -36,19 +36,19 @@ const RecentAlerts = () => {
 
             <div className="space-y-4">
                 {alerts.map((alert) => (
-                    <div key={alert.id} className="flex items-center justify-between p-6 bg-card rounded-[2rem] border border-border group hover:bg-foreground/5 transition-colors">
-                        <div className="flex items-center gap-6">
-                            <div className={`w-12 h-12 rounded-2xl ${alert.bg} flex items-center justify-center ${alert.color}`}>
-                                <alert.icon size={24} />
+                    <div key={alert.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-5 md:p-6 bg-card rounded-[2rem] border border-border group hover:bg-foreground/5 transition-colors gap-4">
+                        <div className="flex items-center gap-4 md:gap-6">
+                            <div className={`w-10 h-10 md:w-12 md:h-12 rounded-2xl ${alert.bg} flex items-center justify-center ${alert.color} shrink-0`}>
+                                <alert.icon size={20} className="md:w-6 md:h-6" />
                             </div>
                             <div>
-                                <h4 className="text-lg font-bold text-foreground tracking-tight">{alert.title}</h4>
-                                <p className="text-sm text-foreground/50 font-medium mt-0.5">{alert.description}</p>
+                                <h4 className="text-base md:text-lg font-bold text-foreground tracking-tight">{alert.title}</h4>
+                                <p className="text-xs md:text-sm text-foreground/50 font-medium mt-0.5">{alert.description}</p>
                             </div>
                         </div>
-                        <div className="text-right">
-                            <span className="text-xs font-bold text-foreground/40 block mb-2">{alert.time}</span>
-                            <span className={`text-[10px] font-black uppercase tracking-[0.2em] px-2 py-0.5 rounded ${alert.type === 'critical' ? 'bg-red-500/20 text-red-500' : 'bg-accent/20 text-accent'}`}>
+                        <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-2 sm:gap-0 border-t sm:border-t-0 border-border/50 pt-3 sm:pt-0">
+                            <span className="text-[10px] md:text-xs font-bold text-foreground/40 block sm:mb-2">{alert.time}</span>
+                            <span className={`text-[9px] md:text-[10px] font-black uppercase tracking-[0.1em] md:tracking-[0.2em] px-2 py-0.5 rounded ${alert.type === 'critical' ? 'bg-red-500/20 text-red-500' : 'bg-accent/20 text-accent'}`}>
                                 {alert.type}
                             </span>
                         </div>

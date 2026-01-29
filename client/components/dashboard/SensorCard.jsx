@@ -15,30 +15,30 @@ const SensorCard = ({ title, subtitle, moisture, ec, pH, status, icon: Icon }) =
                 </div>
             </div>
 
-            <div className="flex-1 flex items-center justify-between mb-10 gap-2">
-                <div className="text-center flex-1">
-                    <div className="text-4xl font-black text-accent tracking-tighter mb-1">{moisture}%</div>
-                    <div className="text-[9px] font-bold text-foreground/40 uppercase tracking-[0.1em]">Moisture</div>
+            <div className="flex-1 flex items-center justify-between mb-8 md:mb-10 gap-2">
+                <div className="text-center flex-1 min-w-0">
+                    <div className="text-2xl sm:text-3xl md:text-4xl font-black text-accent tracking-tighter mb-1 truncate">{moisture}%</div>
+                    <div className="text-[8px] md:text-[9px] font-bold text-foreground/40 uppercase tracking-[0.1em]">Moisture</div>
                 </div>
 
                 <div className="h-10 w-px bg-border shrink-0"></div>
 
-                <div className="text-center flex-1">
-                    <div className="text-3xl font-black text-foreground tracking-tighter mb-1">{ec}</div>
-                    <div className="text-[9px] font-bold text-foreground/40 uppercase tracking-[0.1em]">EC (mS)</div>
+                <div className="text-center flex-1 min-w-0">
+                    <div className="text-xl sm:text-2xl md:text-3xl font-black text-foreground tracking-tighter mb-1 truncate">{ec}</div>
+                    <div className="text-[8px] md:text-[9px] font-bold text-foreground/40 uppercase tracking-[0.1em]">EC (mS)</div>
                 </div>
 
                 <div className="h-10 w-px bg-border shrink-0"></div>
 
-                <div className="text-center flex-1">
-                    <div className="text-3xl font-black text-foreground tracking-tighter mb-1">{pH}</div>
-                    <div className="text-[9px] font-bold text-foreground/40 uppercase tracking-[0.1em]">pH Level</div>
+                <div className="text-center flex-1 min-w-0">
+                    <div className="text-xl sm:text-2xl md:text-3xl font-black text-foreground tracking-tighter mb-1 truncate">{pH}</div>
+                    <div className="text-[8px] md:text-[9px] font-bold text-foreground/40 uppercase tracking-[0.1em]">pH Level</div>
                 </div>
             </div>
 
-            <div className="mt-auto pt-6 border-t border-border flex justify-between items-center">
-                <span className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest">System Status</span>
-                <span className={`text-[10px] font-bold px-3 py-1 bg-accent/10 rounded-full ${status?.includes('Live') ? 'text-accent' : 'text-yellow-500'}`}>
+            <div className="mt-auto pt-4 md:pt-6 border-t border-border flex flex-col xs:flex-row justify-between items-center gap-2">
+                <span className="text-[9px] md:text-[10px] font-bold text-foreground/40 uppercase tracking-widest text-center xs:text-left">System Status</span>
+                <span className={`text-[9px] md:text-[10px] font-bold px-3 py-1 bg-accent/10 rounded-full whitespace-nowrap ${status?.includes('Live') ? 'text-accent' : 'text-yellow-500'}`}>
                     {status}
                 </span>
             </div>

@@ -31,17 +31,17 @@ const RecentTransactionsMinimal = ({ transactions = [] }) => {
                 {displayTransactions.map((t) => {
                     const Icon = t.icon || Receipt
                     return (
-                        <div key={t.id} className="px-6 py-4 flex items-center justify-between hover:bg-foreground/5 transition-colors">
-                            <div className="flex items-center gap-4">
-                                <div className={`p-2 bg-foreground/5 rounded-xl ${t.color || 'text-foreground/40'}`}>
-                                    <Icon size={18} />
+                        <div key={t.id} className="px-4 md:px-6 py-4 flex items-center justify-between hover:bg-foreground/5 transition-colors gap-2">
+                            <div className="flex items-center gap-3 md:gap-4 overflow-hidden">
+                                <div className={`p-2 bg-foreground/5 rounded-xl ${t.color || 'text-foreground/40'} shrink-0`}>
+                                    <Icon size={16} className="md:w-[18px] md:h-[18px]" />
                                 </div>
-                                <div>
-                                    <h4 className="font-bold text-xs truncate max-w-[120px] text-foreground">{t.title}</h4>
-                                    <p className="text-[10px] text-foreground/40 font-medium">{t.category}</p>
+                                <div className="overflow-hidden">
+                                    <h4 className="font-bold text-xs truncate max-w-[100px] sm:max-w-[140px] md:max-w-none text-foreground">{t.title}</h4>
+                                    <p className="text-[10px] text-foreground/40 font-medium truncate">{t.category}</p>
                                 </div>
                             </div>
-                            <div className={`text-sm font-black tracking-tight ${t.amount > 0 ? 'text-accent' : 'text-foreground'}`}>
+                            <div className={`text-sm font-black tracking-tight shrink-0 ${t.amount > 0 ? 'text-accent' : 'text-foreground'}`}>
                                 {t.amount > 0 ? '+' : ''}${Math.abs(t.amount).toFixed(0)}
                             </div>
                         </div>

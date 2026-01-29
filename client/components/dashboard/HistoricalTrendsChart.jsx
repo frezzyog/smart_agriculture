@@ -31,14 +31,14 @@ const CustomTooltip = ({ active, payload, label }) => {
 const HistoricalTrendsChart = () => {
     return (
         <div className="bg-card p-6 rounded-[2.5rem] border border-border shadow-xl h-[350px] flex flex-col">
-            <div className="mb-6 flex justify-between items-end">
+            <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
                 <div>
                     <h3 className="text-lg font-black text-foreground tracking-tight">Weekly Efficiency</h3>
                     <p className="text-xs font-bold text-foreground/40 uppercase tracking-widest">Soil Moisture Trends</p>
                 </div>
                 <div className="flex gap-2">
-                    <span className="px-3 py-1 bg-accent/10 text-accent text-[10px] font-bold uppercase tracking-wider rounded-lg">High: 72%</span>
-                    <span className="px-3 py-1 bg-red-500/10 text-red-500 text-[10px] font-bold uppercase tracking-wider rounded-lg">Low: 45%</span>
+                    <span className="px-3 py-1 bg-accent/10 text-accent text-[9px] md:text-[10px] font-bold uppercase tracking-wider rounded-lg">High: 72%</span>
+                    <span className="px-3 py-1 bg-red-500/10 text-red-500 text-[9px] md:text-[10px] font-bold uppercase tracking-wider rounded-lg">Low: 45%</span>
                 </div>
             </div>
 

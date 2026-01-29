@@ -31,9 +31,9 @@ const SensorHistoryChart = ({ data }) => {
     return (
         <div className="bg-card p-8 rounded-[2.5rem] border border-border shadow-xl h-[400px] flex flex-col relative overflow-hidden group">
             {/* Header */}
-            <div className="flex items-center justify-between mb-8 relative z-10">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 relative z-10 gap-4">
                 <div className="flex items-center gap-3">
-                    <div className="p-2.5 bg-blue-500 rounded-xl text-white shadow-lg shadow-blue-500/20">
+                    <div className="p-2.5 bg-blue-500 rounded-xl text-white shadow-lg shadow-blue-500/20 shrink-0">
                         <History size={20} />
                     </div>
                     <div>
@@ -45,12 +45,12 @@ const SensorHistoryChart = ({ data }) => {
                 {/* Legend Chips */}
                 <div className="flex gap-2">
                     <div className="flex items-center gap-2 px-3 py-1.5 bg-green-500/10 rounded-lg border border-green-500/20">
-                        <div className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse"></div>
-                        <span className="text-xs font-bold text-green-600">Moisture</span>
+                        <div className="w-2 h-2 md:w-2.5 md:h-2.5 rounded-full bg-green-500 animate-pulse"></div>
+                        <span className="text-[10px] md:text-xs font-bold text-green-600">Moisture</span>
                     </div>
                     <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-500/10 rounded-lg border border-blue-500/20">
-                        <div className="w-2.5 h-2.5 rounded-full bg-blue-500"></div>
-                        <span className="text-xs font-bold text-blue-600">Rain</span>
+                        <div className="w-2 h-2 md:w-2.5 md:h-2.5 rounded-full bg-blue-500"></div>
+                        <span className="text-[10px] md:text-xs font-bold text-blue-600">Rain</span>
                     </div>
                 </div>
             </div>

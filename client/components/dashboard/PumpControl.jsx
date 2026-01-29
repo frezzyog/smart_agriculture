@@ -33,13 +33,13 @@ const PumpControl = ({ deviceId = 'SMARTAG-001' }) => {
     }
 
     const ToggleRow = ({ label, type, enabled, setEnabled }) => (
-        <div className="flex items-center justify-between p-4 rounded-2xl bg-foreground/5 border border-border transition-all hover:bg-foreground/10 group">
-            <div className="flex items-center gap-4">
+        <div className="flex items-center justify-between p-4 rounded-2xl bg-foreground/5 border border-border transition-all hover:bg-foreground/10 group gap-2">
+            <div className="flex items-center gap-3 md:gap-4 overflow-hidden">
                 <Circle
                     size={8}
-                    className={`${enabled ? 'fill-accent text-accent animate-pulse shadow-[0_0_8px_rgba(21,255,113,0.5)]' : 'fill-foreground/20 text-foreground/20'}`}
+                    className={`${enabled ? 'fill-accent text-accent animate-pulse shadow-[0_0_8px_rgba(21,255,113,0.5)]' : 'fill-foreground/20 text-foreground/20'} shrink-0`}
                 />
-                <h4 className="text-sm font-bold text-foreground tracking-tight">{label}</h4>
+                <h4 className="text-xs md:text-sm font-bold text-foreground tracking-tight truncate">{label}</h4>
             </div>
 
             <div className="flex items-center gap-3">
