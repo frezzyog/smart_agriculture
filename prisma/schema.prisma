@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
@@ -60,11 +61,12 @@ model SensorData {
   phosphorus       Float?
   potassium        Float?
   pH               Float?
-  ec               Float?
   soilHealth       String?  @map("soil_health")
   stressLevel      Float?   @map("stress_level")
   moistureLossRate Float?   @map("moisture_loss_rate")
   timestamp        DateTime @default(now())
+  ec               Float?
+  metadata         Json?
   device           Device   @relation(fields: [deviceId], references: [id], onDelete: Cascade)
 
   @@index([deviceId])
@@ -79,6 +81,7 @@ model PumpLog {
   duration    Int?
   triggeredBy String?    @map("triggered_by")
   timestamp   DateTime   @default(now())
+  metadata    Json?
   device      Device     @relation(fields: [deviceId], references: [id], onDelete: Cascade)
 
   @@index([deviceId])

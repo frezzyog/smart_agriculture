@@ -19,9 +19,9 @@
 const char* ssid = "NUM2 STUDENT";
 const char* password = "student@2024";
 
-// MQTT Broker (your backend server)
-const char* mqtt_server = "10.10.12.218";  
-const int mqtt_port = 1883;
+// Change these exact lines:
+const char* mqtt_server = "ballast.proxy.rlwy.net"; 
+const int mqtt_port = 28240; 
 
 // Device Configuration
 const char* device_id = "DEVICE_001";  
@@ -217,7 +217,9 @@ void controlPump(int pin, bool turnOn, int duration, String label) {
   // Publish status back
   StaticJsonDocument<200> statusDoc;
   statusDoc["deviceId"] = device_id;
-  statusDoc["type"] = label.toUpperCase();
+  String typeUpper = label;
+  typeUpper.toUpperCase();
+  statusDoc["type"] = typeUpper;
   statusDoc["status"] = turnOn ? "ON" : "OFF";
   char p[200];
   serializeJson(statusDoc, p);
