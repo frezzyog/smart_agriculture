@@ -3,8 +3,22 @@
 import React from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import {
+    LayoutGrid,
+    Wifi,
+    BarChart3,
+    Sprout,
+    Calendar,
+    Droplets,
+    BookOpen,
+    FileText,
+    MessageSquare,
+    Settings,
+    Leaf,
+    X
+} from 'lucide-react'
 import { useSidebar } from '@/context/SidebarContext'
-import { X } from 'lucide-react'
+import { useAIInsights } from '@/hooks/useAIInsights'
 
 const Sidebar = () => {
     const { alerts } = useAIInsights()
