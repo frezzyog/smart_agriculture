@@ -164,7 +164,7 @@ async function saveSensorData(deviceId, data) {
                 phosphorus: safeNum(data.phosphorus),
                 potassium: safeNum(data.potassium),
                 pH: safeNum(data.pH),
-                ec: safeNum(data.ec),
+                // Note: 'ec' field removed - database column not yet migrated
                 // AI-generated fields
                 soilHealth: aiAnalysis?.soilHealth || null,
                 stressLevel: safeNum(aiAnalysis?.stressLevel),
