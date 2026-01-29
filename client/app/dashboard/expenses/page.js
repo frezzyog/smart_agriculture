@@ -50,7 +50,7 @@ export default function ExpensesPage() {
     const monthlySpend = Math.abs(expenses.filter(e => e.amount < 0).reduce((sum, e) => sum + e.amount, 0))
 
     return (
-        <div className="ml-64 p-10 min-h-screen bg-background text-foreground transition-colors duration-300">
+        <div className="lg:ml-64 p-4 md:p-10 min-h-screen bg-background text-foreground transition-colors duration-300">
             <div className="max-w-[1600px] mx-auto">
                 <div className="flex justify-between items-end mb-10">
                     <div>
