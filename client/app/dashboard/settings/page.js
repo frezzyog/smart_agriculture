@@ -21,22 +21,22 @@ export default function SettingsPage() {
     ]
 
     return (
-        <div className="ml-64 p-10 min-h-screen bg-background text-white pb-32">
+        <div className="lg:ml-64 p-4 md:p-10 min-h-screen bg-background text-white pb-40 transition-all duration-500">
             <div className="max-w-[1200px] mx-auto">
                 {/* Header */}
-                <div className="flex justify-between items-start mb-12">
+                <div className="flex flex-col md:flex-row justify-between items-start mb-12 gap-8">
                     <div>
-                        <h1 className="text-5xl font-black text-white tracking-tighter mb-4">System Alert Settings</h1>
-                        <p className="text-gray-500 font-medium max-w-2xl text-lg leading-relaxed">
+                        <h1 className="text-3xl md:text-5xl font-black text-white tracking-tighter mb-4">System Alert Settings</h1>
+                        <p className="text-gray-400 font-medium max-w-2xl text-base md:text-lg leading-relaxed">
                             Configure IoT thresholds and notification preferences for your smart lettuce farm.
                             Changes are applied to all active sensor nodes.
                         </p>
                     </div>
-                    <div className="bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-col items-end">
-                        <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">Last Synced</span>
+                    <div className="bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-row md:flex-col items-center md:items-end justify-between md:justify-start gap-4 w-full md:w-auto">
+                        <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1 whitespace-nowrap">Last Synced</span>
                         <div className="flex items-center gap-2 text-accent">
                             <RefreshCw size={14} className="animate-spin-slow" />
-                            <span className="text-xs font-black">2 minutes ago</span>
+                            <span className="text-xs font-black whitespace-nowrap">2 minutes ago</span>
                         </div>
                     </div>
                 </div>
@@ -46,66 +46,66 @@ export default function SettingsPage() {
                     <div className="bg-card rounded-[2.5rem] border border-white/5 p-10 relative overflow-hidden group">
                         <div className="absolute top-0 right-0 w-64 h-64 bg-accent/5 rounded-full blur-[100px] -mr-20 -mt-20"></div>
 
-                        <div className="flex justify-between items-center mb-10">
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-10 gap-4">
                             <div className="flex items-center gap-4">
                                 <div className="p-3 bg-accent/10 rounded-2xl text-accent">
                                     <Sprout size={24} />
                                 </div>
-                                <h2 className="text-2xl font-black tracking-tight">Soil Health Thresholds</h2>
+                                <h2 className="text-xl md:text-2xl font-black tracking-tight">Soil Health Thresholds</h2>
                             </div>
-                            <span className="px-3 py-1 bg-accent/10 border border-accent/20 text-accent text-[10px] font-black uppercase tracking-[0.2em] rounded-lg">
+                            <span className="px-3 py-1 bg-accent/10 border border-accent/20 text-accent text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] rounded-lg">
                                 Automated Monitoring
                             </span>
                         </div>
 
                         <div className="space-y-12">
                             {/* Moisture Range */}
-                            <div className="grid grid-cols-1 md:grid-cols-12 gap-10 items-center">
+                            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-10 items-center">
                                 <div className="md:col-span-3">
-                                    <h3 className="text-lg font-bold mb-1">Moisture Range (%)</h3>
-                                    <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Target moisture for lettuce growth.</p>
+                                    <h3 className="text-base md:text-lg font-bold mb-1">Moisture Range (%)</h3>
+                                    <p className="text-[10px] md:text-xs text-gray-500 font-medium uppercase tracking-wide">Target moisture for lettuce growth.</p>
                                 </div>
-                                <div className="md:col-span-7 px-4">
+                                <div className="md:col-span-7 px-4 py-4 md:py-0">
                                     <div className="relative h-2 bg-white/5 rounded-full">
                                         <div className="absolute left-[30%] right-[20%] h-full bg-accent rounded-full shadow-[0_0_15px_rgba(21,255,113,0.3)]"></div>
                                         <div className="absolute left-[30%] top-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 flex flex-col items-center">
                                             <div className="w-5 h-5 rounded-full bg-accent border-4 border-background shadow-[0_0_15px_rgba(21,255,113,0.5)] cursor-pointer"></div>
-                                            <span className="text-[10px] font-black text-accent mt-3">30%</span>
+                                            <span className="text-[9px] md:text-[10px] font-black text-accent mt-3">30%</span>
                                         </div>
                                         <div className="absolute left-[80%] top-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 flex flex-col items-center">
                                             <div className="w-5 h-5 rounded-full bg-accent border-4 border-background shadow-[0_0_15px_rgba(21,255,113,0.5)] cursor-pointer"></div>
-                                            <span className="text-[10px] font-black text-accent mt-3">80%</span>
+                                            <span className="text-[9px] md:text-[10px] font-black text-accent mt-3">80%</span>
                                         </div>
                                     </div>
                                 </div>
                                 <div className="md:col-span-2 flex gap-4">
-                                    <div className="flex-1 bg-white/5 border border-white/10 rounded-xl py-4 text-center text-sm font-black">30</div>
-                                    <div className="flex-1 bg-white/5 border border-white/10 rounded-xl py-4 text-center text-sm font-black">80</div>
+                                    <div className="flex-1 bg-white/5 border border-white/10 rounded-xl py-3 md:py-4 text-center text-xs md:text-sm font-black">30</div>
+                                    <div className="flex-1 bg-white/5 border border-white/10 rounded-xl py-3 md:py-4 text-center text-xs md:text-sm font-black">80</div>
                                 </div>
                             </div>
 
                             {/* EC (mS/cm) */}
-                            <div className="grid grid-cols-1 md:grid-cols-12 gap-10 items-center">
+                            <div className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-10 items-center">
                                 <div className="md:col-span-3">
-                                    <h3 className="text-lg font-bold mb-1">EC (mS/cm)</h3>
-                                    <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Nutrient concentration levels.</p>
+                                    <h3 className="text-base md:text-lg font-bold mb-1">EC (mS/cm)</h3>
+                                    <p className="text-[10px] md:text-xs text-gray-500 font-medium uppercase tracking-wide">Nutrient concentration levels.</p>
                                 </div>
-                                <div className="md:col-span-7 px-4">
+                                <div className="md:col-span-7 px-4 py-4 md:py-0">
                                     <div className="relative h-2 bg-white/5 rounded-full">
                                         <div className="absolute left-[40%] right-[30%] h-full bg-accent rounded-full shadow-[0_0_15px_rgba(21,255,113,0.3)]"></div>
                                         <div className="absolute left-[40%] top-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 flex flex-col items-center">
                                             <div className="w-5 h-5 rounded-full bg-accent border-4 border-background shadow-[0_0_15px_rgba(21,255,113,0.5)] cursor-pointer"></div>
-                                            <span className="text-[10px] font-black text-accent mt-3">1.2</span>
+                                            <span className="text-[9px] md:text-[10px] font-black text-accent mt-3">1.2</span>
                                         </div>
                                         <div className="absolute left-[70%] top-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 flex flex-col items-center">
                                             <div className="w-5 h-5 rounded-full bg-accent border-4 border-background shadow-[0_0_15px_rgba(21,255,113,0.5)] cursor-pointer"></div>
-                                            <span className="text-[10px] font-black text-accent mt-3">2.5</span>
+                                            <span className="text-[9px] md:text-[10px] font-black text-accent mt-3">2.5</span>
                                         </div>
                                     </div>
                                 </div>
                                 <div className="md:col-span-2 flex gap-4">
-                                    <div className="flex-1 bg-white/5 border border-white/10 rounded-xl py-4 text-center text-sm font-black">1.2</div>
-                                    <div className="flex-1 bg-white/5 border border-white/10 rounded-xl py-4 text-center text-sm font-black">2.5</div>
+                                    <div className="flex-1 bg-white/5 border border-white/10 rounded-xl py-3 md:py-4 text-center text-xs md:text-sm font-black">1.2</div>
+                                    <div className="flex-1 bg-white/5 border border-white/10 rounded-xl py-3 md:py-4 text-center text-xs md:text-sm font-black">2.5</div>
                                 </div>
                             </div>
                         </div>
@@ -207,20 +207,20 @@ export default function SettingsPage() {
             </div>
 
             {/* Floating Action Bar */}
-            <div className="fixed bottom-10 left-1/2 -translate-x-1/2 w-full max-w-[1200px] px-10 z-50">
-                <div className="bg-card/80 backdrop-blur-2xl border border-white/10 rounded-[2.5rem] p-6 shadow-2xl flex items-center justify-between ml-[128px]">
-                    <div className="flex items-center gap-4 px-6">
-                        <div className="text-gray-400 text-sm font-bold italic opacity-60">
+            <div className="fixed bottom-0 sm:bottom-10 left-0 lg:left-64 right-0 p-4 sm:px-10 z-50">
+                <div className="bg-card/80 backdrop-blur-2xl border border-border rounded-2xl sm:rounded-[2.5rem] p-4 sm:p-6 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4 max-w-[1200px] mx-auto">
+                    <div className="hidden md:flex items-center gap-4 px-6">
+                        <div className="text-gray-400 text-xs font-bold italic opacity-60">
                             Settings will be broadcast to 12 active sensor nodes instantly.
                         </div>
                     </div>
-                    <div className="flex gap-4">
-                        <button className="px-12 py-5 bg-white/5 hover:bg-white/10 rounded-2xl text-xs font-black uppercase tracking-widest transition-all">
+                    <div className="flex gap-4 w-full sm:w-auto">
+                        <button className="flex-1 sm:flex-none px-6 sm:px-12 py-4 sm:py-5 bg-white/5 hover:bg-white/10 rounded-xl sm:rounded-2xl text-[10px] sm:text-xs font-black uppercase tracking-widest transition-all">
                             Discard
                         </button>
-                        <button className="px-12 py-5 bg-accent text-[#020603] hover:scale-[1.05] active:scale-[0.95] rounded-2xl text-xs font-black uppercase tracking-widest shadow-[0_10px_30px_rgba(21,255,113,0.3)] transition-all flex items-center gap-3">
+                        <button className="flex-1 sm:flex-none px-6 sm:px-12 py-4 sm:py-5 bg-accent text-[#020603] hover:scale-[1.05] active:scale-[0.95] rounded-xl sm:rounded-2xl text-[10px] sm:text-xs font-black uppercase tracking-widest shadow-[0_10px_30px_rgba(21,255,113,0.3)] transition-all flex items-center justify-center gap-3">
                             <Save size={18} />
-                            Save All Changes
+                            Save All
                         </button>
                     </div>
                 </div>

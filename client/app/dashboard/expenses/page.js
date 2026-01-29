@@ -52,36 +52,36 @@ export default function ExpensesPage() {
     return (
         <div className="lg:ml-64 p-4 md:p-10 min-h-screen bg-background text-foreground transition-colors duration-300">
             <div className="max-w-[1600px] mx-auto">
-                <div className="flex justify-between items-end mb-10">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-10 gap-6">
                     <div>
-                        <h1 className="text-4xl font-black text-foreground tracking-tighter mb-2 flex items-center gap-3">
+                        <h1 className="text-3xl md:text-4xl font-black text-foreground tracking-tighter mb-2 flex items-center gap-3">
                             Farm <span className="text-accent underline decoration-accent/30 decoration-4 underline-offset-8">Expenses</span>
                         </h1>
-                        <p className="text-foreground/50 font-medium">Track your agricultural investments and ROI.</p>
+                        <p className="text-sm md:text-base text-foreground/50 font-medium">Track your agricultural investments and ROI.</p>
                     </div>
                     <button
                         onClick={() => setIsModalOpen(true)}
-                        className="flex items-center gap-2 px-6 py-3 bg-accent text-background rounded-2xl font-bold shadow-[0_10px_30px_rgba(21,255,113,0.2)] hover:scale-[1.02] transition-all text-xs uppercase tracking-wider"
+                        className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-accent text-background rounded-2xl font-bold shadow-[0_10px_30px_rgba(21,255,113,0.2)] hover:scale-[1.02] transition-all text-xs uppercase tracking-wider"
                     >
                         <Plus size={18} />
                         Add Transaction
                     </button>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 mb-10">
                     {[
                         { label: 'Total Balance', val: `$${totalBalance.toLocaleString()}`, sub: '+12% from last month', icon: DollarSign, col: 'text-accent' },
                         { label: 'Monthly Spend', val: `$${monthlySpend.toLocaleString()}`, sub: 'Calculated this month', icon: ArrowUpRight, col: 'text-red-400' },
                         { label: 'Projected ROI', val: '24%', sub: 'Based on current yield', icon: ArrowDownLeft, col: 'text-blue-400' }
                     ].map((card, i) => (
-                        <div key={i} className="bg-card p-8 rounded-[2.5rem] border border-border shadow-xl backdrop-blur-md">
+                        <div key={i} className="bg-card p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] border border-border shadow-xl backdrop-blur-md">
                             <div className="flex justify-between items-start mb-6">
-                                <div className={`p-4 rounded-2xl bg-foreground/5 ${card.col}`}>
-                                    <card.icon size={24} />
+                                <div className={`p-3 md:p-4 rounded-xl md:rounded-2xl bg-foreground/5 ${card.col}`}>
+                                    <card.icon size={20} className="md:w-6 md:h-6" />
                                 </div>
                                 <span className={`text-[10px] font-bold uppercase tracking-widest ${card.col}`}>{card.label}</span>
                             </div>
-                            <div className="text-4xl font-black mb-2 text-foreground">{card.val}</div>
+                            <div className="text-3xl md:text-4xl font-black mb-2 text-foreground">{card.val}</div>
                             <p className="text-xs text-foreground/50 font-medium">{card.sub}</p>
                         </div>
                     ))}
@@ -104,17 +104,17 @@ export default function ExpensesPage() {
                             expenses.map((t) => {
                                 const Icon = getIcon(t.category)
                                 return (
-                                    <div key={t.id} className="p-8 flex items-center justify-between hover:bg-foreground/[0.02] transition-colors">
-                                        <div className="flex items-center gap-6">
-                                            <div className={`p-4 bg-foreground/5 rounded-2xl ${getColor(t.category)}`}>
-                                                <Icon size={24} />
+                                    <div key={t.id} className="p-5 md:p-8 flex items-center justify-between hover:bg-foreground/[0.02] transition-colors gap-4">
+                                        <div className="flex items-center gap-4 md:gap-6 overflow-hidden">
+                                            <div className={`p-3 md:p-4 bg-foreground/5 rounded-xl md:rounded-2xl ${getColor(t.category)} shrink-0`}>
+                                                <Icon size={20} className="md:w-6 md:h-6" />
                                             </div>
-                                            <div>
-                                                <h4 className="font-bold text-lg text-foreground">{t.title}</h4>
-                                                <p className="text-sm text-foreground/50 font-medium">{t.category} • {new Date(t.date).toLocaleDateString()}</p>
+                                            <div className="overflow-hidden">
+                                                <h4 className="font-bold text-base md:text-lg text-foreground truncate">{t.title}</h4>
+                                                <p className="text-xs md:text-sm text-foreground/50 font-medium truncate">{t.category} • {new Date(t.date).toLocaleDateString()}</p>
                                             </div>
                                         </div>
-                                        <div className={`text-xl font-black tracking-tight ${t.amount > 0 ? 'text-accent' : 'text-foreground'}`}>
+                                        <div className={`text-lg md:text-xl font-black tracking-tight shrink-0 ${t.amount > 0 ? 'text-accent' : 'text-foreground'}`}>
                                             {t.amount > 0 ? '+' : ''}${Math.abs(t.amount).toFixed(2)}
                                         </div>
                                     </div>

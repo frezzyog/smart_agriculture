@@ -12,14 +12,14 @@ export default function GuidePage() {
     ]
 
     return (
-        <div className="ml-64 p-10 min-h-screen bg-background text-foreground transition-colors duration-300">
+        <div className="lg:ml-64 p-4 md:p-10 min-h-screen bg-background text-foreground transition-all duration-500">
             <div className="max-w-[1600px] mx-auto">
-                <div className="flex justify-between items-end mb-10">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-10 gap-6">
                     <div>
-                        <h1 className="text-4xl font-black text-foreground tracking-tighter mb-2 flex items-center gap-3">
+                        <h1 className="text-3xl md:text-4xl font-black text-foreground tracking-tighter mb-2 flex items-center gap-3">
                             Farmer <span className="text-accent underline decoration-accent/30 decoration-4 underline-offset-8">Guide</span>
                         </h1>
-                        <p className="text-foreground/50 font-medium">Educational resources and expert tips for precision agriculture.</p>
+                        <p className="text-sm md:text-base text-foreground/50 font-medium">Educational resources and expert tips for precision agriculture.</p>
                     </div>
                 </div>
 
@@ -35,39 +35,39 @@ export default function GuidePage() {
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
                     {/* Featured Section */}
                     <div className="lg:col-span-8 space-y-8">
-                        <div className="relative overflow-hidden rounded-[2.5rem] bg-card border border-border group p-12">
+                        <div className="relative overflow-hidden rounded-[2rem] md:rounded-[2.5rem] bg-card border border-border group p-6 md:p-12">
                             <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-accent rounded-full blur-[150px] opacity-10 -mr-40 -mt-40 group-hover:opacity-20 transition-opacity"></div>
 
-                            <div className="relative z-10 flex flex-col md:flex-row items-center gap-10">
-                                <div className="shrink-0 w-full md:w-64 h-48 bg-foreground/5 bg-[url('https://images.unsplash.com/photo-1558449028-b53a39d100fc?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80')] bg-cover bg-center rounded-3xl border border-border block relative group/vid overflow-hidden">
+                            <div className="relative z-10 flex flex-col md:flex-row items-center gap-6 md:gap-10">
+                                <div className="shrink-0 w-full md:w-64 h-48 bg-foreground/5 bg-[url('https://images.unsplash.com/photo-1558449028-b53a39d100fc?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80')] bg-cover bg-center rounded-[2rem] border border-border block relative group/vid overflow-hidden">
                                     <div className="absolute inset-0 bg-background/40 flex items-center justify-center opacity-0 group-hover/vid:opacity-100 transition-opacity">
                                         <div className="w-12 h-12 bg-accent text-background rounded-full flex items-center justify-center">
                                             <Play size={20} fill="currentColor" />
                                         </div>
                                     </div>
                                 </div>
-                                <div>
+                                <div className="text-center md:text-left">
                                     <span className="text-[10px] font-black text-accent uppercase tracking-[0.3em] mb-4 block">Recommended for you</span>
-                                    <h2 className="text-4xl font-black text-foreground tracking-tight mb-4 leading-tight">Mastering Vertical <br />Farm Automation</h2>
-                                    <p className="text-foreground/50 text-sm font-medium leading-relaxed max-w-md mb-8">Learn how to configure your sensor array for maximum ROI and minimal labor costs using our AI engine.</p>
-                                    <button className="flex items-center gap-2 group text-accent text-xs font-black uppercase tracking-widest">
+                                    <h2 className="text-3xl md:text-4xl font-black text-foreground tracking-tight mb-4 leading-tight">Mastering Vertical <br className="hidden md:block" />Farm Automation</h2>
+                                    <p className="text-foreground/50 text-xs md:text-sm font-medium leading-relaxed max-w-md mb-8 mx-auto md:mx-0">Learn how to configure your sensor array for maximum ROI and minimal labor costs using our AI engine.</p>
+                                    <button className="flex items-center justify-center md:justify-start gap-2 group text-accent text-xs font-black uppercase tracking-widest w-full md:w-auto">
                                         Watch Video Course <ArrowRight size={16} className="group-hover:translate-x-2 transition-transform" />
                                     </button>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8">
                             {guides.map((guide) => (
-                                <div key={guide.id} className="bg-card p-8 rounded-[2rem] border border-border hover:bg-foreground/[0.02] hover:scale-[1.02] transition-all cursor-pointer group">
+                                <div key={guide.id} className="bg-card p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border border-border hover:bg-foreground/[0.02] hover:scale-[1.02] transition-all cursor-pointer group">
                                     <div className="flex justify-between items-start mb-6">
-                                        <div className={`p-4 rounded-xl ${guide.bg} ${guide.color}`}>
-                                            <guide.icon size={24} />
+                                        <div className={`p-3 md:p-4 rounded-xl ${guide.bg} ${guide.color}`}>
+                                            <guide.icon size={20} className="md:w-6 md:h-6" />
                                         </div>
-                                        <span className="text-[10px] font-black text-foreground/30 uppercase tracking-widest">{guide.time}</span>
+                                        <span className="text-[8px] md:text-[10px] font-black text-foreground/30 uppercase tracking-widest">{guide.time}</span>
                                     </div>
-                                    <h3 className="text-xl font-bold text-foreground mb-2 group-hover:text-accent transition-colors">{guide.title}</h3>
-                                    <p className="text-xs font-bold text-foreground/40 uppercase tracking-widest">{guide.category}</p>
+                                    <h3 className="text-lg md:text-xl font-bold text-foreground mb-2 group-hover:text-accent transition-colors leading-snug">{guide.title}</h3>
+                                    <p className="text-[9px] md:text-[10px] font-bold text-foreground/40 uppercase tracking-widest">{guide.category}</p>
                                 </div>
                             ))}
                         </div>

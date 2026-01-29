@@ -96,17 +96,17 @@ export default function ChatbotPage() {
             <div className="max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10">
                 {/* Chat Section */}
                 <div className="lg:col-span-8 flex flex-col h-[calc(100vh-160px)]">
-                    <div className="mb-10">
-                        <h1 className="text-4xl font-black text-white tracking-tighter mb-2 flex items-center gap-3">
+                    <div className="mb-6 md:mb-10">
+                        <h1 className="text-3xl md:text-4xl font-black text-white tracking-tighter mb-2 flex items-center gap-3">
                             AI <span className="text-accent underline decoration-accent/30 decoration-4 underline-offset-8">Chatbot</span>
                         </h1>
-                        <div className="flex justify-between items-center">
-                            <p className="text-gray-500 font-medium">Instant agricultural advice and system troubleshooting.</p>
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                            <p className="text-sm md:text-base text-gray-500 font-medium leading-tight">Instant agricultural advice and system troubleshooting.</p>
                             {devices.length > 0 && (
                                 <select
                                     value={selectedDeviceId}
                                     onChange={(e) => setSelectedDeviceId(e.target.value)}
-                                    className="bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs font-bold text-accent outline-none hover:border-accent/30 transition-all"
+                                    className="w-full sm:w-auto bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs font-bold text-accent outline-none hover:border-accent/30 transition-all cursor-pointer"
                                 >
                                     {devices.map(d => (
                                         <option key={d.id} value={d.device_id || d.deviceId}>{d.name}</option>
@@ -116,7 +116,7 @@ export default function ChatbotPage() {
                         </div>
                     </div>
 
-                    <div className="flex-1 bg-card rounded-[2.5rem] border border-white/5 p-8 flex flex-col overflow-hidden relative">
+                    <div className="flex-1 bg-card rounded-[2rem] md:rounded-[2.5rem] border border-white/5 p-4 md:p-8 flex flex-col overflow-hidden relative">
                         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-px bg-gradient-to-r from-transparent via-accent/20 to-transparent"></div>
 
                         <div
@@ -125,13 +125,13 @@ export default function ChatbotPage() {
                         >
                             {messages.map((msg) => (
                                 <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                                    <div className={`flex gap-4 max-w-[80%] ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
-                                        <div className={`h-10 w-10 rounded-xl flex items-center justify-center shrink-0 ${msg.role === 'user' ? 'bg-accent text-[#020603]' : 'bg-white/5 text-accent border border-white/10'}`}>
-                                            {msg.role === 'user' ? <User size={20} /> : <Bot size={20} />}
+                                    <div className={`flex gap-3 md:gap-4 max-w-[90%] md:max-w-[80%] ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
+                                        <div className={`h-8 w-8 md:h-10 md:w-10 rounded-lg md:rounded-xl flex items-center justify-center shrink-0 ${msg.role === 'user' ? 'bg-accent text-[#020603]' : 'bg-white/5 text-accent border border-white/10'}`}>
+                                            {msg.role === 'user' ? <User size={16} className="md:w-5 md:h-5" /> : <Bot size={16} className="md:w-5 md:h-5" />}
                                         </div>
-                                        <div className={`p-5 rounded-[1.5rem] text-sm font-medium leading-relaxed ${msg.role === 'user' ? 'bg-accent text-[#020603] rounded-tr-none' : 'bg-white/5 text-gray-200 border border-white/10 rounded-tl-none'}`}>
+                                        <div className={`p-4 md:p-5 rounded-[1.25rem] md:rounded-[1.5rem] text-xs md:text-sm font-medium leading-relaxed ${msg.role === 'user' ? 'bg-accent text-[#020603] rounded-tr-none' : 'bg-white/5 text-gray-200 border border-white/10 rounded-tl-none'}`}>
                                             {msg.role === 'bot' ? (
-                                                <div className="prose prose-invert prose-sm max-w-none prose-p:leading-relaxed prose-li:my-1 prose-strong:text-accent prose-strong:font-black">
+                                                <div className="prose prose-invert prose-xs md:prose-sm max-w-none prose-p:leading-relaxed prose-li:my-1 prose-strong:text-accent prose-strong:font-black">
                                                     <ReactMarkdown>{msg.text}</ReactMarkdown>
                                                 </div>
                                             ) : (

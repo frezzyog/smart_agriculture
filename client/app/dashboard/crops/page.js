@@ -13,19 +13,19 @@ export default function CropsPage() {
     return (
         <div className="lg:ml-64 p-4 md:p-10 min-h-screen bg-background text-foreground transition-colors duration-300">
             <div className="max-w-[1600px] mx-auto">
-                <div className="flex justify-between items-end mb-10">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-10 gap-6">
                     <div>
-                        <h1 className="text-4xl font-black text-foreground tracking-tighter mb-2 flex items-center gap-3">
+                        <h1 className="text-3xl md:text-4xl font-black text-foreground tracking-tighter mb-2 flex items-center gap-3">
                             Crop <span className="text-accent underline decoration-accent/30 decoration-4 underline-offset-8">Management</span>
                         </h1>
-                        <p className="text-foreground/50 font-medium">Monitor plant growth stages and biological health metrics.</p>
+                        <p className="text-sm md:text-base text-foreground/50 font-medium">Monitor plant growth stages and biological health metrics.</p>
                     </div>
-                    <div className="flex gap-4">
-                        <button className="flex items-center gap-2 px-6 py-3 bg-foreground/5 border border-border text-foreground rounded-2xl font-bold hover:bg-foreground/10 transition-all text-xs uppercase tracking-wider">
+                    <div className="flex flex-col xs:flex-row gap-4 w-full sm:w-auto">
+                        <button className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-foreground/5 border border-border text-foreground rounded-2xl font-bold hover:bg-foreground/10 transition-all text-xs uppercase tracking-wider">
                             <Activity size={18} />
                             Health Scan
                         </button>
-                        <button className="flex items-center gap-2 px-6 py-3 bg-accent text-background rounded-2xl font-bold shadow-[0_10px_30px_rgba(21,255,113,0.2)] hover:scale-[1.02] transition-all text-xs uppercase tracking-wider">
+                        <button className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-accent text-background rounded-2xl font-bold shadow-[0_10px_30px_rgba(21,255,113,0.2)] hover:scale-[1.02] transition-all text-xs uppercase tracking-wider">
                             <Scissors size={18} />
                             Plan Harvest
                         </button>
@@ -80,18 +80,18 @@ export default function CropsPage() {
                     ))}
                 </div>
 
-                <div className="bg-card p-10 rounded-[2.5rem] border border-border flex flex-col md:flex-row items-center gap-10">
-                    <div className="shrink-0 p-8 bg-accent/10 rounded-[2rem] border border-accent/20">
-                        <TrendingUp size={48} className="text-accent" />
+                <div className="bg-card p-6 md:p-10 rounded-[2rem] md:rounded-[2.5rem] border border-border flex flex-col md:flex-row items-center gap-6 md:gap-10">
+                    <div className="shrink-0 p-6 md:p-8 bg-accent/10 rounded-[1.5rem] md:rounded-[2rem] border border-accent/20">
+                        <TrendingUp size={32} className="text-accent md:w-12 md:h-12" />
                     </div>
-                    <div>
-                        <h3 className="text-3xl font-black text-foreground mb-2">Predicted Yield: 450kg</h3>
-                        <p className="text-foreground/50 leading-relaxed max-w-xl">
+                    <div className="text-center md:text-left">
+                        <h3 className="text-2xl md:text-3xl font-black text-foreground mb-2">Predicted Yield: 450kg</h3>
+                        <p className="text-foreground/50 text-sm md:text-base leading-relaxed max-w-xl mx-auto md:mx-0">
                             Based on current growth rates and environmental history, your total yield for this cycle is expected to exceed the seasonal average by 12%.
                             We recommend starting nitrogen enrichment in Zone B to maintain this momentum.
                         </p>
                     </div>
-                    <button className="md:ml-auto px-8 py-4 bg-foreground/5 border border-border rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-foreground/10 transition-all text-foreground">
+                    <button className="w-full md:w-auto md:ml-auto px-8 py-4 bg-foreground/5 border border-border rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-foreground/10 transition-all text-foreground text-center">
                         View Analytics
                     </button>
                 </div>
