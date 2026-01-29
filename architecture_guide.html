@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Agriculture 4.0 | System Architecture</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #020603;
+            --card-bg: #0a0f0b;
+            --accent: #15ff71;
+            --accent-glow: rgba(21, 255, 113, 0.3);
+            --text-primary: #ffffff;
+            --text-secondary: #8899a6;
+            --border: rgba(255, 255, 255, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 80px 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 100px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 16px;
+            background: var(--accent-glow);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 24px;
+        }
+
+        h1 {
+            font-size: 4rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #fff 0%, #888 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Flow Section */
+        .process-flow {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 60px;
+        }
+
+        .step {
+            display: grid;
+            grid-template-columns: 100px 1fr;
+            gap: 40px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .step-number {
+            width: 80px;
+            height: 80px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--accent);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .step-content {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 32px;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .step-content:hover {
+            border-color: var(--accent);
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(21, 255, 113, 0.05);
+        }
+
+        .step-content::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle at top right, var(--accent-glow), transparent 70%);
+            opacity: 0.3;
+        }
+
+        .step-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: var(--accent);
+        }
+
+        .step-desc {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .tech-tags {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .tag {
+            padding: 4px 12px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+        }
+
+        /* Connecting Lines */
+        .connector {
+            position: absolute;
+            left: 49px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--accent), transparent);
+            opacity: 0.2;
+            z-index: 1;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5rem; }
+            .step { grid-template-columns: 1fr; }
+            .connector { display: none; }
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 100px 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div class="badge">Live Documentation</div>
+        <h1>System Data Flow</h1>
+        <p class="subtitle">An end-to-end overview of the Smart Agriculture 4.0 Ecosystem from physical sensors to AI-driven decisions.</p>
+    </header>
+
+    <div class="process-flow">
+        <div class="connector"></div>
+
+        <!-- Step 1 -->
+        <div class="step">
+            <div class="step-number">01</div>
+            <div class="step-content">
+                <h3 class="step-title">IoT Edge Devices</h3>
+                <p class="step-desc">ESP32 microcontrollers deployed in the field collect high-fidelity environmental data including Soil Moisture, NPK levels, Temperature, and Humidity using industrial-grade sensors.</p>
+                <div class="tech-tags">
+                    <span class="tag">ESP32</span>
+                    <span class="tag">Sensors</span>
+                    <span class="tag">C++</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="step">
+            <div class="step-number">02</div>
+            <div class="step-content">
+                <h3 class="step-title">MQTT Bridge</h3>
+                <p class="step-desc">Devices transmit JSON payloads wirelessly to the Aedes MQTT Broker. This lightweight protocol ensures reliable communication even in low-bandwidth agricultural environments.</p>
+                <div class="tech-tags">
+                    <span class="tag">MQTT</span>
+                    <span class="tag">Aedes</span>
+                    <span class="tag">Real-time</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="step">
+            <div class="step-number">03</div>
+            <div class="step-content">
+                <h3 class="step-title">Node.js Central Hub</h3>
+                <p class="step-desc">The central server intercepts sensor messages. It validates data, manages device registration, and prepares the data for the next stage: the AI Brain.</p>
+                <div class="tech-tags">
+                    <span class="tag">Node.js</span>
+                    <span class="tag">Express</span>
+                    <span class="tag">Socket.io</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="step">
+            <div class="step-number">04</div>
+            <div class="step-content">
+                <h3 class="step-title">Python AI Service</h3>
+                <p class="step-desc">Data is sent to a dedicated Python FastAPI service. Here, Machine Learning models (Scikit-learn, Prophet) analyze stress levels, detect anomalies, and fetch real-world weather data from Open-Meteo.</p>
+                <div class="tech-tags">
+                    <span class="tag">FastAPI</span>
+                    <span class="tag">ML Models</span>
+                    <span class="tag">Open-Meteo</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 5 -->
+        <div class="step">
+            <div class="step-number">05</div>
+            <div class="step-content">
+                <h3 class="step-title">Smart Automation</h3>
+                <p class="step-desc">If the AI detects critical stress or predicts severe drying, it issues a <strong>Command</strong> back through the MQTT bridge to trigger actuators (Pumps, Fertilizer Valves) automatically.</p>
+                <div class="tech-tags">
+                    <span class="tag">Automation</span>
+                    <span class="tag">Logic</span>
+                    <span class="tag">Closed-Loop</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 6 -->
+        <div class="step">
+            <div class="step-number">06</div>
+            <div class="step-content">
+                <h3 class="step-title">Next.js Dashboard</h3>
+                <p class="step-desc">The farmer sees everything in real-time. Live charts, the Farm Digital Twin, AI alerts, and PDF reports are hydrated instantly via Socket.io for ultimate situational awareness.</p>
+                <div class="tech-tags">
+                    <span class="tag">Next.js</span>
+                    <span class="tag">Tailwind</span>
+                    <span class="tag">Framer Motion</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Smart Agriculture 4.0 Ecosystem. Built for Precision Farming.</p>
+    </footer>
+</div>
+
+</body>
+</html>

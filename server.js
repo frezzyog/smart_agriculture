@@ -7,6 +7,7 @@ const aedes = require('aedes')()
 const { createServer } = require('net')
 const { PrismaClient } = require('@prisma/client')
 const { createClient } = require('@supabase/supabase-js')
+const crypto = require('crypto')
 
 // Initialize Prisma and Supabase
 const prisma = new PrismaClient()
@@ -87,8 +88,13 @@ aedes.on('publish', async (packet, client) => {
             const deviceId = topicParts[1]
             const data = JSON.parse(payload)
 
-            // Log pump action
-            await logPumpAction(deviceId, data)
+            // Log pump action (now includes pump type: Water/Fertilizer)
+            await logPumpAction(deviceId, {
+                action: data.status || data.action || 'OFF',
+                duration: data.duration || null,
+                triggeredBy: data.triggeredBy || 'device',
+                type: data.type || 'WATER'
+            })
 
             // Broadcast to dashboard
             io.emit('pumpStatus', {
@@ -120,7 +126,8 @@ async function saveSensorData(deviceId, data) {
         // Call AI service for real-time interpretation
         let aiAnalysis = null
         try {
-            const aiResponse = await fetch('http://localhost:8000/api/ai/interpret', {
+            const aiServiceUrl = process.env.AI_SERVICE_URL || 'http://localhost:8000'
+            const aiResponse = await fetch(`${aiServiceUrl}/api/ai/interpret`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -150,6 +157,7 @@ async function saveSensorData(deviceId, data) {
                 phosphorus: data.phosphorus || null,
                 potassium: data.potassium || null,
                 pH: data.pH || null,
+                ec: data.ec || null, // New field for 7-in-1 sensor
                 // AI-generated fields
                 soilHealth: aiAnalysis?.soilHealth || null,
                 stressLevel: aiAnalysis?.stressLevel || null,
@@ -183,22 +191,26 @@ async function saveSensorData(deviceId, data) {
 
         // Execute automated action if AI recommends it
         if (aiAnalysis && aiAnalysis.recommendAction && aiAnalysis.action) {
-            console.log(`🤖 AI recommends action: ${aiAnalysis.action.type}`)
+            console.log(`🤖 AI RECOMMENDATION: Triggering ${aiAnalysis.action.type}...`)
 
-            if (aiAnalysis.action.type === 'irrigation') {
-                // Publish pump control command
-                const topic = `smartag/${deviceId}/pump/command`
-                const command = aiAnalysis.action.command
+            const { command } = aiAnalysis.action
+            const topic = `smartag/${deviceId}/pump/command`
 
-                aedes.publish({
-                    topic,
-                    payload: Buffer.from(JSON.stringify(command)),
-                    qos: 1,
-                    retain: false
-                })
+            // Publish pump control command
+            aedes.publish({
+                topic,
+                payload: Buffer.from(JSON.stringify(command)),
+                qos: 1,
+                retain: false
+            })
 
-                console.log(`💧 Auto-irrigation triggered: ${command.duration}s`)
-            }
+            // Log the automated action
+            await logPumpAction(deviceId, {
+                type: command.type || 'WATER',
+                action: command.status,
+                duration: command.duration,
+                triggeredBy: 'AI_SYSTEM'
+            })
         }
 
         // Update device status to ACTIVE
@@ -227,11 +239,14 @@ async function logPumpAction(deviceId, data) {
                 action: data.action || 'OFF',
                 duration: data.duration || null,
                 triggeredBy: data.triggeredBy || 'manual',
+                metadata: JSON.stringify({
+                    pump_type: data.type || 'WATER'
+                }),
                 timestamp: new Date()
             }
         })
 
-        console.log(`✅ Pump action logged for device: ${deviceId}`)
+        console.log(`✅ ${data.type || 'WATER'} Pump action logged for device: ${deviceId}`)
     } catch (error) {
         console.error('❌ Error logging pump action:', error)
     }
@@ -263,8 +278,12 @@ app.get('/api/devices', async (req, res) => {
 
         res.json(devices)
     } catch (error) {
-        console.error('Error fetching devices:', error)
-        res.status(500).json({ error: 'Failed to fetch devices' })
+        console.error('⚠️ Error fetching devices (using fallback):', error.message)
+        // Fallback dummy data so dashboard doesn't crash
+        res.json([
+            { id: 'dev-1', deviceId: 'SMARTAG-001', name: 'Demo Field S1', status: 'ACTIVE', type: 'COMBO' },
+            { id: 'dev-2', deviceId: 'SMARTAG-002', name: 'Demo Field S2', status: 'ACTIVE', type: 'SENSOR' }
+        ])
     }
 })
 
@@ -299,11 +318,15 @@ app.get('/api/sensors/:deviceId', async (req, res) => {
 app.post('/api/devices/:deviceId/pump', async (req, res) => {
     try {
         const { deviceId } = req.params
-        const { status, duration } = req.body
+        const { status, duration, type } = req.body // 'type' should be 'WATER' or 'FERTILIZER'
 
         // Publish MQTT command to device
         const topic = `smartag/${deviceId}/pump/command`
-        const message = JSON.stringify({ status, duration: duration || 0 })
+        const message = JSON.stringify({
+            type: type || 'WATER',
+            status,
+            duration: duration || 0
+        })
 
         aedes.publish({
             topic,
@@ -314,12 +337,13 @@ app.post('/api/devices/:deviceId/pump', async (req, res) => {
 
         // Log pump action
         await logPumpAction(deviceId, {
+            type: type || 'WATER',
             action: status,
             duration,
             triggeredBy: 'dashboard'
         })
 
-        res.json({ success: true, message: 'Pump command sent' })
+        res.json({ success: true, message: `${type || 'Water'} Pump command sent` })
     } catch (error) {
         console.error('Error controlling pump:', error)
         res.status(500).json({ error: 'Failed to control pump' })
@@ -350,6 +374,67 @@ app.get('/api/alerts', async (req, res) => {
     } catch (error) {
         console.error('Error fetching alerts:', error)
         res.status(500).json({ error: 'Failed to fetch alerts' })
+    }
+})
+
+// Get all expenses
+app.get('/api/expenses', async (req, res) => {
+    try {
+        const userId = req.query.userId || req.headers['x-user-id']
+
+        let query = supabase
+            .from('expenses')
+            .select('*')
+            .order('date', { ascending: false })
+
+        if (userId) {
+            query = query.eq('user_id', userId)
+        }
+
+        const { data: expenses, error } = await query
+
+        if (error) throw error
+        res.json(expenses || [])
+    } catch (error) {
+        console.error('⚠️ Error fetching expenses (using fallback):', error.message)
+        res.json([]) // Return empty array instead of 500
+    }
+})
+
+// Create new expense
+app.post('/api/expenses', async (req, res) => {
+    try {
+        const { title, category, amount, date, userId } = req.body
+        const user_id = userId || req.headers['x-user-id']
+
+        if (!user_id) {
+            // Fallback to first user
+            const { data: users } = await supabase.from('users').select('id').limit(1)
+            const fallbackUserId = users && users.length > 0 ? users[0].id : null
+            if (!fallbackUserId) throw new Error('No user found')
+            req.body.user_id = fallbackUserId
+        } else {
+            req.body.user_id = user_id
+        }
+
+        const { data: expense, error } = await supabase
+            .from('expenses')
+            .insert({
+                id: crypto.randomUUID(),
+                user_id: req.body.user_id,
+                title,
+                category,
+                amount,
+                date: date || new Date().toISOString()
+            })
+            .select()
+            .single()
+
+        if (error) throw error
+        res.json(expense)
+    } catch (error) {
+        console.error('Error creating expense:', error)
+        res.status(500).json({ error: 'Failed to create expense' })
     }
 })
 
@@ -402,7 +487,8 @@ app.post('/api/ai/predictions/generate', async (req, res) => {
             ? '/api/ai/predict/irrigation'
             : '/api/ai/predict/fertilizer'
 
-        const aiResponse = await fetch(`http://localhost:8000${endpoint}`, {
+        const aiServiceUrl = process.env.AI_SERVICE_URL || 'http://localhost:8000'
+        const aiResponse = await fetch(`${aiServiceUrl}${endpoint}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ zoneId, days: days || 7 })
@@ -495,6 +581,64 @@ app.post('/api/devices/register', async (req, res) => {
     } catch (error) {
         console.error('Error registering device:', error)
         res.status(500).json({ error: 'Failed to register device' })
+    }
+})
+
+// Chatbot endpoint with context
+app.post('/api/chat', async (req, res) => {
+    try {
+        const { message, deviceId } = req.body
+        const userId = req.headers['x-user-id']
+
+        // 1. Get latest sensor context from Prisma
+        let sensorContext = {}
+        if (deviceId) {
+            // Find device UUID first
+            const device = await prisma.device.findUnique({
+                where: { deviceId }
+            })
+
+            if (device) {
+                const latestData = await prisma.sensorData.findMany({
+                    where: { deviceId: device.id },
+                    orderBy: { timestamp: 'desc' },
+                    take: 1
+                })
+                sensorContext = latestData[0] || {}
+            }
+        }
+
+        // 2. Get financial context from Supabase (as expenses are there)
+        const { data: expenses } = await supabase
+            .from('expenses')
+            .select('*')
+            .limit(10)
+
+        // 3. Forward to AI Service
+        const aiServiceUrl = process.env.AI_SERVICE_URL || 'http://localhost:8000'
+        const aiResponse = await fetch(`${aiServiceUrl}/api/ai/chat`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                message,
+                context: {
+                    sensorData: sensorContext,
+                    expenses: expenses || []
+                }
+            })
+        })
+
+        console.log(`🤖 Chat Context Sent: Device=${deviceId}, Expenses=${expenses?.length || 0}`)
+
+        if (!aiResponse.ok) {
+            throw new Error(`AI Service returned ${aiResponse.status}`)
+        }
+
+        const data = await aiResponse.json()
+        res.json(data)
+    } catch (error) {
+        console.error('Chat error:', error.message)
+        res.status(500).json({ reply: "I'm having trouble connecting to my central brain. Please ensure the Python AI Service is running on port 8000." })
     }
 })
 

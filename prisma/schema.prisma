@@ -1,4 +1,4 @@
-﻿generator client {
+generator client {
   provider = "prisma-client-js"
 }
 
@@ -8,38 +8,39 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
+  id        String     @id @default(uuid())
+  email     String     @unique
   name      String
   password  String
-  role      Role     @default(USER)
+  role      Role       @default(USER)
   phone     String?
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
   devices   Device[]
+  expenses  expenses[]
   zones     Zone[]
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("users")
 }
 
 model Device {
-  id          String       @id @default(uuid())
-  name        String
-  deviceId    String       @unique @map("device_id")
-  type        DeviceType
-  location    String?
-  latitude    Float?
-  longitude   Float?
-  status      DeviceStatus @default(INACTIVE)
-  userId      String       @map("user_id")
-  zoneId      String?      @map("zone_id")
-  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  zone        Zone?        @relation(fields: [zoneId], references: [id], onDelete: SetNull)
-  sensorData  SensorData[]
-  pumpLogs    PumpLog[]
-  alerts      Alert[]
-  createdAt   DateTime     @default(now()) @map("created_at")
-  updatedAt   DateTime     @updatedAt @map("updated_at")
+  id         String       @id @default(uuid())
+  name       String
+  deviceId   String       @unique @map("device_id")
+  type       DeviceType
+  location   String?
+  latitude   Float?
+  longitude  Float?
+  status     DeviceStatus @default(INACTIVE)
+  userId     String       @map("user_id")
+  zoneId     String?      @map("zone_id")
+  createdAt  DateTime     @default(now()) @map("created_at")
+  updatedAt  DateTime     @updatedAt @map("updated_at")
+  alerts     Alert[]
+  user       User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  zone       Zone?        @relation(fields: [zoneId], references: [id])
+  pumpLogs   PumpLog[]
+  sensorData SensorData[]
 
   @@index([userId])
   @@index([deviceId])
@@ -48,26 +49,22 @@ model Device {
 }
 
 model SensorData {
-  id            String   @id @default(uuid())
-  deviceId      String   @map("device_id")
-  device        Device   @relation(fields: [deviceId], references: [id], onDelete: Cascade)
-  
-  temperature   Float?
-  humidity      Float?
-  moisture      Float?
-  rain          Float?
-  lightIntensity Float?  @map("light_intensity")
-  
-  nitrogen      Float?
-  phosphorus    Float?
-  potassium     Float?
-  pH            Float?
-  
-  soilHealth    String?  @map("soil_health")
-  stressLevel   Float?   @map("stress_level")
-  moistureLossRate Float? @map("moisture_loss_rate")
-  
-  timestamp     DateTime @default(now())
+  id               String   @id @default(uuid())
+  deviceId         String   @map("device_id")
+  temperature      Float?
+  humidity         Float?
+  moisture         Float?
+  rain             Float?
+  lightIntensity   Float?   @map("light_intensity")
+  nitrogen         Float?
+  phosphorus       Float?
+  potassium        Float?
+  pH               Float?
+  soilHealth       String?  @map("soil_health")
+  stressLevel      Float?   @map("stress_level")
+  moistureLossRate Float?   @map("moisture_loss_rate")
+  timestamp        DateTime @default(now())
+  device           Device   @relation(fields: [deviceId], references: [id], onDelete: Cascade)
 
   @@index([deviceId])
   @@index([timestamp])
@@ -77,11 +74,11 @@ model SensorData {
 model PumpLog {
   id          String     @id @default(uuid())
   deviceId    String     @map("device_id")
-  device      Device     @relation(fields: [deviceId], references: [id], onDelete: Cascade)
   action      PumpAction
   duration    Int?
   triggeredBy String?    @map("triggered_by")
   timestamp   DateTime   @default(now())
+  device      Device     @relation(fields: [deviceId], references: [id], onDelete: Cascade)
 
   @@index([deviceId])
   @@index([timestamp])
@@ -89,40 +86,38 @@ model PumpLog {
 }
 
 model Zone {
-  id                String              @id @default(uuid())
-  name              String
-  userId            String              @map("user_id")
-  user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  area              Float?
-  soilType          String?             @map("soil_type")
-  cropType          String?             @map("crop_type")
-  optimalMoisture   Float?              @map("optimal_moisture")
-  
-  irrigationRate    Float?              @map("irrigation_rate")
-  dryingRate        Float?              @map("drying_rate")
-  
-  devices           Device[]
-  predictions       Prediction[]
-  irrigationSchedules IrrigationSchedule[]
+  id                  String               @id @default(uuid())
+  name                String
+  userId              String               @map("user_id")
+  area                Float?
+  soilType            String?              @map("soil_type")
+  cropType            String?              @map("crop_type")
+  optimalMoisture     Float?               @map("optimal_moisture")
+  irrigationRate      Float?               @map("irrigation_rate")
+  dryingRate          Float?               @map("drying_rate")
+  createdAt           DateTime             @default(now()) @map("created_at")
+  updatedAt           DateTime             @updatedAt @map("updated_at")
+  devices             Device[]
   fertilizerSchedules FertilizerSchedule[]
-  createdAt         DateTime            @default(now()) @map("created_at")
-  updatedAt         DateTime            @updatedAt @map("updated_at")
+  irrigationSchedules IrrigationSchedule[]
+  predictions         Prediction[]
+  user                User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@map("zones")
 }
 
 model Prediction {
-  id              String   @id @default(uuid())
-  zoneId          String?  @map("zone_id")
-  deviceId        String?  @map("device_id")
-  zone            Zone?    @relation(fields: [zoneId], references: [id], onDelete: Cascade)
-  predictionType  PredictionType @map("prediction_type")
-  confidence      Float
-  predictedValue  Json               @map("predicted_value")
-  validUntil      DateTime?          @map("valid_until")
-  metadata        Json?
-  createdAt       DateTime           @default(now()) @map("created_at")
+  id             String         @id @default(uuid())
+  zoneId         String?        @map("zone_id")
+  deviceId       String?        @map("device_id")
+  predictionType PredictionType @map("prediction_type")
+  confidence     Float
+  predictedValue Json           @map("predicted_value")
+  validUntil     DateTime?      @map("valid_until")
+  metadata       Json?
+  createdAt      DateTime       @default(now()) @map("created_at")
+  zone           Zone?          @relation(fields: [zoneId], references: [id], onDelete: Cascade)
 
   @@index([zoneId])
   @@index([predictionType])
@@ -131,19 +126,19 @@ model Prediction {
 }
 
 model Alert {
-  id          String      @id @default(uuid())
-  deviceId    String?     @map("device_id")
-  userId      String      @map("user_id")
-  device      Device?     @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  id          String     @id @default(uuid())
+  deviceId    String?    @map("device_id")
+  userId      String     @map("user_id")
   severity    AlertLevel
   type        AlertType
   title       String
   message     String
-  isRead      Boolean     @default(false) @map("is_read")
-  isDismissed Boolean     @default(false) @map("is_dismissed")
+  isRead      Boolean    @default(false) @map("is_read")
+  isDismissed Boolean    @default(false) @map("is_dismissed")
   metadata    Json?
-  createdAt   DateTime    @default(now()) @map("created_at")
-  readAt      DateTime?   @map("read_at")
+  createdAt   DateTime   @default(now()) @map("created_at")
+  readAt      DateTime?  @map("read_at")
+  device      Device?    @relation(fields: [deviceId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([deviceId])
@@ -154,17 +149,17 @@ model Alert {
 }
 
 model Report {
-  id          String      @id @default(uuid())
-  userId      String      @map("user_id")
-  reportType  ReportType  @map("report_type")
-  title       String
-  period      String
-  startDate   DateTime            @map("start_date")
-  endDate     DateTime            @map("end_date")
-  data        Json
-  insights    Json?
-  fileUrl     String?             @map("file_url")
-  createdAt   DateTime            @default(now()) @map("created_at")
+  id         String     @id @default(uuid())
+  userId     String     @map("user_id")
+  reportType ReportType @map("report_type")
+  title      String
+  period     String
+  startDate  DateTime   @map("start_date")
+  endDate    DateTime   @map("end_date")
+  data       Json
+  insights   Json?
+  fileUrl    String?    @map("file_url")
+  createdAt  DateTime   @default(now()) @map("created_at")
 
   @@index([userId])
   @@index([reportType])
@@ -173,17 +168,17 @@ model Report {
 }
 
 model IrrigationSchedule {
-  id              String   @id @default(uuid())
-  zoneId          String   @map("zone_id")
-  zone            Zone     @relation(fields: [zoneId], references: [id], onDelete: Cascade)
-  scheduledTime   DateTime @map("scheduled_time")
-  duration        Int
-  waterAmount     Float?            @map("water_amount")
-  status          ScheduleStatus    @default(PENDING)
-  triggeredBy     String            @map("triggered_by")
-  executed        Boolean           @default(false)
-  executedAt      DateTime?         @map("executed_at")
-  createdAt       DateTime          @default(now()) @map("created_at")
+  id            String         @id @default(uuid())
+  zoneId        String         @map("zone_id")
+  scheduledTime DateTime       @map("scheduled_time")
+  duration      Int
+  waterAmount   Float?         @map("water_amount")
+  status        ScheduleStatus @default(PENDING)
+  triggeredBy   String         @map("triggered_by")
+  executed      Boolean        @default(false)
+  executedAt    DateTime?      @map("executed_at")
+  createdAt     DateTime       @default(now()) @map("created_at")
+  zone          Zone           @relation(fields: [zoneId], references: [id], onDelete: Cascade)
 
   @@index([zoneId])
   @@index([scheduledTime])
@@ -192,23 +187,37 @@ model IrrigationSchedule {
 }
 
 model FertilizerSchedule {
-  id              String   @id @default(uuid())
-  zoneId          String   @map("zone_id")
-  zone            Zone     @relation(fields: [zoneId], references: [id], onDelete: Cascade)
-  scheduledTime   DateTime @map("scheduled_time")
-  nitrogenAmount  Float?   @map("nitrogen_amount")
-  phosphorusAmount Float?  @map("phosphorus_amount")
-  potassiumAmount Float?   @map("potassium_amount")
-  status          ScheduleStatus @default(PENDING)
-  triggeredBy     String   @map("triggered_by")
-  executed        Boolean  @default(false)
-  executedAt      DateTime? @map("executed_at")
-  createdAt       DateTime @default(now()) @map("created_at")
+  id               String         @id @default(uuid())
+  zoneId           String         @map("zone_id")
+  scheduledTime    DateTime       @map("scheduled_time")
+  nitrogenAmount   Float?         @map("nitrogen_amount")
+  phosphorusAmount Float?         @map("phosphorus_amount")
+  potassiumAmount  Float?         @map("potassium_amount")
+  status           ScheduleStatus @default(PENDING)
+  triggeredBy      String         @map("triggered_by")
+  executed         Boolean        @default(false)
+  executedAt       DateTime?      @map("executed_at")
+  createdAt        DateTime       @default(now()) @map("created_at")
+  zone             Zone           @relation(fields: [zoneId], references: [id], onDelete: Cascade)
 
   @@index([zoneId])
   @@index([scheduledTime])
   @@index([status])
   @@map("fertilizer_schedules")
+}
+
+model expenses {
+  id         String   @id
+  user_id    String
+  title      String
+  category   String
+  amount     Float
+  date       DateTime @default(now())
+  created_at DateTime @default(now())
+  users      User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([date])
+  @@index([user_id])
 }
 
 enum Role {

@@ -7,12 +7,12 @@ import { History } from 'lucide-react'
 const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
         return (
-            <div className="bg-gray-900/95 backdrop-blur-md p-4 rounded-2xl border border-white/10 shadow-xl text-white">
-                <p className="text-xs font-bold text-gray-400 mb-2 uppercase tracking-wider">{label}</p>
+            <div className="bg-card backdrop-blur-md p-4 rounded-2xl border border-border shadow-xl">
+                <p className="text-xs font-bold text-foreground/40 mb-2 uppercase tracking-wider">{label}</p>
                 {payload.map((entry, index) => (
                     <div key={index} className="flex items-center gap-2 mb-1">
                         <div className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }}></div>
-                        <span className="text-sm font-bold">{entry.name}: {entry.value}%</span>
+                        <span className="text-sm font-bold text-foreground">{entry.name}: {entry.value}%</span>
                     </div>
                 ))}
             </div>
@@ -29,28 +29,28 @@ const SensorHistoryChart = ({ data }) => {
     ]
 
     return (
-        <div className="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-xl shadow-gray-100/50 h-[400px] flex flex-col relative overflow-hidden group">
+        <div className="bg-card p-8 rounded-[2.5rem] border border-border shadow-xl h-[400px] flex flex-col relative overflow-hidden group">
             {/* Header */}
             <div className="flex items-center justify-between mb-8 relative z-10">
                 <div className="flex items-center gap-3">
-                    <div className="p-2.5 bg-blue-500 rounded-xl text-white shadow-lg shadow-blue-200">
+                    <div className="p-2.5 bg-blue-500 rounded-xl text-white shadow-lg shadow-blue-500/20">
                         <History size={20} />
                     </div>
                     <div>
-                        <h3 className="text-lg font-black text-gray-900 tracking-tight">Live Analytics</h3>
-                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Real-time History</p>
+                        <h3 className="text-lg font-black text-foreground tracking-tight">Live Analytics</h3>
+                        <p className="text-xs font-bold text-foreground/40 uppercase tracking-widest">Real-time History</p>
                     </div>
                 </div>
 
                 {/* Legend Chips */}
                 <div className="flex gap-2">
-                    <div className="flex items-center gap-2 px-3 py-1.5 bg-green-50 rounded-lg border border-green-100">
+                    <div className="flex items-center gap-2 px-3 py-1.5 bg-green-500/10 rounded-lg border border-green-500/20">
                         <div className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse"></div>
-                        <span className="text-xs font-bold text-green-700">Moisture</span>
+                        <span className="text-xs font-bold text-green-600">Moisture</span>
                     </div>
-                    <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 rounded-lg border border-blue-100">
+                    <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-500/10 rounded-lg border border-blue-500/20">
                         <div className="w-2.5 h-2.5 rounded-full bg-blue-500"></div>
-                        <span className="text-xs font-bold text-blue-700">Rain</span>
+                        <span className="text-xs font-bold text-blue-600">Rain</span>
                     </div>
                 </div>
             </div>
@@ -69,18 +69,20 @@ const SensorHistoryChart = ({ data }) => {
                                 <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
                             </linearGradient>
                         </defs>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" className="text-foreground/5" />
                         <XAxis
                             dataKey="time"
                             axisLine={false}
                             tickLine={false}
-                            tick={{ fontSize: 11, fill: '#9ca3af', fontWeight: 600 }}
+                            tick={{ fontSize: 11, fill: 'currentColor', fontWeight: 600 }}
+                            className="text-foreground/40"
                             dy={10}
                         />
                         <YAxis
                             axisLine={false}
                             tickLine={false}
-                            tick={{ fontSize: 11, fill: '#9ca3af', fontWeight: 600 }}
+                            tick={{ fontSize: 11, fill: 'currentColor', fontWeight: 600 }}
+                            className="text-foreground/40"
                             domain={[0, 100]}
                         />
                         <Tooltip content={<CustomTooltip />} />

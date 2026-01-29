@@ -1,20 +1,38 @@
 @echo off
 REM Startup script for AI Service
+SETLOCAL
 
-echo Activating virtual environment...
+echo.
+echo ========================================
+echo  🚀 Starting Smart Ag AI Service
+echo ========================================
+echo.
+
+set VENV_PATH=""
+set PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
+
 if exist venv\Scripts\activate.bat (
-    call venv\Scripts\activate.bat
+    set VENV_PATH=venv\Scripts\activate.bat
 ) else if exist .venv\Scripts\activate.bat (
-    call .venv\Scripts\activate.bat
+    set VENV_PATH=.venv\Scripts\activate.bat
+)
+
+if not %VENV_PATH% == "" (
+    echo [INFO] Activating virtual environment: %VENV_PATH%
+    call %VENV_PATH%
 ) else (
-    echo [WARNING] Virtual environment not found. Trying global python...
+    echo [WARNING] No 'venv' or '.venv' found. Using global python...
 )
 
 echo.
-echo Starting AI Service on port 8000...
-echo Press Ctrl+C to stop the server
-echo.
-
+echo Starting FastAPI with Uvicorn...
 python app.py
 
-pause
+if %ERRORLEVEL% NEQ 0 (
+    echo.
+    echo ❌ Server failed to start.
+    echo.
+    pause
+)
+
+ENDLOCAL

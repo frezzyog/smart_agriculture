@@ -9,51 +9,51 @@ const api = axios.create({
 })
 
 export const getDevices = async () => {
-    const response = await api.get('/devices')
+    const response = await api.get('/api/devices')
     return response.data
 }
 
-export const getSensorData = async (deviceId) => {
-    const response = await api.get(`/sensors/${deviceId}`)
+export const getSensorData = async (deviceId, params = {}) => {
+    const response = await api.get(`/api/sensors/${deviceId}`, { params })
     return response.data
 }
 
 export const controlPump = async (deviceId, status) => {
-    const response = await api.post(`/devices/${deviceId}/pump`, { status })
+    const response = await api.post(`/api/devices/${deviceId}/pump`, { status })
     return response.data
 }
 
 // AI API Calls
 export const getAlerts = async (params = {}) => {
     if (USE_SIMULATOR) return simulateAlerts()
-    const response = await api.get('/alerts', { params })
+    const response = await api.get('/api/alerts', { params })
     return response.data
 }
 
 export const markAlertAsRead = async (alertId) => {
-    const response = await api.patch(`/alerts/${alertId}/read`)
+    const response = await api.patch(`/api/alerts/${alertId}/read`)
     return response.data
 }
 
 export const getAIPredictions = async (zoneId, params = {}) => {
     if (USE_SIMULATOR) return simulateAIPredictions(zoneId)
-    const response = await api.get(`/ai/predictions/${zoneId}`, { params })
+    const response = await api.get(`/api/ai/predictions/${zoneId}`, { params })
     return response.data
 }
 
 export const generateAIPrediction = async (data) => {
-    const response = await api.post('/ai/predictions/generate', data)
+    const response = await api.post('/api/ai/predictions/generate', data)
     return response.data
 }
 
 export const getZones = async () => {
     if (USE_SIMULATOR) return simulateZones()
-    const response = await api.get('/zones')
+    const response = await api.get('/api/zones')
     return response.data
 }
 
 export const createZone = async (data) => {
-    const response = await api.post('/zones/create', data)
+    const response = await api.post('/api/zones/create', data)
     return response.data
 }
 
@@ -70,7 +70,17 @@ export const getDigitalTwin = async (zoneId) => {
             { x: 80, y: 70, type: 'CROP', health: 95 }
         ]
     }
-    const response = await api.get(`/ai/digital-twin/${zoneId}`)
+    const response = await api.get(`/api/ai/digital-twin/${zoneId}`)
+    return response.data
+}
+
+export const getExpenses = async () => {
+    const response = await api.get('/api/expenses')
+    return response.data
+}
+
+export const createExpense = async (data) => {
+    const response = await api.post('/api/expenses', data)
     return response.data
 }
 

@@ -13,12 +13,12 @@ const data = [
 const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
         return (
-            <div className="bg-gray-900/95 backdrop-blur-md p-4 rounded-2xl border border-white/10 shadow-xl text-white">
-                <p className="text-xs font-bold text-gray-400 mb-2 uppercase tracking-wider">{label}</p>
+            <div className="bg-card backdrop-blur-md p-4 rounded-2xl border border-border shadow-xl">
+                <p className="text-xs font-bold text-foreground/40 mb-2 uppercase tracking-wider">{label}</p>
                 {payload.map((entry, index) => (
                     <div key={index} className="flex items-center gap-2 mb-1">
                         <div className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.fill }}></div>
-                        <span className="text-sm font-bold">{entry.name}: {entry.value}%</span>
+                        <span className="text-sm font-bold text-foreground">{entry.name}: {entry.value}%</span>
                     </div>
                 ))}
             </div>
@@ -29,29 +29,31 @@ const CustomTooltip = ({ active, payload, label }) => {
 
 const ZoneComparisonChart = () => {
     return (
-        <div className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-xl shadow-gray-100/50 h-[350px] flex flex-col">
+        <div className="bg-card p-6 rounded-[2.5rem] border border-border shadow-xl h-[350px] flex flex-col">
             <div className="mb-6">
-                <h3 className="text-lg font-black text-gray-900 tracking-tight">Zone Comparison</h3>
-                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Moisture & Humidity Levels</p>
+                <h3 className="text-lg font-black text-foreground tracking-tight">Zone Comparison</h3>
+                <p className="text-xs font-bold text-foreground/40 uppercase tracking-widest">Moisture & Humidity Levels</p>
             </div>
 
             <div className="flex-1 w-full">
                 <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={data} barGap={8}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" className="text-foreground/5" />
                         <XAxis
                             dataKey="zone"
                             axisLine={false}
                             tickLine={false}
-                            tick={{ fontSize: 11, fill: '#9ca3af', fontWeight: 700 }}
+                            tick={{ fontSize: 11, fill: 'currentColor', fontWeight: 700 }}
+                            className="text-foreground/40"
                             dy={10}
                         />
                         <YAxis
                             axisLine={false}
                             tickLine={false}
-                            tick={{ fontSize: 11, fill: '#9ca3af', fontWeight: 700 }}
+                            tick={{ fontSize: 11, fill: 'currentColor', fontWeight: 700 }}
+                            className="text-foreground/40"
                         />
-                        <Tooltip content={<CustomTooltip />} cursor={{ fill: '#f9fafb' }} />
+                        <Tooltip content={<CustomTooltip />} cursor={{ fill: 'currentColor', opacity: 0.05 }} />
                         <Bar dataKey="moisture" name="Soil Moisture" fill="#22c55e" radius={[6, 6, 0, 0]} barSize={20} />
                         <Bar dataKey="humidity" name="Humidity" fill="#3b82f6" radius={[6, 6, 0, 0]} barSize={20} />
                     </BarChart>

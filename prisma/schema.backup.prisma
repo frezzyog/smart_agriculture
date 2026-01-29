@@ -1,0 +1,280 @@
+﻿generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "postgresql://postgres.waxcpawswvwzljiiitax:dalin241205!@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String
+  password  String
+  role      Role     @default(USER)
+  phone     String?
+  devices   Device[]
+  zones     Zone[]
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+model Device {
+  id          String       @id @default(uuid())
+  name        String
+  deviceId    String       @unique @map("device_id")
+  type        DeviceType
+  location    String?
+  latitude    Float?
+  longitude   Float?
+  status      DeviceStatus @default(INACTIVE)
+  userId      String       @map("user_id")
+  zoneId      String?      @map("zone_id")
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  zone        Zone?        @relation(fields: [zoneId], references: [id], onDelete: SetNull)
+  sensorData  SensorData[]
+  pumpLogs    PumpLog[]
+  alerts      Alert[]
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@index([deviceId])
+  @@index([zoneId])
+  @@map("devices")
+}
+
+model SensorData {
+  id            String   @id @default(uuid())
+  deviceId      String   @map("device_id")
+  device        Device   @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  
+  temperature   Float?
+  humidity      Float?
+  moisture      Float?
+  rain          Float?
+  lightIntensity Float?  @map("light_intensity")
+  
+  nitrogen      Float?
+  phosphorus    Float?
+  potassium     Float?
+  pH            Float?
+  
+  soilHealth    String?  @map("soil_health")
+  stressLevel   Float?   @map("stress_level")
+  moistureLossRate Float? @map("moisture_loss_rate")
+  
+  timestamp     DateTime @default(now())
+
+  @@index([deviceId])
+  @@index([timestamp])
+  @@map("sensor_data")
+}
+
+model PumpLog {
+  id          String     @id @default(uuid())
+  deviceId    String     @map("device_id")
+  device      Device     @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  action      PumpAction
+  duration    Int?
+  triggeredBy String?    @map("triggered_by")
+  timestamp   DateTime   @default(now())
+
+  @@index([deviceId])
+  @@index([timestamp])
+  @@map("pump_logs")
+}
+
+model Zone {
+  id                String              @id @default(uuid())
+  name              String
+  userId            String              @map("user_id")
+  user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  area              Float?
+  soilType          String?             @map("soil_type")
+  cropType          String?             @map("crop_type")
+  optimalMoisture   Float?              @map("optimal_moisture")
+  
+  irrigationRate    Float?              @map("irrigation_rate")
+  dryingRate        Float?              @map("drying_rate")
+  
+  devices           Device[]
+  predictions       Prediction[]
+  irrigationSchedules IrrigationSchedule[]
+  fertilizerSchedules FertilizerSchedule[]
+  createdAt         DateTime            @default(now()) @map("created_at")
+  updatedAt         DateTime            @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@map("zones")
+}
+
+model Prediction {
+  id              String   @id @default(uuid())
+  zoneId          String?  @map("zone_id")
+  deviceId        String?  @map("device_id")
+  zone            Zone?    @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+  predictionType  PredictionType @map("prediction_type")
+  confidence      Float
+  predictedValue  Json               @map("predicted_value")
+  validUntil      DateTime?          @map("valid_until")
+  metadata        Json?
+  createdAt       DateTime           @default(now()) @map("created_at")
+
+  @@index([zoneId])
+  @@index([predictionType])
+  @@index([createdAt])
+  @@map("predictions")
+}
+
+model Alert {
+  id          String      @id @default(uuid())
+  deviceId    String?     @map("device_id")
+  userId      String      @map("user_id")
+  device      Device?     @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  severity    AlertLevel
+  type        AlertType
+  title       String
+  message     String
+  isRead      Boolean     @default(false) @map("is_read")
+  isDismissed Boolean     @default(false) @map("is_dismissed")
+  metadata    Json?
+  createdAt   DateTime    @default(now()) @map("created_at")
+  readAt      DateTime?   @map("read_at")
+
+  @@index([userId])
+  @@index([deviceId])
+  @@index([severity])
+  @@index([isRead])
+  @@index([createdAt])
+  @@map("alerts")
+}
+
+model Report {
+  id          String      @id @default(uuid())
+  userId      String      @map("user_id")
+  reportType  ReportType  @map("report_type")
+  title       String
+  period      String
+  startDate   DateTime            @map("start_date")
+  endDate     DateTime            @map("end_date")
+  data        Json
+  insights    Json?
+  fileUrl     String?             @map("file_url")
+  createdAt   DateTime            @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@index([reportType])
+  @@index([period])
+  @@map("reports")
+}
+
+model IrrigationSchedule {
+  id              String   @id @default(uuid())
+  zoneId          String   @map("zone_id")
+  zone            Zone     @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+  scheduledTime   DateTime @map("scheduled_time")
+  duration        Int
+  waterAmount     Float?            @map("water_amount")
+  status          ScheduleStatus    @default(PENDING)
+  triggeredBy     String            @map("triggered_by")
+  executed        Boolean           @default(false)
+  executedAt      DateTime?         @map("executed_at")
+  createdAt       DateTime          @default(now()) @map("created_at")
+
+  @@index([zoneId])
+  @@index([scheduledTime])
+  @@index([status])
+  @@map("irrigation_schedules")
+}
+
+model FertilizerSchedule {
+  id              String   @id @default(uuid())
+  zoneId          String   @map("zone_id")
+  zone            Zone     @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+  scheduledTime   DateTime @map("scheduled_time")
+  nitrogenAmount  Float?   @map("nitrogen_amount")
+  phosphorusAmount Float?  @map("phosphorus_amount")
+  potassiumAmount Float?   @map("potassium_amount")
+  status          ScheduleStatus @default(PENDING)
+  triggeredBy     String   @map("triggered_by")
+  executed        Boolean  @default(false)
+  executedAt      DateTime? @map("executed_at")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@index([zoneId])
+  @@index([scheduledTime])
+  @@index([status])
+  @@map("fertilizer_schedules")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum DeviceType {
+  SENSOR
+  PUMP
+  COMBO
+}
+
+enum DeviceStatus {
+  ACTIVE
+  INACTIVE
+  ERROR
+  MAINTENANCE
+}
+
+enum PumpAction {
+  ON
+  OFF
+  AUTO
+}
+
+enum AlertLevel {
+  INFO
+  WARNING
+  CRITICAL
+}
+
+enum AlertType {
+  MOISTURE_LOW
+  MOISTURE_CRITICAL
+  TEMPERATURE_HIGH
+  TEMPERATURE_LOW
+  PH_WARNING
+  NPK_LOW
+  EQUIPMENT_FAILURE
+  WEATHER_ALERT
+  HARVEST_READY
+  SYSTEM_INFO
+}
+
+enum PredictionType {
+  IRRIGATION
+  FERTILIZER
+  MOISTURE_FORECAST
+  WEATHER
+  PEST_RISK
+  HARVEST_TIMING
+}
+
+enum ReportType {
+  DAILY
+  WEEKLY
+  MONTHLY
+  SEASONAL
+  CUSTOM
+}
+
+enum ScheduleStatus {
+  PENDING
+  EXECUTING
+  COMPLETED
+  CANCELLED
+  FAILED
+}

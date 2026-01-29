@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Ag AI | System Workflow</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.344.0/dist/umd/lucide.min.js"></script>
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --grid: rgba(255, 255, 255, 0.03);
+            --node-bg: #141414;
+            --node-border: #2a2a2a;
+            --active-green: #10b981;
+            --active-yellow: #fbbf24;
+            --text-primary: #ffffff;
+            --text-secondary: #a1a1aa;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            background-image:
+                radial-gradient(var(--grid) 1px, transparent 1px);
+            background-size: 24px 24px;
+            color: var(--text-primary);
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .title-main {
+            text-align: center;
+            padding: 60px 0 20px 0;
+            font-size: 4rem;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            text-transform: uppercase;
+            opacity: 0.9;
+        }
+
+        .workspace {
+            flex: 1;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Connecting Lines Layer */
+        .connections-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Node Styling */
+        .node {
+            position: absolute;
+            background: var(--node-bg);
+            border: 1px solid var(--node-border);
+            border-radius: 12px;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            z-index: 10;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .node-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .node-info h4 {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 2px;
+        }
+
+        .node-info h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        /* Specific Nodes */
+        .node-trigger {
+            left: 10%;
+            border-color: var(--active-green);
+        }
+
+        .node-trigger .node-icon {
+            color: var(--active-green);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .node-agent {
+            left: 50%;
+            transform: translateX(-50%);
+            border-color: var(--active-yellow);
+            padding: 20px 32px;
+            background: #181818;
+        }
+
+        .node-agent .node-icon {
+            color: var(--active-yellow);
+            background: rgba(251, 191, 36, 0.1);
+        }
+
+        .node-agent .badge {
+            position: absolute;
+            top: -10px;
+            right: 20px;
+            background: var(--active-yellow);
+            color: #000;
+            font-size: 0.6rem;
+            font-weight: 900;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .node-action {
+            right: 10%;
+            border-color: var(--active-green);
+        }
+
+        .node-action .node-icon {
+            color: var(--active-green);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        /* Sub-Nodes (Tools) */
+        .tool-node {
+            position: absolute;
+            bottom: 20%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            z-index: 5;
+        }
+
+        .tool-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--node-bg);
+            border: 1px solid var(--node-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+        }
+
+        .tool-node span {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .tool-gemini {
+            left: 38%;
+        }
+
+        .tool-logic {
+            left: 56%;
+        }
+
+        /* Labels / Tooltips */
+        .label-box {
+            position: absolute;
+            background: #252525;
+            border: 1px solid #333;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.65rem;
+            color: #ccc;
+            font-weight: 600;
+            z-index: 20;
+        }
+
+        .item-count {
+            background: #1a1a1a;
+            color: #fff;
+            border: 1px solid #444;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1 class="title-main">Smart AI Agent</h1>
+
+    <div class="workspace">
+        <!-- SVG Connections -->
+        <svg class="connections-svg">
+            <defs>
+                <filter id="glow">
+                    <feGaussianBlur stdDeviation="2.5" result="coloredBlur" />
+                    <feMerge>
+                        <feMergeNode in="coloredBlur" />
+                        <feMergeNode in="SourceGraphic" />
+                    </feMerge>
+                </filter>
+            </defs>
+
+            <!-- Connection 1: Trigger to Agent -->
+            <path d="M 280, 50% L 400, 50%" stroke="#10b981" stroke-width="2" fill="none" filter="url(#glow)"
+                style="opacity:0.8" />
+
+            <!-- Connection 2: Agent to Action -->
+            <path d="M 600, 50% L 800, 50%" stroke="#10b981" stroke-width="2" fill="none" transform="translate(0, 50)"
+                style="opacity:0.5" />
+            <!-- Let's use simpler relative paths in the code below -->
+
+            <!-- Dotted lines to tools -->
+            <path d="M 50%, 50% L 40%, 75%" stroke="#444" stroke-width="1.5" stroke-dasharray="4 4" fill="none" />
+            <path d="M 50%, 50% L 58%, 75%" stroke="#444" stroke-width="1.5" stroke-dasharray="4 4" fill="none" />
+        </svg>
+
+        <!-- Node 1: Trigger -->
+        <div class="node node-trigger">
+            <div class="node-icon"><i data-lucide="zap"></i></div>
+            <div class="node-info">
+                <h4>Trigger</h4>
+                <h3>ESP32 Sensor Push</h3>
+            </div>
+            <div class="label-box item-count" style="top: 15px; right: -60px;">1 item</div>
+        </div>
+
+        <!-- Node 2: Agent -->
+        <div class="node node-agent">
+            <span class="badge">ACTIVE</span>
+            <div class="node-icon"><i data-lucide="bot"></i></div>
+            <div class="node-info">
+                <h3>AgriSmart AI Agent</h3>
+                <p style="font-size: 0.7rem; color: #666;">System Agent (Python + Gemini)</p>
+            </div>
+
+            <!-- Mid Labels -->
+            <div class="label-box" style="bottom: -40px; left: 10px;">Model</div>
+            <div class="label-box" style="bottom: -40px; right: 10px;">Tool</div>
+        </div>
+
+        <!-- Node 3: Action -->
+        <div class="node node-action">
+            <div class="node-icon"><i data-lucide="droplet"></i></div>
+            <div class="node-info">
+                <h4>Action</h4>
+                <h3>Irrigation Pump</h3>
+            </div>
+            <div class="label-box item-count" style="top: 15px; left: -60px;">1 item</div>
+        </div>
+
+        <!-- Tool Nodes -->
+        <div class="tool-node tool-gemini">
+            <div class="tool-circle"><i data-lucide="sparkles"></i></div>
+            <span>Gemini 1.5 Flash</span>
+        </div>
+
+        <div class="tool-node tool-logic">
+            <div class="tool-circle"><i data-lucide="microscope"></i></div>
+            <span>NPK Logic Engine</span>
+        </div>
+
+    </div>
+
+    <!-- Final positioning and drawing -->
+    <script>
+        lucide.createIcons();
+
+        // Dynamically draw SVG lines between nodes
+        function drawLines() {
+            const svg = document.querySelector('.connections-svg');
+            const trigger = document.querySelector('.node-trigger');
+            const agent = document.querySelector('.node-agent');
+            const action = document.querySelector('.node-action');
+            const geminiCircle = document.querySelector('.tool-gemini .tool-circle');
+            const logicCircle = document.querySelector('.tool-logic .tool-circle');
+            const container = document.querySelector('.workspace').getBoundingClientRect();
+
+            if (!trigger || !agent || !action || !svg) return;
+
+            const getPos = (el) => {
+                const rect = el.getBoundingClientRect();
+                return {
+                    left: rect.left - container.left,
+                    top: rect.top - container.top,
+                    right: rect.right - container.left,
+                    bottom: rect.bottom - container.top,
+                    width: rect.width,
+                    height: rect.height,
+                    centerX: rect.left - container.left + rect.width / 2,
+                    centerY: rect.top - container.top + rect.height / 2
+                };
+            };
+
+            const t = getPos(trigger);
+            const ag = getPos(agent);
+            const ac = getPos(action);
+            const gm = getPos(geminiCircle);
+            const lg = getPos(logicCircle);
+
+            // Create curved path function
+            const curve = (x1, y1, x2, y2) => {
+                const cx = (x1 + x2) / 2;
+                return `M ${x1},${y1} C ${cx},${y1} ${cx},${y2} ${x2},${y2}`;
+            };
+
+            svg.innerHTML = `
+                <defs>
+                    <filter id="glow">
+                        <feGaussianBlur stdDeviation="3" result="p"/><feMerge><feMergeNode in="p"/><feMergeNode in="SourceGraphic"/></feMerge>
+                    </filter>
+                    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                        <polygon points="0 0, 10 3.5, 0 7" fill="#10b981" />
+                    </marker>
+                    <marker id="arrowhead-gray" markerWidth="8" markerHeight="5" refX="7" refY="2.5" orient="auto">
+                        <polygon points="0 0, 8 2.5, 0 5" fill="#444" />
+                    </marker>
+                </defs>
+
+                <!-- Trigger to Agent (Curved) -->
+                <path d="${curve(t.right, t.centerY, ag.left - 5, ag.centerY)}" 
+                      stroke="#10b981" stroke-width="2.5" fill="none" 
+                      filter="url(#glow)" marker-end="url(#arrowhead)"/>
+
+                <!-- Agent to Action (Curved) -->
+                <path d="${curve(ag.right, ag.centerY, ac.left - 5, ac.centerY)}" 
+                      stroke="#10b981" stroke-width="2.5" fill="none" 
+                      style="opacity: 0.8" marker-end="url(#arrowhead)"/>
+
+                <!-- Tool Connections (Dashed) -->
+                <path d="${curve(ag.centerX - 60, ag.bottom, gm.centerX, gm.top - 5)}" 
+                      stroke="#444" stroke-width="1.5" stroke-dasharray="5 5" fill="none"
+                      marker-end="url(#arrowhead-gray)"/>
+
+                <path d="${curve(ag.centerX + 60, ag.bottom, lg.centerX, lg.top - 5)}" 
+                      stroke="#444" stroke-width="1.5" stroke-dasharray="5 5" fill="none"
+                      marker-end="url(#arrowhead-gray)"/>
+            `;
+        }
+
+        // Run immediately and on events
+        setTimeout(drawLines, 100);
+        window.addEventListener('resize', drawLines);
+        // Secondary check to ensure everything is settled
+        window.addEventListener('load', drawLines);
+    </script>
+</body>
+
+</html>

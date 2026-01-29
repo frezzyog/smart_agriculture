@@ -74,6 +74,7 @@ CREATE TABLE "sensor_data" (
     "soil_health" TEXT,
     "stress_level" DOUBLE PRECISION,
     "moisture_loss_rate" DOUBLE PRECISION,
+    "metadata" JSONB,
     "timestamp" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "sensor_data_pkey" PRIMARY KEY ("id"),
     CONSTRAINT "sensor_data_device_id_fkey" FOREIGN KEY ("device_id") REFERENCES "devices"("id") ON DELETE CASCADE ON UPDATE CASCADE
@@ -85,6 +86,7 @@ CREATE TABLE "pump_logs" (
     "action" "PumpAction" NOT NULL,
     "duration" INTEGER,
     "triggered_by" TEXT,
+    "metadata" JSONB,
     "timestamp" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "pump_logs_pkey" PRIMARY KEY ("id"),
     CONSTRAINT "pump_logs_device_id_fkey" FOREIGN KEY ("device_id") REFERENCES "devices"("id") ON DELETE CASCADE ON UPDATE CASCADE

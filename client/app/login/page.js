@@ -30,7 +30,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#f8fafc] overflow-hidden relative font-sans">
+    <div className="min-h-screen flex items-center justify-center bg-background overflow-hidden relative font-sans">
       {/* Abstract Background Elements */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
         <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-green-400/30 rounded-full blur-[120px] mix-blend-multiply filter animate-blob"></div>
@@ -39,7 +39,7 @@ export default function LoginPage() {
       </div>
 
       <div className="max-w-md w-full relative z-10 p-6">
-        <div className="bg-white/80 backdrop-blur-xl rounded-[2.5rem] shadow-2xl shadow-green-900/10 border border-white/50 p-8 md:p-12 overflow-hidden relative">
+        <div className="bg-card/80 backdrop-blur-xl rounded-[2.5rem] shadow-2xl shadow-green-900/10 border border-border p-8 md:p-12 overflow-hidden relative">
 
           {/* Decorative Top Gradient */}
           <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-green-400 via-emerald-500 to-teal-500"></div>
@@ -48,10 +48,10 @@ export default function LoginPage() {
             <div className="mx-auto h-20 w-20 bg-gradient-to-br from-green-400 to-emerald-600 rounded-[1.5rem] flex items-center justify-center mb-6 shadow-lg shadow-green-500/30 transform rotate-3 hover:rotate-6 transition-transform duration-300">
               <Sprout size={40} className="text-white" />
             </div>
-            <h2 className="text-4xl font-black text-gray-900 tracking-tight mb-2">
+            <h2 className="text-4xl font-black text-foreground tracking-tight mb-2">
               Welcome Back
             </h2>
-            <p className="text-gray-500 font-medium">
+            <p className="text-foreground/50 font-medium">
               Enter your credentials to access your farm dashboard.
             </p>
           </div>
@@ -68,10 +68,10 @@ export default function LoginPage() {
 
             <div className="space-y-4">
               <div className="space-y-2">
-                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Email Address</label>
+                <label className="text-xs font-bold text-foreground/40 uppercase tracking-widest ml-1">Email Address</label>
                 <div className="relative group">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <Mail size={18} className="text-gray-400 group-focus-within:text-green-500 transition-colors" />
+                    <Mail size={18} className="text-foreground/40 group-focus-within:text-green-500 transition-colors" />
                   </div>
                   <input
                     id="email"
@@ -80,17 +80,17 @@ export default function LoginPage() {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="block w-full pl-11 pr-4 py-4 bg-gray-50/50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-green-500/10 focus:bg-white focus:border-green-500 transition-all font-bold text-gray-900 placeholder-gray-300"
+                    className="block w-full pl-11 pr-4 py-4 bg-foreground/5 border border-border rounded-2xl focus:outline-none focus:ring-4 focus:ring-green-500/10 focus:bg-card focus:border-green-500 transition-all font-bold text-foreground placeholder-foreground/20"
                     placeholder="farmer@smartag.com"
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Password</label>
+                <label className="text-xs font-bold text-foreground/40 uppercase tracking-widest ml-1">Password</label>
                 <div className="relative group">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <Lock size={18} className="text-gray-400 group-focus-within:text-green-500 transition-colors" />
+                    <Lock size={18} className="text-foreground/40 group-focus-within:text-green-500 transition-colors" />
                   </div>
                   <input
                     id="password"
@@ -99,7 +99,7 @@ export default function LoginPage() {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="block w-full pl-11 pr-4 py-4 bg-gray-50/50 border border-gray-100 rounded-2xl focus:outline-none focus:ring-4 focus:ring-green-500/10 focus:bg-white focus:border-green-500 transition-all font-bold text-gray-900 placeholder-gray-300"
+                    className="block w-full pl-11 pr-4 py-4 bg-foreground/5 border border-border rounded-2xl focus:outline-none focus:ring-4 focus:ring-green-500/10 focus:bg-card focus:border-green-500 transition-all font-bold text-foreground placeholder-foreground/20"
                     placeholder="••••••••"
                   />
                 </div>
@@ -108,8 +108,8 @@ export default function LoginPage() {
 
             <div className="flex items-center justify-between px-1">
               <div className="flex items-center">
-                <input id="remember-me" type="checkbox" className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded-lg cursor-pointer" />
-                <label htmlFor="remember-me" className="ml-2 block text-xs font-bold text-gray-500 cursor-pointer">Remember me</label>
+                <input id="remember-me" type="checkbox" className="h-4 w-4 text-green-600 focus:ring-green-500 border-border rounded-lg cursor-pointer bg-foreground/5" />
+                <label htmlFor="remember-me" className="ml-2 block text-xs font-bold text-foreground/50 cursor-pointer">Remember me</label>
               </div>
               <a href="#" className="text-xs font-bold text-green-600 hover:text-green-700 transition-colors">Recover Password</a>
             </div>
@@ -117,14 +117,14 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex justify-center items-center gap-2 py-4 px-4 bg-gray-900 hover:bg-gray-800 text-white rounded-2xl font-bold text-sm uppercase tracking-wider shadow-xl shadow-gray-900/20 transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed group"
+              className="w-full flex justify-center items-center gap-2 py-4 px-4 bg-foreground text-background rounded-2xl font-bold text-sm uppercase tracking-wider shadow-xl shadow-foreground/10 transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed group"
             >
               {loading ? <Loader2 size={18} className="animate-spin" /> : <span className="flex items-center gap-2">Sign In <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" /></span>}
             </button>
           </form>
 
-          < div className="mt-8 pt-6 border-t border-gray-100 text-center">
-            <p className="text-sm font-medium text-gray-500">
+          < div className="mt-8 pt-6 border-t border-border text-center">
+            <p className="text-sm font-medium text-foreground/50">
               New to SmartAg?{' '}
               <Link href="/signup" className="font-bold text-green-600 hover:text-green-700 transition-colors inline-flex items-center gap-1 hover:gap-2 duration-300">
                 Create Account <ArrowRight size={14} />

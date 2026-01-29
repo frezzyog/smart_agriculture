@@ -9,6 +9,7 @@
 #include <WiFi.h>           // For ESP32 (use ESP8266WiFi.h for ESP8266)
 #include <PubSubClient.h>   // MQTT library
 #include <ArduinoJson.h>    // JSON serialization
+#include <ModbusMaster.h>    // For 7-in-1 NPK/pH/EC sensor
 
 // ============================================
 // CONFIGURATION - Update these values
@@ -19,11 +20,11 @@ const char* ssid = "NUM2 STUDENT";
 const char* password = "student@2024";
 
 // MQTT Broker (your backend server)
-const char* mqtt_server = "10.10.12.218";  // Your PC's IP on NUM2 STUDENT
+const char* mqtt_server = "10.10.12.218";  
 const int mqtt_port = 1883;
 
 // Device Configuration
-const char* device_id = "DEVICE_001";  // Unique identifier for this device
+const char* device_id = "DEVICE_001";  
 
 // MQTT Topics
 String topic_sensors = "smartag/" + String(device_id) + "/sensors";
@@ -31,48 +32,44 @@ String topic_pump_command = "smartag/" + String(device_id) + "/pump/command";
 String topic_pump_status = "smartag/" + String(device_id) + "/pump/status";
 
 // ============================================
-// SENSOR PIN CONFIGURATION
+// HARDWARE PIN CONFIGURATION
 // ============================================
 
-// Soil Moisture Sensor (Capacitive)
-#define MOISTURE_PIN 34  // Analog pin
+// 7-in-1 Sensor (RS485 Modbus)
+#define RS485_RX 16
+#define RS485_TX 17
+#define RS485_DE 4      // Direction Enable
 
-// Rain Drop Sensor
-#define RAIN_PIN 35  // Analog pin
+// Analog Sensors
+#define MOISTURE_PIN 34  // Capacitive Soil Moisture
+#define RAIN_PIN 35      // YL-83 Rain Sensor
 
-// Pump/Relay Control
-#define PUMP_PIN 5
-
-// ============================================
-// SENSOR CALIBRATION VALUES
-// ============================================
-
-// Soil Moisture Sensor Calibration
-// Adjust these based on your sensor's actual readings:
-// - WET_VALUE: Raw reading when sensor is in water
-// - DRY_VALUE: Raw reading when sensor is in air
-#define MOISTURE_WET 1800   // Sensor in water (lower value = more moisture)
-#define MOISTURE_DRY 3500   // Sensor in air (higher value = dry)
-
-// Rain Sensor Calibration
-#define RAIN_WET 3500       // Sensor wet (rain detected) 
-#define RAIN_DRY 500        // Sensor dry (no rain)
+// Dual Pump/Relay Control
+#define WATER_PUMP_PIN 5
+#define FERTILIZER_PUMP_PIN 18
 
 // ============================================
-// LIBRARIES & OBJECTS
+// CALIBRATION & OBJECTS
 // ============================================
+
+#define MOISTURE_WET 1800   
+#define MOISTURE_DRY 3500   
+#define RAIN_WET 500        
+#define RAIN_DRY 4095       
 
 WiFiClient espClient;
 PubSubClient mqtt(espClient);
+ModbusMaster sensor;
 
 // ============================================
 // GLOBAL VARIABLES
 // ============================================
 
 unsigned long lastSensorRead = 0;
-const unsigned long sensorInterval = 10000;  // Send data every 10 seconds
+const unsigned long sensorInterval = 10000;  
 
-bool pumpStatus = false;
+bool waterPumpStatus = false;
+bool fertilizerPumpStatus = false;
 
 // ============================================
 // SETUP
@@ -80,42 +77,31 @@ bool pumpStatus = false;
 
 void setup() {
   Serial.begin(115200);
-  delay(1000);
   
-  Serial.println("\n\n=================================");
-  Serial.println("Smart Agriculture IoT Device");
-  Serial.println("=================================\n");
-
-  // Initialize pins
-  pinMode(PUMP_PIN, OUTPUT);
-  digitalWrite(PUMP_PIN, LOW);
+  // Initialize Modbus (Serial2)
+  Serial2.begin(9600, SERIAL_8N1, RS485_RX, RS485_TX);
+  sensor.begin(1, Serial2);
+  pinMode(RS485_DE, OUTPUT);
+  digitalWrite(RS485_DE, LOW);
   
-  // Sensors are analog - no initialization needed
+  // Initialize pump pins
+  pinMode(WATER_PUMP_PIN, OUTPUT);
+  pinMode(FERTILIZER_PUMP_PIN, OUTPUT);
+  digitalWrite(WATER_PUMP_PIN, LOW);
+  digitalWrite(FERTILIZER_PUMP_PIN, LOW);
   
-  // Connect to WiFi
   connectWiFi();
-  
-  // Connect to MQTT
   mqtt.setServer(mqtt_server, mqtt_port);
   mqtt.setCallback(mqttCallback);
   connectMQTT();
   
-  Serial.println("\n✅ Device ready!");
-  Serial.println("Device ID: " + String(device_id));
+  Serial.println("\n✅ Smart Agriculture System Online!");
 }
 
-// ============================================
-// MAIN LOOP
-// ============================================
-
 void loop() {
-  // Maintain MQTT connection
-  if (!mqtt.connected()) {
-    connectMQTT();
-  }
+  if (!mqtt.connected()) connectMQTT();
   mqtt.loop();
   
-  // Read and send sensor data periodically
   unsigned long currentMillis = millis();
   if (currentMillis - lastSensorRead >= sensorInterval) {
     lastSensorRead = currentMillis;
@@ -124,165 +110,125 @@ void loop() {
 }
 
 // ============================================
-// WiFi CONNECTION
+// RS485 MODBUS READING
 // ============================================
 
-void connectWiFi() {
-  Serial.print("Connecting to WiFi: ");
-  Serial.println(ssid);
+void preTransmission() { digitalWrite(RS485_DE, HIGH); }
+void postTransmission() { digitalWrite(RS485_DE, LOW); }
+
+void readAndSendSensorData() {
+  Serial.println("\n--- Reading External Sensors ---");
   
-  WiFi.begin(ssid, password);
+  // 1. Read Analog Sensors
+  int moistureRaw = analogRead(MOISTURE_PIN);
+  float moisture = constrain(map(moistureRaw, MOISTURE_WET, MOISTURE_DRY, 100, 0), 0, 100);
   
-  int attempts = 0;
-  while (WiFi.status() != WL_CONNECTED && attempts < 20) {
-    delay(500);
-    Serial.print(".");
-    attempts++;
-  }
+  int rainRaw = analogRead(RAIN_PIN);
+  float rainLevel = constrain(map(rainRaw, RAIN_WET, RAIN_DRY, 100, 0), 0, 100);
+
+  // 2. Read 7-in-1 Modbus Sensor
+  float humidity = 0, temperature = 0, ec = 0, ph = 0, nitrogen = 0, phosphorus = 0, potassium = 0;
   
-  if (WiFi.status() == WL_CONNECTED) {
-    Serial.println("\n✅ WiFi connected!");
-    Serial.print("IP Address: ");
-    Serial.println(WiFi.localIP());
+  sensor.preTransmission(preTransmission);
+  sensor.postTransmission(postTransmission);
+  
+  // Read 7 registers starting from 0x0000
+  uint8_t result = sensor.readHoldingRegisters(0x0000, 7);
+  
+  if (result == sensor.ku8MBSuccess) {
+    humidity = sensor.getResponseBuffer(0) / 10.0;
+    temperature = sensor.getResponseBuffer(1) / 10.0;
+    ec = sensor.getResponseBuffer(2);
+    ph = sensor.getResponseBuffer(3) / 10.0;
+    nitrogen = sensor.getResponseBuffer(4);
+    phosphorus = sensor.getResponseBuffer(5);
+    potassium = sensor.getResponseBuffer(6);
+    
+    Serial.println("Modbus Data: Temp=" + String(temperature) + "C, pH=" + String(ph) + ", EC=" + String(ec));
+    Serial.println("NPK: " + String(nitrogen) + "/" + String(phosphorus) + "/" + String(potassium));
   } else {
-    Serial.println("\n❌ WiFi connection failed!");
+    Serial.println("❌ Modbus Read Failed: " + String(result, HEX));
   }
+  
+  // 3. Create JSON payload
+  StaticJsonDocument<512> doc;
+  doc["deviceId"] = device_id;
+  doc["moisture"] = moisture;
+  doc["rain"] = rainLevel;
+  doc["humidity"] = humidity;
+  doc["temperature"] = temperature;
+  doc["ec"] = ec;
+  doc["pH"] = ph;
+  doc["nitrogen"] = nitrogen;
+  doc["phosphorus"] = phosphorus;
+  doc["potassium"] = potassium;
+  doc["waterPump"] = waterPumpStatus ? "ON" : "OFF";
+  doc["fertilizerPump"] = fertilizerPumpStatus ? "ON" : "OFF";
+  
+  char payload[512];
+  serializeJson(doc, payload);
+  mqtt.publish(topic_sensors.c_str(), payload);
+  Serial.println("📡 Data published");
 }
 
 // ============================================
-// MQTT CONNECTION
+// MQTT & PUMP CONTROL
 // ============================================
+
+void connectWiFi() {
+  Serial.print("Connecting to WiFi...");
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) { delay(500); Serial.print("."); }
+  Serial.println("\n✅ WiFi Connected: " + WiFi.localIP().toString());
+}
 
 void connectMQTT() {
   while (!mqtt.connected()) {
-    Serial.print("Connecting to MQTT broker...");
-    
-    // Attempt to connect
     if (mqtt.connect(device_id)) {
-      Serial.println("✅ Connected!");
-      
-      // Subscribe to pump command topic
       mqtt.subscribe(topic_pump_command.c_str());
-      Serial.println("📡 Subscribed to: " + topic_pump_command);
-      
+      Serial.println("✅ MQTT Connected & Subscribed");
     } else {
-      Serial.print("❌ Failed, rc=");
-      Serial.print(mqtt.state());
-      Serial.println(" Retrying in 5 seconds...");
       delay(5000);
     }
   }
 }
 
-// ============================================
-// READ AND SEND SENSOR DATA
-// ============================================
-
-void readAndSendSensorData() {
-  Serial.println("\n--- Reading Sensors ---");
-  
-  // Read soil moisture with calibration
-  // Using calibrated wet/dry values for better accuracy
-  int moistureRaw = analogRead(MOISTURE_PIN);
-  float moisture = map(moistureRaw, MOISTURE_WET, MOISTURE_DRY, 100, 0);
-  moisture = constrain(moisture, 0, 100);  // Keep within 0-100%
-  
-  // Read rain sensor with calibration
-  // Using calibrated wet/dry values
-  int rainRaw = analogRead(RAIN_PIN);
-  float rainLevel = map(rainRaw, RAIN_WET, RAIN_DRY, 100, 0);
-  rainLevel = constrain(rainLevel, 0, 100);  // Keep within 0-100%
-  
-  // Read NPK Sensor (Simulated values for now - replace with actual sensor reading)
-  // For real NPK sensor (RS485 Modbus), you'll need to use a Modbus library
-  // and read registers from the sensor. This is a placeholder.
-  float nitrogen = random(0, 100);    // mg/kg or ppm
-  float phosphorus = random(0, 100);  // mg/kg or ppm
-  float potassium = random(0, 100);   // mg/kg or ppm
-  
-  // Display readings
-  Serial.println("Soil Moisture: " + String(moisture) + "%");
-  Serial.println("Rain Level: " + String(rainLevel) + "%");
-  Serial.println(">>> Moisture Raw: " + String(moistureRaw) + " (Calibration: " + String(MOISTURE_WET) + "-" + String(MOISTURE_DRY) + ")");
-  Serial.println(">>> Rain Raw: " + String(rainRaw) + " (Calibration: " + String(RAIN_WET) + "-" + String(RAIN_DRY) + ")");
-  Serial.println("Nitrogen (N): " + String(nitrogen) + " mg/kg");
-  Serial.println("Phosphorus (P): " + String(phosphorus) + " mg/kg");
-  Serial.println("Potassium (K): " + String(potassium) + " mg/kg");
-  
-  // Create JSON payload
-  StaticJsonDocument<400> doc;
-  doc["moisture"] = moisture;
-  doc["rain"] = rainLevel;
-  doc["nitrogen"] = nitrogen;
-  doc["phosphorus"] = phosphorus;
-  doc["potassium"] = potassium;
-  doc["moistureRaw"] = moistureRaw;
-  doc["rainRaw"] = rainRaw;
-  doc["deviceId"] = device_id;
-  
-  char payload[400];
-  serializeJson(doc, payload);
-  
-  // Publish to MQTT
-  if (mqtt.publish(topic_sensors.c_str(), payload)) {
-    Serial.println("✅ Data sent to server!");
-  } else {
-    Serial.println("❌ Failed to send data!");
-  }
-}
-
-// ============================================
-// MQTT CALLBACK (Receive Commands)
-// ============================================
-
 void mqttCallback(char* topic, byte* payload, unsigned int length) {
-  Serial.print("\n📨 Message received on topic: ");
-  Serial.println(topic);
-  
-  // Parse JSON payload
   StaticJsonDocument<200> doc;
   deserializeJson(doc, payload, length);
   
-  // Check if this is a pump command
-  if (String(topic) == topic_pump_command) {
-    String status = doc["status"];
-    int duration = doc["duration"] | 0;
-    
-    Serial.println("Pump Command: " + status);
-    
-    if (status == "ON") {
-      controlPump(true, duration);
-    } else if (status == "OFF") {
-      controlPump(false, 0);
-    }
+  String type = doc["type"] | "WATER"; // WATER or FERTILIZER
+  String status = doc["status"];
+  int duration = doc["duration"] | 0;
+  
+  if (type == "WATER") {
+    controlPump(WATER_PUMP_PIN, status == "ON", duration, "Water");
+    waterPumpStatus = (status == "ON");
+  } else if (type == "FERTILIZER") {
+    controlPump(FERTILIZER_PUMP_PIN, status == "ON", duration, "Fertilizer");
+    fertilizerPumpStatus = (status == "ON");
   }
 }
 
-// ============================================
-// PUMP CONTROL
-// ============================================
+void controlPump(int pin, bool turnOn, int duration, String label) {
+  digitalWrite(pin, turnOn ? HIGH : LOW);
+  Serial.println("💧 " + label + " Pump: " + (turnOn ? "ON" : "OFF"));
+  
+  // Publish status back
+  StaticJsonDocument<200> statusDoc;
+  statusDoc["deviceId"] = device_id;
+  statusDoc["type"] = label.toUpperCase();
+  statusDoc["status"] = turnOn ? "ON" : "OFF";
+  char p[200];
+  serializeJson(statusDoc, p);
+  mqtt.publish(topic_pump_status.c_str(), p);
 
-void controlPump(bool turnOn, int duration) {
-  if (turnOn) {
-    digitalWrite(PUMP_PIN, HIGH);
-    pumpStatus = true;
-    Serial.println("💧 Pump turned ON");
-    
-    // Send status update
-    publishPumpStatus("ON");
-    
-    // If duration is specified, turn off after duration (in seconds)
-    if (duration > 0) {
-      delay(duration * 1000);
-      controlPump(false, 0);
-    }
-  } else {
-    digitalWrite(PUMP_PIN, LOW);
-    pumpStatus = false;
-    Serial.println("💧 Pump turned OFF");
-    
-    // Send status update
-    publishPumpStatus("OFF");
+  if (turnOn && duration > 0) {
+    // Note: delay() is blocking. In a real system, use non-blocking timers.
+    delay(duration * 1000);
+    digitalWrite(pin, LOW);
+    if (label == "Water") waterPumpStatus = false;
+    else fertilizerPumpStatus = false;
   }
 }
 

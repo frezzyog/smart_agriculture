@@ -1,14 +1,23 @@
 'use client'
 
-import React, { useState } from 'react'
-import { MessageSquare, Send, User, Bot, Sparkles, Phone, Mail, HelpCircle, ChevronDown, ChevronUp } from 'lucide-react'
+import React, { useState, useRef, useEffect } from 'react'
+import ReactMarkdown from 'react-markdown'
+import {
+    MessageSquare, Send, User, Bot, Sparkles,
+    Phone, Mail, HelpCircle, ChevronDown,
+    ChevronUp, Loader2
+} from 'lucide-react'
 
 export default function ChatbotPage() {
     const [messages, setMessages] = useState([
         { id: 1, role: 'bot', text: 'Hello! I am your AI Agronomist. How can I help you today?' },
     ])
     const [input, setInput] = useState('')
+    const [isTyping, setIsTyping] = useState(false)
+    const [devices, setDevices] = useState([])
+    const [selectedDeviceId, setSelectedDeviceId] = useState('')
     const [openFaq, setOpenFaq] = useState(0)
+    const scrollRef = useRef(null)
 
     const faqs = [
         {
@@ -21,14 +30,63 @@ export default function ChatbotPage() {
         }
     ]
 
-    const handleSend = () => {
+    // Auto-scroll to bottom
+    useEffect(() => {
+        if (scrollRef.current) {
+            scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+        }
+    }, [messages, isTyping])
+
+    // Fetch devices for context
+    React.useEffect(() => {
+        const fetchDevices = async () => {
+            try {
+                const res = await fetch('http://localhost:5000/api/devices')
+                const data = await res.json()
+                if (Array.isArray(data) && data.length > 0) {
+                    setDevices(data)
+                    setSelectedDeviceId(data[0].device_id || data[0].deviceId)
+                }
+            } catch (err) {
+                console.error('Failed to fetch devices for chat context:', err)
+            }
+        }
+        fetchDevices()
+    }, [])
+
+    const handleSend = async () => {
         if (!input.trim()) return
-        setMessages([...messages, { id: Date.now(), role: 'user', text: input }])
+        const userMsg = { id: Date.now(), role: 'user', text: input }
+        setMessages(prev => [...prev, userMsg])
+        const currentInput = input
         setInput('')
-        // Mock response
-        setTimeout(() => {
-            setMessages(prev => [...prev, { id: Date.now() + 1, role: 'bot', text: "I've analyzed your request. Based on current sensor data, everything looks optimal. Would you like a detailed report?" }])
-        }, 1000)
+        setIsTyping(true)
+
+        try {
+            const response = await fetch('http://localhost:5000/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message: currentInput,
+                    deviceId: selectedDeviceId
+                })
+            })
+            const data = await response.json()
+
+            setMessages(prev => [...prev, {
+                id: Date.now() + 1,
+                role: 'bot',
+                text: data.reply || "I'm sorry, I couldn't process that request."
+            }])
+        } catch (error) {
+            setMessages(prev => [...prev, {
+                id: Date.now() + 1,
+                role: 'bot',
+                text: "My communication lines are down. Please check your connection."
+            }])
+        } finally {
+            setIsTyping(false)
+        }
     }
 
     return (
@@ -40,13 +98,29 @@ export default function ChatbotPage() {
                         <h1 className="text-4xl font-black text-white tracking-tighter mb-2 flex items-center gap-3">
                             AI <span className="text-accent underline decoration-accent/30 decoration-4 underline-offset-8">Chatbot</span>
                         </h1>
-                        <p className="text-gray-500 font-medium">Instant agricultural advice and system troubleshooting.</p>
+                        <div className="flex justify-between items-center">
+                            <p className="text-gray-500 font-medium">Instant agricultural advice and system troubleshooting.</p>
+                            {devices.length > 0 && (
+                                <select
+                                    value={selectedDeviceId}
+                                    onChange={(e) => setSelectedDeviceId(e.target.value)}
+                                    className="bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs font-bold text-accent outline-none hover:border-accent/30 transition-all"
+                                >
+                                    {devices.map(d => (
+                                        <option key={d.id} value={d.device_id || d.deviceId}>{d.name}</option>
+                                    ))}
+                                </select>
+                            )}
+                        </div>
                     </div>
 
                     <div className="flex-1 bg-card rounded-[2.5rem] border border-white/5 p-8 flex flex-col overflow-hidden relative">
                         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-px bg-gradient-to-r from-transparent via-accent/20 to-transparent"></div>
 
-                        <div className="flex-1 overflow-y-auto space-y-6 pr-4 custom-scrollbar">
+                        <div
+                            ref={scrollRef}
+                            className="flex-1 overflow-y-auto space-y-6 pr-4 custom-scrollbar scroll-smooth"
+                        >
                             {messages.map((msg) => (
                                 <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                                     <div className={`flex gap-4 max-w-[80%] ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
@@ -54,11 +128,30 @@ export default function ChatbotPage() {
                                             {msg.role === 'user' ? <User size={20} /> : <Bot size={20} />}
                                         </div>
                                         <div className={`p-5 rounded-[1.5rem] text-sm font-medium leading-relaxed ${msg.role === 'user' ? 'bg-accent text-[#020603] rounded-tr-none' : 'bg-white/5 text-gray-200 border border-white/10 rounded-tl-none'}`}>
-                                            {msg.text}
+                                            {msg.role === 'bot' ? (
+                                                <div className="prose prose-invert prose-sm max-w-none prose-p:leading-relaxed prose-li:my-1 prose-strong:text-accent prose-strong:font-black">
+                                                    <ReactMarkdown>{msg.text}</ReactMarkdown>
+                                                </div>
+                                            ) : (
+                                                msg.text
+                                            )}
                                         </div>
                                     </div>
                                 </div>
                             ))}
+                            {isTyping && (
+                                <div className="flex justify-start animate-in fade-in slide-in-from-bottom-2 duration-300">
+                                    <div className="flex gap-4">
+                                        <div className="h-10 w-10 rounded-xl bg-white/5 text-accent border border-white/10 flex items-center justify-center">
+                                            <Bot size={20} className="animate-pulse" />
+                                        </div>
+                                        <div className="bg-white/5 text-gray-500 border border-white/10 p-4 rounded-2xl rounded-tl-none flex items-center gap-2">
+                                            <Loader2 size={14} className="animate-spin" />
+                                            <span className="text-xs font-bold tracking-widest uppercase italic">Analyzing data...</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         <div className="mt-8 relative">

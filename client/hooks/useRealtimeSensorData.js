@@ -11,6 +11,10 @@ export function useRealtimeSensorData() {
         nitrogen: 0,
         phosphorus: 0,
         potassium: 0,
+        pH: 7.0,
+        ec: 0,
+        temp: 0,
+        humidity: 0,
         moistureRaw: 0,
         rainRaw: 0,
         deviceId: null,
@@ -19,8 +23,8 @@ export function useRealtimeSensorData() {
     })
 
     useEffect(() => {
-        // Connect to Socket.io server
-        const socket = io('http://localhost:5000', {
+        // Connect to Socket.io server (using 127.0.0.1 for stability)
+        const socket = io('http://127.0.0.1:5000', {
             transports: ['websocket', 'polling']
         })
 
@@ -43,6 +47,10 @@ export function useRealtimeSensorData() {
                 nitrogen: data.nitrogen || 0,
                 phosphorus: data.phosphorus || 0,
                 potassium: data.potassium || 0,
+                pH: data.pH || 7.0,
+                ec: data.ec || 0,
+                temp: data.temp || 0,
+                humidity: data.humidity || 0,
                 moistureRaw: data.moistureRaw || 0,
                 rainRaw: data.rainRaw || 0,
                 deviceId: data.deviceId,

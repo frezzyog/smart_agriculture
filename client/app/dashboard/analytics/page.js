@@ -7,17 +7,17 @@ import { Map, BarChart2, Calendar } from 'lucide-react'
 
 export default function AnalyticsPage() {
     return (
-        <div className="p-8 bg-[#f8fafc] min-h-screen font-sans">
+        <div className="p-8 bg-background min-h-screen font-sans transition-colors duration-300">
             <div className="mb-10">
-                <h1 className="text-4xl font-black text-gray-900 tracking-tighter mb-2">Zone Analytics</h1>
-                <p className="text-gray-500 font-medium">Deep dive into sensor performance across all zones.</p>
+                <h1 className="text-4xl font-black text-foreground tracking-tighter mb-2">Zone Analytics</h1>
+                <p className="text-foreground/50 font-medium">Deep dive into sensor performance across all zones.</p>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
                 {/* Chart 1: Zone Comparison */}
                 <div className="relative group">
                     <div className="absolute top-0 right-0 p-4 opacity-50 group-hover:opacity-100 transition-opacity">
-                        <BarChart2 className="text-gray-300" />
+                        <BarChart2 className="text-foreground/20" />
                     </div>
                     <ZoneComparisonChart />
                 </div>
@@ -25,7 +25,7 @@ export default function AnalyticsPage() {
                 {/* Chart 2: Historical Trends */}
                 <div className="relative group">
                     <div className="absolute top-0 right-0 p-4 opacity-50 group-hover:opacity-100 transition-opacity">
-                        <Calendar className="text-gray-300" />
+                        <Calendar className="text-foreground/20" />
                     </div>
                     <HistoricalTrendsChart />
                 </div>

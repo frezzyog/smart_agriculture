@@ -1,12 +1,23 @@
 @import "tailwindcss";
 
 :root {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --sidebar: #f1f5f9;
+  --accent: #10b981;
+  --accent-muted: #d1fae5;
+  --border: #e2e8f0;
+}
+
+.dark {
   --background: #020603;
   --foreground: #ffffff;
   --card: #0d1a11;
   --sidebar: #061008;
   --accent: #15ff71;
   --accent-muted: #1a3a24;
+  --border: rgba(255, 255, 255, 0.05);
 }
 
 @theme inline {
@@ -16,6 +27,7 @@
   --color-sidebar: var(--sidebar);
   --color-accent: var(--accent);
   --color-accent-muted: var(--accent-muted);
+  --color-border: var(--border);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -28,7 +40,23 @@ body {
 }
 
 .glass-card {
-  background: rgba(13, 26, 17, 0.6);
+  background: var(--card);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
+}
+
+@layer utilities {
+  .text-title {
+    color: var(--foreground);
+  }
+
+  .text-body {
+    color: var(--foreground);
+    opacity: 0.8;
+  }
+
+  .text-muted {
+    color: var(--foreground);
+    opacity: 0.6;
+  }
 }

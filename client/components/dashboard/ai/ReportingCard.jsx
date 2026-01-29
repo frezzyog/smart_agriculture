@@ -76,22 +76,22 @@ const ReportingCard = ({ zoneId }) => {
     }
 
     return (
-        <Card className="p-8 bg-[#0a0f0b] border-white/5 relative overflow-hidden">
+        <Card className="p-8 bg-card border-border relative overflow-hidden">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center text-accent border border-white/10">
+                    <div className="w-14 h-14 rounded-2xl bg-foreground/5 flex items-center justify-center text-accent border border-border">
                         <FileText size={28} />
                     </div>
                     <div>
-                        <h2 className="text-xl font-bold text-white">Monthly Insights Report</h2>
-                        <p className="text-xs text-gray-400 mt-1">Export detailed AI diagnostics and sensor history for {zoneId || 'your farm'}.</p>
+                        <h2 className="text-xl font-bold text-foreground">Monthly Insights Report</h2>
+                        <p className="text-xs text-foreground/40 mt-1">Export detailed AI diagnostics and sensor history for {zoneId || 'your farm'}.</p>
                     </div>
                 </div>
 
                 <div className="flex flex-wrap gap-3">
-                    <div className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-xl border border-white/5">
+                    <div className="flex items-center gap-2 px-4 py-2 bg-foreground/5 rounded-xl border border-border">
                         <PieChart size={16} className="text-blue-500" />
-                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Analytics Ready</span>
+                        <span className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest">Analytics Ready</span>
                     </div>
                     <button
                         onClick={generatePDF}
@@ -114,11 +114,11 @@ const ReportingCard = ({ zoneId }) => {
                     { label: 'Data Points', value: '14,204', icon: Activity, color: 'text-blue-500' },
                     { label: 'AI Confidence', value: 'High', icon: FileText, color: 'text-purple-500' },
                 ].map((stat, i) => (
-                    <div key={i} className="p-4 bg-white/[0.02] rounded-2xl border border-white/5 flex items-center gap-3">
+                    <div key={i} className="p-4 bg-foreground/5 rounded-2xl border border-border flex items-center gap-3">
                         <stat.icon size={16} className={stat.color} />
                         <div>
-                            <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{stat.label}</p>
-                            <p className="text-sm font-bold text-white">{stat.value}</p>
+                            <p className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest">{stat.label}</p>
+                            <p className="text-sm font-bold text-foreground">{stat.value}</p>
                         </div>
                     </div>
                 ))}

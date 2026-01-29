@@ -24,12 +24,12 @@ const data = [
 const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
         return (
-            <div className="bg-[#0a0f0b] border border-white/10 p-4 rounded-xl shadow-2xl backdrop-blur-md">
-                <p className="text-gray-400 text-[10px] font-bold uppercase mb-2">{label} Forecast</p>
+            <div className="bg-card border border-border p-4 rounded-xl shadow-2xl backdrop-blur-md">
+                <p className="text-foreground/40 text-[10px] font-bold uppercase mb-2">{label} Forecast</p>
                 {payload.map((entry, index) => (
                     <div key={index} className="flex items-center gap-2 mb-1">
                         <div className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }}></div>
-                        <p className="text-sm font-bold text-white">
+                        <p className="text-sm font-bold text-foreground">
                             {entry.name}: <span className="text-accent">{entry.value}%</span>
                         </p>
                     </div>
@@ -69,18 +69,20 @@ const PredictionChart = ({ zoneId, data: chartData }) => {
                         <stop offset="95%" stopColor="#15ff71" stopOpacity={0} />
                     </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" className="text-foreground/5" />
                 <XAxis
                     dataKey="day"
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fill: '#666', fontSize: 12, fontWeight: 500 }}
+                    tick={{ fill: 'currentColor', fontSize: 12, fontWeight: 500 }}
+                    className="text-foreground/40"
                     dy={10}
                 />
                 <YAxis
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fill: '#666', fontSize: 10 }}
+                    tick={{ fill: 'currentColor', fontSize: 10 }}
+                    className="text-foreground/40"
                     domain={[0, 100]}
                 />
                 <Tooltip content={<CustomTooltip />} />
@@ -92,7 +94,7 @@ const PredictionChart = ({ zoneId, data: chartData }) => {
                     strokeWidth={3}
                     fillOpacity={1}
                     fill="url(#colorPredicted)"
-                    dot={{ r: 4, fill: '#15ff71', strokeWidth: 2, stroke: '#020603' }}
+                    dot={{ r: 4, fill: '#15ff71', strokeWidth: 2, stroke: 'var(--card)' }}
                     activeDot={{ r: 6, strokeWidth: 0 }}
                 />
             </AreaChart>

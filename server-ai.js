@@ -137,6 +137,25 @@ app.get('/api/health', (req, res) => res.json({ status: 'OK' }))
 
 app.get('/api/alerts', (req, res) => res.json(alerts))
 
+// Get dummy devices for Lite mode
+app.get('/api/devices', (req, res) => {
+    res.json([
+        { id: 'dev-1', device_id: 'SMARTAG-001', deviceId: 'SMARTAG-001', name: 'Main Sensor Pod', status: 'ACTIVE', type: 'COMBO' },
+        { id: 'dev-2', device_id: 'SMARTAG-002', deviceId: 'SMARTAG-002', name: 'Irrigation Controller', status: 'ACTIVE', type: 'PUMP' }
+    ])
+})
+
+// Get dummy expenses for Lite mode
+app.get('/api/expenses', (req, res) => {
+    res.json([
+        { id: 'exp-1', title: 'Power Bill', category: 'Utility', amount: 45.50, date: new Date().toISOString() },
+        { id: 'exp-2', title: 'Fertilizer Mix', category: 'Supplies', amount: 120.00, date: new Date().toISOString() },
+        { id: 'exp-3', title: 'Water Usage', category: 'Utility', amount: 30.25, date: new Date().toISOString() }
+    ])
+})
+
+
+
 app.get('/api/zones', (req, res) => {
     // Return dummy zones for dashboard UI
     res.json([

@@ -6,9 +6,10 @@ This guide will help you deploy your Smart Agriculture IoT system for demonstrat
 
 Your project consists of:
 1. **Backend Server** - Node.js/Express + MQTT Broker + Socket.io
-2. **Frontend** - Next.js dashboard
-3. **Database** - Supabase (already hosted ✅)
-4. **ESP32 Device** - Hardware sensor node
+2. **AI Service** - Python/FastAPI (Central Brain 🧠)
+3. **Frontend** - Next.js dashboard
+4. **Database** - Supabase (already hosted ✅)
+5. **ESP32 Device** - Hardware sensor node
 
 ---
 
@@ -67,7 +68,35 @@ Railway is perfect for Node.js apps and supports MQTT.
    - Expose port 1883 for MQTT
    - Note the MQTT URL (e.g., `mqtt://your-app.railway.app:1883`)
 
-#### **2️⃣ Deploy Frontend to Vercel (Free)**
+#### **2️⃣ Deploy AI Service to Railway (Free Tier)**
+
+The AI service handles sensor interpretation and chat.
+
+**Steps:**
+
+1. **Deploy AI Service**
+   ```bash
+   cd ai-service
+   railway init (Select "Empty Project" or link to existing)
+   
+   # Add environment variables
+   railway variables set GEMINI_API_KEY="your-key-here"
+   railway variables set DATABASE_URL="your-supabase-db-url"
+   railway variables set NODE_BACKEND_URL="https://your-backend.railway.app"
+   
+   # Deploy
+   railway up
+   ```
+
+2. **Get Your AI Service URL**
+   - Note the URL (e.g., `https://your-ai-service.railway.app`)
+
+#### **3️⃣ Update Backend Environment Variables**
+
+Go back to your Backend project in Railway and add:
+- `AI_SERVICE_URL="https://your-ai-service.railway.app"`
+
+#### **4️⃣ Deploy Frontend to Vercel (Free)**
 
 Vercel is the best platform for Next.js apps.
 
@@ -110,6 +139,19 @@ Vercel is the best platform for Next.js apps.
    - Settings → Environment Variables
    - Add all the variables from `.env.production`
 
+#### **5️⃣ Final Environment Variable Checklist**
+
+| Component | Variable Name | Value Guide |
+|-----------|---------------|-------------|
+| **Backend** | `AI_SERVICE_URL` | `https://your-ai-service.railway.app` |
+| | `SUPABASE_URL` | From Supabase Settings |
+| | `SUPABASE_SERVICE_KEY` | From Supabase Settings |
+| | `DATABASE_URL` | From Supabase Settings (Connection String) |
+| **AI Service** | `GEMINI_API_KEY` | Your Google AI Key |
+| | `NODE_BACKEND_URL` | `https://your-backend.railway.app` |
+| | `DATABASE_URL` | Same as Backend |
+| **Frontend** | `NEXT_PUBLIC_API_URL` | `https://your-backend.railway.app` |
+| | `NEXT_PUBLIC_MQTT_WS_URL` | `wss://your-backend.railway.app:1883` |
 #### **3️⃣ Update ESP32 Configuration**
 
 Update your ESP32 code to point to the hosted backend:

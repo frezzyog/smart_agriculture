@@ -15,24 +15,24 @@ const data = [
 
 const NPKTrendChart = () => {
     return (
-        <div className="bg-card rounded-[2.5rem] p-8 border border-white/5 h-full">
+        <div className="bg-card rounded-[2.5rem] p-8 border border-border h-full">
             <div className="flex justify-between items-start mb-8">
                 <div>
-                    <h3 className="text-2xl font-bold text-white tracking-tight">NPK Levels (7-Day Trend)</h3>
-                    <p className="text-gray-500 text-sm font-medium mt-1">Measured in mg/kg Soil Mass</p>
+                    <h3 className="text-2xl font-bold text-foreground tracking-tight">NPK Levels (7-Day Trend)</h3>
+                    <p className="text-foreground/50 text-sm font-medium mt-1">Measured in mg/kg Soil Mass</p>
                 </div>
                 <div className="flex gap-4">
                     <div className="flex items-center gap-2">
                         <div className="w-2 h-2 rounded-full bg-[#ff6b6b]"></div>
-                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Nitrogen (N)</span>
+                        <span className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest">Nitrogen (N)</span>
                     </div>
                     <div className="flex items-center gap-2">
                         <div className="w-2 h-2 rounded-full bg-[#15ff71]"></div>
-                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Phosphorus (P)</span>
+                        <span className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest">Phosphorus (P)</span>
                     </div>
                     <div className="flex items-center gap-2">
                         <div className="w-2 h-2 rounded-full bg-[#00d2ff]"></div>
-                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Potassium (K)</span>
+                        <span className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest">Potassium (K)</span>
                     </div>
                 </div>
             </div>
@@ -40,18 +40,20 @@ const NPKTrendChart = () => {
             <div className="h-[300px] w-full mt-4">
                 <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={data}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                        <CartesianGrid strokeDasharray="3 3" stroke="currentColor" className="text-foreground/5" vertical={false} />
                         <XAxis
                             dataKey="name"
                             axisLine={false}
                             tickLine={false}
-                            tick={{ fill: '#4b5563', fontSize: 10, fontWeight: 700 }}
+                            tick={{ fill: 'currentColor', fontSize: 10, fontWeight: 700 }}
+                            className="text-foreground/40"
                             dy={10}
                         />
                         <YAxis hide />
                         <Tooltip
-                            contentStyle={{ backgroundColor: '#0d1a11', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
+                            contentStyle={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)', borderRadius: '12px' }}
                             itemStyle={{ fontSize: '12px', fontWeight: 'bold' }}
+                            labelStyle={{ color: 'var(--foreground)', fontWeight: 'bold' }}
                         />
                         <Line
                             type="monotone"
