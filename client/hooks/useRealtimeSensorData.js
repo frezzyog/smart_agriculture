@@ -23,8 +23,9 @@ export function useRealtimeSensorData() {
     })
 
     useEffect(() => {
-        // Connect to Socket.io server (using 127.0.0.1 for stability)
-        const socket = io('http://127.0.0.1:5000', {
+        // Connect to Socket.io server
+        const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://127.0.0.1:5000'
+        const socket = io(socketUrl, {
             transports: ['websocket', 'polling']
         })
 

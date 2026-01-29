@@ -60,8 +60,9 @@ export default function ReportBuilderPage() {
     const fetchInitialData = async () => {
         try {
             setLoading(true)
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
             // 1. Fetch devices
-            const devicesRes = await fetch('http://localhost:5000/api/devices')
+            const devicesRes = await fetch(`${apiUrl}/api/devices`)
             const devicesData = await devicesRes.json().catch(() => ({}))
 
             if (Array.isArray(devicesData) && devicesData.length > 0) {
@@ -75,7 +76,7 @@ export default function ReportBuilderPage() {
             }
 
             // 2. Fetch expenses
-            const expensesRes = await fetch('http://localhost:5000/api/expenses')
+            const expensesRes = await fetch(`${apiUrl}/api/expenses`)
             const expensesData = await expensesRes.json().catch(() => [])
             setExpenses(Array.isArray(expensesData) ? expensesData : [])
         } catch (error) {
@@ -90,14 +91,15 @@ export default function ReportBuilderPage() {
 
     const fetchDeviceData = async (deviceId) => {
         try {
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
             // Fetch sensor history
-            const sensorRes = await fetch(`http://localhost:5000/api/sensors/${deviceId}?limit=50`)
+            const sensorRes = await fetch(`${apiUrl}/api/sensors/${deviceId}?limit=50`)
             const sensorData = await sensorRes.json()
             setSensorHistory(Array.isArray(sensorData) ? sensorData : [])
 
             // Try to find zone or use a default for predictions
             // For now, we'll try to fetch predictions if available
-            const predRes = await fetch(`http://localhost:5000/api/ai/predictions/default-zone`)
+            const predRes = await fetch(`${apiUrl}/api/ai/predictions/default-zone`)
             if (predRes.ok) {
                 const predData = await predRes.json()
                 setAiPredictions(Array.isArray(predData) ? predData : [])
