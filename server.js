@@ -144,24 +144,31 @@ async function saveSensorData(deviceId, data) {
             console.warn('⚠️ AI service unavailable:', aiError.message)
         }
 
+        // Helper function to safely parse numbers (return null if invalid)
+        const safeNum = (val) => {
+            if (val === null || val === undefined || val === '') return null;
+            const num = parseFloat(val);
+            return isNaN(num) ? null : num;
+        };
+
         // Save sensor data with AI-generated insights
         await prisma.sensorData.create({
             data: {
                 deviceId: device.id,
-                temperature: data.temperature || null,
-                humidity: data.humidity || null,
-                moisture: data.moisture || null,
-                rain: data.rain || null,
-                lightIntensity: data.lightIntensity || null,
-                nitrogen: data.nitrogen || null,
-                phosphorus: data.phosphorus || null,
-                potassium: data.potassium || null,
-                pH: data.pH || null,
-                ec: data.ec || null, // New field for 7-in-1 sensor
+                temperature: safeNum(data.temperature),
+                humidity: safeNum(data.humidity),
+                moisture: safeNum(data.moisture),
+                rain: safeNum(data.rain),
+                lightIntensity: safeNum(data.lightIntensity),
+                nitrogen: safeNum(data.nitrogen),
+                phosphorus: safeNum(data.phosphorus),
+                potassium: safeNum(data.potassium),
+                pH: safeNum(data.pH),
+                ec: safeNum(data.ec),
                 // AI-generated fields
                 soilHealth: aiAnalysis?.soilHealth || null,
-                stressLevel: aiAnalysis?.stressLevel || null,
-                moistureLossRate: aiAnalysis?.moistureLossRate || null,
+                stressLevel: safeNum(aiAnalysis?.stressLevel),
+                moistureLossRate: safeNum(aiAnalysis?.moistureLossRate),
                 timestamp: new Date()
             }
         })
