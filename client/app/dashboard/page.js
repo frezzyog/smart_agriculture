@@ -1,6 +1,7 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
+import React from 'react'
 import SensorCard from '@/components/dashboard/SensorCard'
 import PowerStatsCard from '@/components/dashboard/PowerStatsCard'
 import PumpControl from '@/components/dashboard/PumpControl'
@@ -16,9 +17,9 @@ import { useTranslation } from 'react-i18next'
 export default function DashboardPage() {
     const { t } = useTranslation()
     const sensorData = useRealtimeSensorData()
-    const [expenses, setExpenses] = useState([])
+    const [expenses, setExpenses] = React.useState([])
 
-    useEffect(() => {
+    React.useEffect(() => {
         const fetchExpenses = async () => {
             try {
                 const data = await getExpenses()

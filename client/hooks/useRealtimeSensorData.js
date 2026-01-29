@@ -1,11 +1,10 @@
-// Socket.io hook for real-time updates
 'use client'
 
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { io } from 'socket.io-client'
 
 export function useRealtimeSensorData() {
-    const [sensorData, setSensorData] = useState({
+    const [sensorData, setSensorData] = React.useState({
         moisture: 0,
         rain: 0,
         nitrogen: 0,
@@ -22,7 +21,7 @@ export function useRealtimeSensorData() {
         connected: false
     })
 
-    useEffect(() => {
+    React.useEffect(() => {
         // Connect to Socket.io server
         const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://127.0.0.1:5000'
         const socket = io(socketUrl, {

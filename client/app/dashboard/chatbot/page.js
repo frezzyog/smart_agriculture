@@ -1,6 +1,7 @@
 'use client'
 
-import React, { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect } from 'react'
+import React from 'react'
 import ReactMarkdown from 'react-markdown'
 import {
     MessageSquare, Send, User, Bot, Sparkles,

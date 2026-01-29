@@ -1,3 +1,6 @@
+'use client'
+
+import React from 'react'
 import { AlertTriangle, CheckCircle, Info, RefreshCcw } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 

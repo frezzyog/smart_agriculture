@@ -1,14 +1,15 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
+import React from 'react'
 import { DollarSign, Plus, ArrowUpRight, ArrowDownLeft, Receipt, ShoppingCart, Wrench, Sprout, Loader2 } from 'lucide-react'
 import { getExpenses } from '@/lib/api'
 import AddTransactionModal from '@/components/expenses/AddTransactionModal'
 
 export default function ExpensesPage() {
-    const [expenses, setExpenses] = useState([])
-    const [loading, setLoading] = useState(true)
-    const [isModalOpen, setIsModalOpen] = useState(false)
+    const [expenses, setExpenses] = React.useState([])
+    const [loading, setLoading] = React.useState(true)
+    const [isModalOpen, setIsModalOpen] = React.useState(false)
 
     const fetchExpenses = async () => {
         setLoading(true)
@@ -22,7 +23,7 @@ export default function ExpensesPage() {
         }
     }
 
-    useEffect(() => {
+    React.useEffect(() => {
         fetchExpenses()
     }, [])
 

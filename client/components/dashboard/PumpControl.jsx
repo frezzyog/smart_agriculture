@@ -1,5 +1,7 @@
 'use client'
 
+import React from 'react'
+import { useState, useEffect } from 'react'
 import { Droplets, Beaker, Circle, AlertCircle } from 'lucide-react'
 import { Switch } from '@headlessui/react'
 import { controlPump } from '@/lib/api'
@@ -7,10 +9,10 @@ import { useTranslation } from 'react-i18next'
 
 const PumpControl = ({ deviceId = 'SMARTAG-001' }) => {
     const { t } = useTranslation()
-    const [waterPump, setWaterPump] = useState(false)
-    const [fertilizerPump, setFertilizerPump] = useState(false)
-    const [isUpdating, setIsUpdating] = useState(null) // 'WATER' or 'FERTILIZER'
-    const [error, setError] = useState(null)
+    const [waterPump, setWaterPump] = React.useState(false)
+    const [fertilizerPump, setFertilizerPump] = React.useState(false)
+    const [isUpdating, setIsUpdating] = React.useState(null) // 'WATER' or 'FERTILIZER'
+    const [error, setError] = React.useState(null)
 
     const handleToggle = async (type, currentStatus, setStatus) => {
         setIsUpdating(type)
