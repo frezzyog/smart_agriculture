@@ -70,7 +70,13 @@ aedes.on('publish', async (packet, client) => {
 
         if (topicParts[0] === 'smartag' && topicParts[2] === 'sensors') {
             const deviceId = topicParts[1]
-            const data = JSON.parse(payload)
+            let data = {}
+            try {
+                data = JSON.parse(payload)
+            } catch (e) {
+                console.warn(`⚠️ Invalid sensor JSON from ${deviceId}: ${payload}`)
+                return
+            }
 
             // Store sensor data in database
             await saveSensorData(deviceId, data)
@@ -86,11 +92,17 @@ aedes.on('publish', async (packet, client) => {
         // Handle pump commands: smartag/{deviceId}/pump/status
         if (topicParts[0] === 'smartag' && topicParts[2] === 'pump') {
             const deviceId = topicParts[1]
-            const data = JSON.parse(payload)
+            let data = {}
+            try {
+                data = JSON.parse(payload)
+            } catch (e) {
+                // If not JSON, treat the whole payload as the status/action
+                data = { status: payload }
+            }
 
             // Log pump action (now includes pump type: Water/Fertilizer)
             await logPumpAction(deviceId, {
-                action: data.status || data.action || 'OFF',
+                action: data.status || data.action || payload || 'OFF',
                 duration: data.duration || null,
                 triggeredBy: data.triggeredBy || 'device',
                 type: data.type || 'WATER'
