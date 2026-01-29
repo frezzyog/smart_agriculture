@@ -172,14 +172,20 @@ async function saveSensorData(deviceId, data) {
 
         try {
             await prisma.sensorData.create({ data: sensorPayload });
+            console.log(`✅ Sensor data saved for device: ${device.deviceId}`);
         } catch (err) {
-            // If 'ec' field causes error, retry without it
-            if (err.message.includes('Unknown argument `ec`')) {
-                console.warn('⚠️ Fallback: Saving without ec field...');
+            console.error('❌ Error saving sensor data:', err.message);
+
+            // If it's a validation error (likely 'ec' field), retry without it
+            if (err.name === 'PrismaClientValidationError' || err.message.includes('Unknown argument')) {
+                console.warn('⚠️ Fallback: Retrying without ec field...');
                 const { ec, ...fallbackPayload } = sensorPayload;
-                await prisma.sensorData.create({ data: fallbackPayload });
-            } else {
-                throw err;
+                try {
+                    await prisma.sensorData.create({ data: fallbackPayload });
+                    console.log(`✅ Sensor data saved (Fallback) for device: ${device.deviceId}`);
+                } catch (retryErr) {
+                    console.error('❌ Fallback failed:', retryErr.message);
+                }
             }
         }
 
