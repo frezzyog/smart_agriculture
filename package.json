@@ -4,7 +4,8 @@
   "description": "Smart Agriculture IoT Backend with Supabase, MQTT and Socket.io",
   "main": "server.js",
   "scripts": {
-    "start": "npx prisma generate && node server.js",
+    "build": "npx prisma generate",
+    "start": "node server.js",
     "dev": "nodemon server.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
