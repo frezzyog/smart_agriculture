@@ -7,10 +7,12 @@ import {
     Phone, Mail, HelpCircle, ChevronDown,
     ChevronUp, Loader2
 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 export default function ChatbotPage() {
+    const { t } = useTranslation()
     const [messages, setMessages] = useState([
-        { id: 1, role: 'bot', text: 'Hello! I am your AI Agronomist. How can I help you today?' },
+        { id: 1, role: 'bot', text: t('chatbot.welcome') },
     ])
     const [input, setInput] = useState('')
     const [isTyping, setIsTyping] = useState(false)
@@ -78,13 +80,13 @@ export default function ChatbotPage() {
             setMessages(prev => [...prev, {
                 id: Date.now() + 1,
                 role: 'bot',
-                text: data.reply || "I'm sorry, I couldn't process that request."
+                text: data.reply || t('chatbot.no_reply')
             }])
         } catch (error) {
             setMessages(prev => [...prev, {
                 id: Date.now() + 1,
                 role: 'bot',
-                text: "My communication lines are down. Please check your connection."
+                text: t('chatbot.error')
             }])
         } finally {
             setIsTyping(false)
@@ -98,10 +100,10 @@ export default function ChatbotPage() {
                 <div className="lg:col-span-8 flex flex-col h-[calc(100vh-160px)]">
                     <div className="mb-6 md:mb-10">
                         <h1 className="text-3xl md:text-4xl font-black text-white tracking-tighter mb-2 flex items-center gap-3">
-                            AI <span className="text-accent underline decoration-accent/30 decoration-4 underline-offset-8">Chatbot</span>
+                            AI <span className="text-accent underline decoration-accent/30 decoration-4 underline-offset-8">{t('chatbot.title').split(' ')[1] || t('chatbot.title')}</span>
                         </h1>
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                            <p className="text-sm md:text-base text-gray-500 font-medium leading-tight">Instant agricultural advice and system troubleshooting.</p>
+                            <p className="text-sm md:text-base text-gray-500 font-medium leading-tight">{t('chatbot.subtitle')}</p>
                             {devices.length > 0 && (
                                 <select
                                     value={selectedDeviceId}
@@ -149,7 +151,7 @@ export default function ChatbotPage() {
                                         </div>
                                         <div className="bg-white/5 text-gray-500 border border-white/10 p-4 rounded-2xl rounded-tl-none flex items-center gap-2">
                                             <Loader2 size={14} className="animate-spin" />
-                                            <span className="text-xs font-bold tracking-widest uppercase italic">Analyzing data...</span>
+                                            <span className="text-xs font-bold tracking-widest uppercase italic">{t('chatbot.analyzing')}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -162,7 +164,7 @@ export default function ChatbotPage() {
                                 value={input}
                                 onChange={(e) => setInput(e.target.value)}
                                 onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-                                placeholder="Ask about soil health, irrigation levels..."
+                                placeholder={t('chatbot.input_placeholder')}
                                 className="w-full h-16 pl-8 pr-20 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-gray-500 focus:outline-none focus:border-accent/50 focus:ring-4 focus:ring-accent/5 transition-all"
                             />
                             <button
@@ -180,7 +182,7 @@ export default function ChatbotPage() {
                     <div className="bg-card rounded-[2.5rem] p-8 border border-white/5">
                         <div className="flex items-center gap-3 mb-6">
                             <HelpCircle className="text-accent" />
-                            <h3 className="text-xl font-bold text-white">Common Questions</h3>
+                            <h3 className="text-xl font-bold text-white">{t('chatbot.common_questions')}</h3>
                         </div>
                         <div className="space-y-4">
                             {faqs.map((faq, idx) => (
@@ -204,10 +206,10 @@ export default function ChatbotPage() {
 
                     <div className="bg-accent rounded-[2.5rem] p-8 text-[#020603] overflow-hidden relative group">
                         <Sparkles className="absolute -right-4 -top-4 w-24 h-24 opacity-20 rotate-12 group-hover:scale-110 transition-transform" />
-                        <h4 className="text-2xl font-black mb-2">Expert Human <br />Support</h4>
-                        <p className="text-[#020603]/70 text-sm font-bold mb-6">Available 24/7 for tailored agronomist advice.</p>
+                        <h4 className="text-2xl font-black mb-2">{t('chatbot.human_support')}</h4>
+                        <p className="text-[#020603]/70 text-sm font-bold mb-6">{t('chatbot.human_support_sub')}</p>
                         <button className="w-full py-4 bg-[#020603] text-white rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-black transition-all">
-                            Talk to Human
+                            {t('chatbot.talk_to_human')}
                         </button>
                     </div>
                 </div>

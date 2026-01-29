@@ -1,37 +1,37 @@
-'use client'
-
-import React from 'react'
 import { AlertTriangle, CheckCircle, Info, RefreshCcw } from 'lucide-react'
-
-const alerts = [
-    {
-        id: 1,
-        title: 'Low Moisture Detected',
-        description: 'Sector 01: Moisture dropped below 60% threshold',
-        time: '10:24 AM',
-        type: 'critical',
-        icon: AlertTriangle,
-        color: 'text-red-500',
-        bg: 'bg-red-500/10'
-    },
-    {
-        id: 2,
-        title: 'Battery Fully Charged',
-        description: 'Switching Array B to maintenance mode',
-        time: '09:15 AM',
-        type: 'info',
-        icon: RefreshCcw,
-        color: 'text-accent',
-        bg: 'bg-accent/10'
-    }
-]
+import { useTranslation } from 'react-i18next'
 
 const RecentAlerts = () => {
+    const { t } = useTranslation()
+
+    const alerts = [
+        {
+            id: 1,
+            title: t('dashboard.alert_low_moisture'),
+            description: t('dashboard.alert_low_moisture_desc'),
+            time: '10:24 AM',
+            type: t('dashboard.critical'),
+            icon: AlertTriangle,
+            color: 'text-red-500',
+            bg: 'bg-red-500/10'
+        },
+        {
+            id: 2,
+            title: t('dashboard.alert_battery_full'),
+            description: t('dashboard.alert_battery_full_desc'),
+            time: '09:15 AM',
+            type: t('dashboard.info'),
+            icon: RefreshCcw,
+            color: 'text-accent',
+            bg: 'bg-accent/10'
+        }
+    ]
+
     return (
         <div className="space-y-6">
             <div className="flex items-center gap-3">
                 <RefreshCcw size={20} className="text-accent" />
-                <h3 className="text-xl font-bold text-foreground tracking-tight">Recent Alerts</h3>
+                <h3 className="text-xl font-bold text-foreground tracking-tight">{t('dashboard.alerts_header')}</h3>
             </div>
 
             <div className="space-y-4">
@@ -48,7 +48,7 @@ const RecentAlerts = () => {
                         </div>
                         <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-2 sm:gap-0 border-t sm:border-t-0 border-border/50 pt-3 sm:pt-0">
                             <span className="text-[10px] md:text-xs font-bold text-foreground/40 block sm:mb-2">{alert.time}</span>
-                            <span className={`text-[9px] md:text-[10px] font-black uppercase tracking-[0.1em] md:tracking-[0.2em] px-2 py-0.5 rounded ${alert.type === 'critical' ? 'bg-red-500/20 text-red-500' : 'bg-accent/20 text-accent'}`}>
+                            <span className={`text-[9px] md:text-[10px] font-black uppercase tracking-[0.1em] md:tracking-[0.2em] px-2 py-0.5 rounded ${alert.type === t('dashboard.critical') ? 'bg-red-500/20 text-red-500' : 'bg-accent/20 text-accent'}`}>
                                 {alert.type}
                             </span>
                         </div>

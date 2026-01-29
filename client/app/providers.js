@@ -6,6 +6,7 @@ import { Toaster } from 'react-hot-toast'
 import { ThemeProvider } from 'next-themes'
 
 import { SidebarProvider } from '@/context/SidebarContext'
+import '@/lib/i18n'
 
 export default function Providers({ children }) {
     const [queryClient] = useState(() => new QueryClient({

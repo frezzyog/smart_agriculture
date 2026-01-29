@@ -11,8 +11,10 @@ import RecentTransactionsMinimal from '@/components/dashboard/RecentTransactions
 import { Droplet } from 'lucide-react'
 import { useRealtimeSensorData } from '@/hooks/useRealtimeSensorData'
 import { getExpenses } from '@/lib/api'
+import { useTranslation } from 'react-i18next'
 
 export default function DashboardPage() {
+    const { t } = useTranslation()
     const sensorData = useRealtimeSensorData()
     const [expenses, setExpenses] = useState([])
 
@@ -34,12 +36,12 @@ export default function DashboardPage() {
                 {/* Top Row: KPIs */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <SensorCard
-                        title="Soil Analytics"
-                        subtitle="7-in-1 Advanced Monitor"
+                        title={t('dashboard.soil_analytics')}
+                        subtitle={t('dashboard.advanced_monitor')}
                         moisture={sensorData.moisture.toFixed(0)}
                         ec={sensorData.ec.toFixed(1)}
                         pH={sensorData.pH.toFixed(1)}
-                        status={sensorData.connected ? "Live Data" : "Connecting..."}
+                        status={sensorData.connected ? t('dashboard.live_data') : t('dashboard.connecting')}
                         icon={Droplet}
                     />
                     <PowerStatsCard
@@ -55,7 +57,7 @@ export default function DashboardPage() {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div className="lg:col-span-2">
                         <ExpenseSummaryCard
-                            totalBalance={expenses.length > 0 ? `$${expenses.reduce((sum, e) => sum + e.amount, 12450).toLocaleString()}` : '$12,450'}
+                            totalBalance={expenses.length > 0 ? `$${expenses.reduce((sum, e) => sum + e.amount, 0).toLocaleString()}` : '$0'}
                         />
                     </div>
                     <div>

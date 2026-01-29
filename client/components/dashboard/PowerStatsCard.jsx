@@ -1,9 +1,8 @@
-'use client'
-
-import React from 'react'
 import { Zap } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 const PowerStatsCard = ({ percentage, voltage, charging, runtime }) => {
+    const { t } = useTranslation()
     const radius = 45
     const circumference = 2 * Math.PI * radius
     const strokeDashoffset = circumference - (percentage / 100) * circumference
@@ -12,7 +11,7 @@ const PowerStatsCard = ({ percentage, voltage, charging, runtime }) => {
         <div className="bg-card rounded-[2.5rem] p-8 border border-border flex flex-col h-full">
             <div className="flex justify-between items-start mb-6">
                 <div>
-                    <h3 className="text-2xl font-bold text-foreground tracking-tight">Power Stats</h3>
+                    <h3 className="text-2xl font-bold text-foreground tracking-tight">{t('dashboard.power_stats')}</h3>
                     <p className="text-foreground/50 text-sm font-medium mt-1">Array B - Lithium Unit</p>
                 </div>
                 <div className="text-yellow-400 flex items-center justify-center bg-yellow-400/10 p-2.5 rounded-xl border border-yellow-400/20">
@@ -58,7 +57,7 @@ const PowerStatsCard = ({ percentage, voltage, charging, runtime }) => {
                         {charging && (
                             <div className="flex items-center justify-center xs:justify-start gap-1.5 text-[9px] xs:text-[10px] font-bold text-accent uppercase tracking-widest mt-1">
                                 <Zap size={10} fill="currentColor" />
-                                Solar Charging
+                                {t('dashboard.charging')}
                             </div>
                         )}
                     </div>
@@ -66,7 +65,7 @@ const PowerStatsCard = ({ percentage, voltage, charging, runtime }) => {
             </div>
 
             <div className="mt-auto pt-6 border-t border-border flex justify-between items-center">
-                <span className="text-xs font-bold text-foreground/40 uppercase tracking-widest">Est. Runtime</span>
+                <span className="text-xs font-bold text-foreground/40 uppercase tracking-widest">{t('dashboard.runtime')}</span>
                 <span className="text-xs font-bold text-foreground tracking-tight">{runtime}</span>
             </div>
         </div>

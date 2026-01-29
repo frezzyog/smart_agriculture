@@ -1,11 +1,12 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
 import { Droplets, Beaker, Circle, AlertCircle } from 'lucide-react'
 import { Switch } from '@headlessui/react'
 import { controlPump } from '@/lib/api'
+import { useTranslation } from 'react-i18next'
 
 const PumpControl = ({ deviceId = 'SMARTAG-001' }) => {
+    const { t } = useTranslation()
     const [waterPump, setWaterPump] = useState(false)
     const [fertilizerPump, setFertilizerPump] = useState(false)
     const [isUpdating, setIsUpdating] = useState(null) // 'WATER' or 'FERTILIZER'
@@ -74,8 +75,8 @@ const PumpControl = ({ deviceId = 'SMARTAG-001' }) => {
 
             <div className="flex items-center justify-between mb-8">
                 <div>
-                    <h3 className="text-2xl font-bold text-foreground tracking-tight">System Control</h3>
-                    <p className="text-foreground/50 text-sm font-medium mt-1">Dual-Pump Architecture</p>
+                    <h3 className="text-2xl font-bold text-foreground tracking-tight">{t('dashboard.pump_control')}</h3>
+                    <p className="text-foreground/50 text-sm font-medium mt-1">{t('dashboard.pump_subtitle')}</p>
                 </div>
                 <div className={`w-10 h-5 rounded-full relative transition-all ${waterPump || fertilizerPump ? 'bg-accent/20' : 'bg-foreground/10'}`}>
                     <div className={`absolute right-1 top-1 w-3 h-3 rounded-full transition-all ${waterPump || fertilizerPump ? 'bg-accent animate-pulse' : 'bg-foreground/20'}`}></div>
@@ -84,13 +85,13 @@ const PumpControl = ({ deviceId = 'SMARTAG-001' }) => {
 
             <div className="space-y-4">
                 <ToggleRow
-                    label="Water Irrigation"
+                    label={t('dashboard.water_irrigation')}
                     type="WATER"
                     enabled={waterPump}
                     setEnabled={setWaterPump}
                 />
                 <ToggleRow
-                    label="Fertilizer Injection"
+                    label={t('dashboard.fertilizer_injection')}
                     type="FERTILIZER"
                     enabled={fertilizerPump}
                     setEnabled={setFertilizerPump}
