@@ -60,6 +60,7 @@ model SensorData {
   phosphorus       Float?
   potassium        Float?
   pH               Float?
+  ec               Float?
   soilHealth       String?  @map("soil_health")
   stressLevel      Float?   @map("stress_level")
   moistureLossRate Float?   @map("moisture_loss_rate")
