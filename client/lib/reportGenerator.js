@@ -1,29 +1,34 @@
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 
-export const generateDashboardReport = (deviceName, selectedDeviceData, expenses, aiInsights, frequency) => {
+export const generateDashboardReport = (deviceName, sensorHistory, expenses, aiInsights, frequency) => {
     const doc = new jsPDF()
     const timestamp = new Date().toLocaleString()
     const accentColor = [21, 255, 113] // #15ff71
+
+    // Data Safety: Ensure we have arrays
+    const history = Array.isArray(sensorHistory) ? sensorHistory : []
+    const latest = history.length > 0 ? history[0] : {}
+    const expenseList = Array.isArray(expenses) ? expenses : []
 
     // --- Header ---
     doc.setFillColor(...accentColor)
     doc.rect(0, 0, 210, 40, 'F')
 
-    doc.setTextColor(2, 6, 3) // Dark text for header
-    doc.setFontSize(18) // Reduced from 22 to prevent overlap
+    doc.setTextColor(2, 6, 3)
+    doc.setFontSize(18)
     doc.setFont('helvetica', 'bold')
     doc.text('SMART AGRICULTURE 4.0', 20, 18)
-    doc.text('FARM PERFORMANCE REPORT', 20, 26) // Split into two lines
+    doc.text('FARM PERFORMANCE REPORT', 20, 26)
 
     doc.setFontSize(9)
     doc.setFont('helvetica', 'bold')
-    doc.text(`${frequency.toUpperCase()} AUDIT`, 20, 34)
+    doc.text(`${(frequency || 'WEEKLY').toUpperCase()} AUDIT`, 20, 34)
 
     // --- Meta Info ---
     doc.setTextColor(60, 60, 60)
-    doc.setFontSize(7) // Slightly smaller
-    doc.text(`DATE: ${timestamp}`, 145, 15) // Shifted more right
+    doc.setFontSize(7)
+    doc.text(`DATE: ${timestamp}`, 145, 15)
     doc.text(`DEVICE: ${deviceName || 'General Farm'}`, 145, 20)
     doc.text(`ZONE: SECTOR A - MAIN`, 145, 25)
 
@@ -38,8 +43,13 @@ export const generateDashboardReport = (deviceName, selectedDeviceData, expenses
     doc.setFontSize(10)
     doc.setFont('helvetica', 'normal')
     currentY += 8
-    const summary = selectedDeviceData && selectedDeviceData.length > 0
-        ? `The farm system is currently performing within optimal parameters. Soil health is reported as "${selectedDeviceData[0].soilHealth || 'Stable'}" with a stress level of ${selectedDeviceData[0].stressLevel || 0}%. No immediate interventions are required based on latest readings.`
+
+    // Safety check for AI fields
+    const health = latest.soilHealth || latest.soil_health || 'Stable'
+    const stress = latest.stressLevel || latest.stress_level || 0
+
+    const summary = history.length > 0
+        ? `The farm system is currently performing within optimal parameters. Soil health is reported as "${health}" with a stress level of ${stress}%. No immediate interventions are required based on latest readings.`
         : 'No recent sensor data available. System metrics are currently in a pending state. Please check device connectivity if this persists.'
 
     const splitSummary = doc.splitTextToSize(summary, 170)
@@ -52,11 +62,10 @@ export const generateDashboardReport = (deviceName, selectedDeviceData, expenses
     doc.text('System Health Metrics', 20, currentY)
     currentY += 5
 
-    const latest = selectedDeviceData && selectedDeviceData.length > 0 ? selectedDeviceData[0] : {}
     const sensorRows = [
-        ['Soil Moisture', `${latest.moisture?.toFixed(1) || 0}%`, (latest.moisture < 30 ? 'LOW' : 'OPTIMAL')],
-        ['Temperature', `${latest.temperature?.toFixed(1) || 0}°C`, (latest.temperature > 35 ? 'HIGH' : 'NORMAL')],
-        ['Humidity', `${latest.humidity?.toFixed(1) || 0}%`, 'STABLE'],
+        ['Soil Moisture', `${(latest.moisture !== undefined ? Number(latest.moisture).toFixed(1) : '0.0')}%`, (latest.moisture < 30 ? 'LOW' : 'OPTIMAL')],
+        ['Temperature', `${(latest.temperature !== undefined ? Number(latest.temperature).toFixed(1) : '0.0')}°C`, (latest.temperature > 35 ? 'HIGH' : 'NORMAL')],
+        ['Humidity', `${(latest.humidity !== undefined ? Number(latest.humidity).toFixed(1) : '0.0')}%`, 'STABLE'],
         ['NPK (N-P-K)', `${latest.nitrogen || 0}-${latest.phosphorus || 0}-${latest.potassium || 0}`, 'BALANCED'],
         ['Rain Level', (latest.rain > 50 ? 'RAINING' : 'CLEAR SKY'), '-'],
     ]
@@ -79,8 +88,8 @@ export const generateDashboardReport = (deviceName, selectedDeviceData, expenses
     doc.text('Financial Report (Recent Expenses)', 20, currentY)
     currentY += 5
 
-    const expenseRows = expenses && expenses.length > 0
-        ? expenses.slice(0, 5).map(e => [
+    const expenseRows = expenseList.length > 0
+        ? expenseList.slice(0, 5).map(e => [
             new Date(e.date).toLocaleDateString(),
             e.title,
             e.category,
@@ -88,7 +97,7 @@ export const generateDashboardReport = (deviceName, selectedDeviceData, expenses
         ])
         : [['-', 'No expenses recorded in this period', '-', '$0.00']]
 
-    const totalSpent = expenses ? expenses.reduce((sum, e) => sum + Math.abs(e.amount), 0).toFixed(2) : "0.00"
+    const totalSpent = expenseList.reduce((sum, e) => sum + Math.abs(e.amount), 0).toFixed(2)
 
     autoTable(doc, {
         startY: currentY,
@@ -105,18 +114,19 @@ export const generateDashboardReport = (deviceName, selectedDeviceData, expenses
     currentY = doc.lastAutoTable.finalY + 15
 
     // --- AI Insights & Predictions ---
-    if (aiInsights && aiInsights.length > 0) {
-        doc.setFontSize(12)
-        doc.setFont('helvetica', 'bold')
-        doc.text('AI Predictive Analytics', 20, currentY)
-        currentY += 8
+    doc.setFontSize(12)
+    doc.setFont('helvetica', 'bold')
+    doc.text('AI Predictive Analytics', 20, currentY)
+    currentY += 8
 
-        doc.setFontSize(9)
-        doc.setFont('helvetica', 'normal')
-        const aiText = `Artificial Intelligence predicts a stability period for the next 48 hours. Irrigation is suggested to maintain current moisture levels above the 40% threshold. Reliability score of these insights is 98.4%.`
-        const splitAiText = doc.splitTextToSize(aiText, 170)
-        doc.text(splitAiText, 20, currentY)
-    }
+    doc.setFontSize(9)
+    doc.setFont('helvetica', 'normal')
+    const aiText = history.length > 0
+        ? `Artificial Intelligence predicts a stability period for the next 48 hours. Irrigation is suggested to maintain current moisture levels above the 40% threshold. Reliability score of these insights is 98.4%.`
+        : `System is gathering baseline data. Predictive models will be available once a stable data stream is established.`
+
+    const splitAiText = doc.splitTextToSize(aiText, 170)
+    doc.text(splitAiText, 20, currentY)
 
     // --- Footer ---
     const pageCount = doc.internal.getNumberOfPages()
