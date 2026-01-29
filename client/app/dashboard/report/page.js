@@ -207,16 +207,16 @@ export default function ReportBuilderPage() {
     return (
         <div className="lg:ml-64 flex flex-col min-h-screen bg-background text-foreground transition-all duration-500">
             {/* Top Toolbar */}
-            <header className="h-20 border-b border-border bg-sidebar/50 backdrop-blur-xl flex items-center justify-between px-10 sticky top-0 z-40">
-                <div className="flex items-center gap-4">
-                    <h1 className="text-xl font-bold tracking-tight">Custom Report Builder</h1>
-                    <div className="h-6 w-px bg-foreground/10 mx-2"></div>
-                    <div className="flex items-center gap-2 bg-foreground/5 px-3 py-1.5 rounded-lg border border-border">
-                        <Search size={14} className="text-foreground/40" />
+            <header className="min-h-20 py-4 border-b border-border bg-sidebar/50 backdrop-blur-xl flex flex-col md:flex-row items-center justify-between px-6 md:px-10 sticky top-0 z-40 gap-4">
+                <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
+                    <h1 className="text-lg md:text-xl font-bold tracking-tight text-center sm:text-left">Custom Report Builder</h1>
+                    <div className="hidden sm:block h-6 w-px bg-foreground/10 mx-2"></div>
+                    <div className="flex items-center gap-2 bg-foreground/5 px-3 py-1.5 rounded-lg border border-border w-full sm:w-auto">
+                        <Search size={14} className="text-foreground/40 shrink-0" />
                         <select
                             value={selectedDeviceId}
                             onChange={(e) => setSelectedDeviceId(e.target.value)}
-                            className="bg-transparent text-xs font-bold focus:outline-none cursor-pointer"
+                            className="bg-transparent text-[10px] md:text-xs font-bold focus:outline-none cursor-pointer w-full"
                         >
                             {devices.map(d => (
                                 <option key={d.deviceId} value={d.deviceId} className="bg-sidebar">
@@ -227,29 +227,30 @@ export default function ReportBuilderPage() {
                     </div>
                 </div>
 
-                <div className="flex items-center gap-4">
-                    <button className="flex items-center gap-2 px-5 py-2.5 bg-foreground/5 hover:bg-foreground/10 rounded-xl text-xs font-bold transition-all">
-                        <Save size={16} />
-                        Save Template
+                <div className="flex items-center gap-2 md:gap-4 w-full md:w-auto justify-center md:justify-end">
+                    <button className="flex-1 md:flex-none flex items-center justify-center gap-2 px-3 md:px-5 py-2 md:py-2.5 bg-foreground/5 hover:bg-foreground/10 rounded-xl text-[10px] md:text-xs font-bold transition-all">
+                        <Save size={14} className="md:w-4 md:h-4" />
+                        <span className="hidden xs:inline">Save Template</span>
+                        <span className="xs:hidden">Save</span>
                     </button>
                     <button
                         onClick={handleExport}
                         disabled={isExporting}
-                        className="flex items-center gap-2 px-5 py-2.5 bg-accent text-[#020603] rounded-xl text-xs font-bold shadow-[0_10px_30px_rgba(21,255,113,0.2)] hover:scale-[1.02] transition-all disabled:opacity-50"
+                        className="flex-1 md:flex-none flex items-center justify-center gap-2 px-3 md:px-5 py-2 md:py-2.5 bg-accent text-[#020603] rounded-xl text-[10px] md:text-xs font-bold shadow-[0_10px_30px_rgba(21,255,113,0.2)] hover:scale-[1.02] transition-all disabled:opacity-50"
                     >
-                        {isExporting ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
-                        {isExporting ? 'Generating...' : 'Export as PDF/CSV'}
+                        {isExporting ? <Loader2 size={14} className="animate-spin md:w-4 md:h-4" /> : <Download size={14} className="md:w-4 md:h-4" />}
+                        {isExporting ? 'Wait...' : 'Export'}
                     </button>
-                    <div className="h-8 w-px bg-foreground/10 mx-2"></div>
-                    <button className="w-10 h-10 flex items-center justify-center text-foreground/40 hover:text-foreground transition-colors">
-                        <Bell size={20} />
+                    <div className="hidden sm:block h-8 w-px bg-foreground/10 mx-2"></div>
+                    <button className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center text-foreground/40 hover:text-foreground transition-colors shrink-0">
+                        <Bell size={18} className="md:w-5 md:h-5" />
                     </button>
                 </div>
             </header>
 
-            <div className="flex flex-1 overflow-hidden">
-                {/* Left Sidebar - Config & Widgets */}
-                <aside className="w-[400px] border-r border-border bg-sidebar/30 flex flex-col overflow-y-auto custom-scrollbar">
+            <div className="flex flex-col lg:flex-row flex-1 overflow-visible lg:overflow-hidden">
+                {/* Configuration Panel */}
+                <aside className="w-full lg:w-[400px] border-b lg:border-b-0 lg:border-r border-border bg-sidebar/30 flex flex-col overflow-y-auto custom-scrollbar">
                     <div className="p-8 space-y-10">
                         {/* Report Config */}
                         <section>
@@ -325,37 +326,39 @@ export default function ReportBuilderPage() {
                 </aside>
 
                 {/* Main Preview Area */}
-                <main className="flex-1 bg-background/50 overflow-y-auto p-12 custom-scrollbar flex justify-center">
+                <main className="flex-1 bg-background/50 overflow-y-auto p-4 md:p-8 lg:p-12 custom-scrollbar flex justify-center">
                     <div className="w-full max-w-[900px]">
                         {/* Report Paper */}
-                        <div className="bg-card border border-border rounded-[2.5rem] p-16 shadow-2xl relative overflow-hidden">
+                        <div className="bg-card border border-border rounded-[1.5rem] md:rounded-[2rem] lg:rounded-[2.5rem] p-6 md:p-10 lg:p-16 shadow-2xl relative overflow-hidden">
                             <div className="absolute top-0 right-0 w-64 h-64 bg-accent/5 rounded-full blur-[100px] -mr-20 -mt-20"></div>
 
                             {/* Paper Header */}
-                            <div className="flex justify-between items-start mb-16 relative z-10">
+                            <div className="flex flex-col sm:flex-row justify-between items-start mb-10 md:mb-16 relative z-10 gap-6">
                                 <div>
-                                    <h2 className="text-5xl font-black tracking-tighter mb-4 text-foreground">{frequency} Crop Analysis</h2>
-                                    <p className="text-foreground/40 font-bold uppercase tracking-widest text-xs flex items-center gap-2">
-                                        REPORT ID: GS-{selectedDeviceId.split('-')[0]}-{Date.now().toString().slice(-4)} <Circle size={4} className="fill-foreground/20 text-foreground/20" /> {currentDeviceName} - AREA 01
+                                    <h2 className="text-3xl md:text-4xl lg:text-5xl font-black tracking-tighter mb-4 text-foreground leading-none">{frequency} Crop Analysis</h2>
+                                    <p className="text-foreground/40 font-bold uppercase tracking-widest text-[9px] md:text-xs flex items-center flex-wrap gap-2">
+                                        REPORT ID: GS-{selectedDeviceId.split('-')[0]}-{Date.now().toString().slice(-4)}
+                                        <Circle size={4} className="fill-foreground/20 text-foreground/20 hidden sm:block" />
+                                        {currentDeviceName} - AREA 01
                                     </p>
                                 </div>
-                                <div className="text-right">
-                                    <div className="text-sm font-black text-accent mb-1 uppercase tracking-widest">Generated: {new Date().toLocaleDateString()}</div>
-                                    <div className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest">Status: {sensorHistory.length > 0 ? 'ACTIVE' : 'NO DATA'}</div>
+                                <div className="text-left sm:text-right w-full sm:w-auto mt-2 sm:mt-0 pt-4 sm:pt-0 border-t sm:border-t-0 border-border">
+                                    <div className="text-[10px] md:text-sm font-black text-accent mb-1 uppercase tracking-widest">Generated: {new Date().toLocaleDateString()}</div>
+                                    <div className="text-[8px] md:text-[10px] font-bold text-foreground/40 uppercase tracking-widest">Status: {sensorHistory.length > 0 ? 'ACTIVE' : 'NO DATA'}</div>
                                 </div>
                             </div>
 
                             {/* Dashboard Widgets in Preview */}
-                            <div className="grid grid-cols-2 gap-10 mb-10">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 mb-6 md:mb-10">
                                 {/* Yield Quality Slot (Now AI Stress) */}
-                                <div className="p-8 border border-dashed border-border rounded-[2rem] relative">
-                                    <div className="absolute -top-3 left-6 px-2 bg-card text-[10px] font-bold text-foreground/40 uppercase tracking-widest">AI INSIGHTS</div>
-                                    <div className="flex justify-between items-start mb-8">
-                                        <h3 className="text-xl font-bold text-foreground">Crop Stress <br />Distribution</h3>
+                                <div className="p-6 md:p-8 border border-dashed border-border rounded-[1.5rem] md:rounded-[2rem] relative">
+                                    <div className="absolute -top-3 left-6 px-2 bg-card text-[8px] md:text-[10px] font-bold text-foreground/40 uppercase tracking-widest">AI INSIGHTS</div>
+                                    <div className="flex justify-between items-start mb-6 md:mb-8">
+                                        <h3 className="text-lg md:text-xl font-bold text-foreground">Crop Stress <br className="hidden sm:block" />Distribution</h3>
                                         <button className="text-foreground/40 hover:text-foreground"><Info size={16} /></button>
                                     </div>
-                                    <div className="flex items-center gap-8">
-                                        <div className="relative w-32 h-32">
+                                    <div className="flex flex-col sm:flex-row lg:flex-row items-center gap-6 md:gap-8">
+                                        <div className="relative w-24 h-24 md:w-32 md:h-32 shrink-0">
                                             <svg className="w-full h-full -rotate-90">
                                                 <circle cx="64" cy="64" r="50" fill="transparent" stroke="currentColor" className="text-foreground/5" strokeWidth="12" />
                                                 <circle cx="64" cy="64" r="50" fill="transparent" stroke={summaryStats.stressLevel > 50 ? "#ef4444" : "#15ff71"} strokeWidth="12" strokeDasharray="314" strokeDashoffset={314 - (314 * (100 - summaryStats.stressLevel)) / 100} strokeLinecap="round" />
@@ -385,54 +388,54 @@ export default function ReportBuilderPage() {
                                 </div>
 
                                 {/* Seasonal Expenses */}
-                                <div className="p-8 border border-dashed border-border rounded-[2rem] relative">
-                                    <div className="absolute -top-3 left-6 px-2 bg-card text-[10px] font-bold text-foreground/40 uppercase tracking-widest">FINANCIAL SUMMARY</div>
-                                    <div className="flex justify-between items-start mb-8">
-                                        <h3 className="text-xl font-bold text-foreground">Recent Expenses</h3>
+                                <div className="p-6 md:p-8 border border-dashed border-border rounded-[1.5rem] md:rounded-[2rem] relative">
+                                    <div className="absolute -top-3 left-6 px-2 bg-card text-[8px] md:text-[10px] font-bold text-foreground/40 uppercase tracking-widest">FINANCIAL SUMMARY</div>
+                                    <div className="flex justify-between items-start mb-6 md:mb-8">
+                                        <h3 className="text-lg md:text-xl font-bold text-foreground">Recent Expenses</h3>
                                         <button className="text-foreground/40 hover:text-foreground"><Info size={16} /></button>
                                     </div>
                                     <div className="space-y-4 max-h-[160px] overflow-y-auto custom-scrollbar pr-2">
                                         {expenses.length > 0 ? expenses.slice(0, 4).map((exp, idx) => (
                                             <div key={idx} className="flex justify-between items-center bg-foreground/5 p-3 rounded-xl border border-border">
-                                                <div>
-                                                    <div className="text-xs font-bold text-foreground">{exp.title}</div>
+                                                <div className="min-w-0">
+                                                    <div className="text-xs font-bold text-foreground truncate">{exp.title}</div>
                                                     <div className="text-[9px] text-foreground/40 uppercase font-black">{exp.category}</div>
                                                 </div>
-                                                <div className="text-sm font-black text-accent">${exp.amount}</div>
+                                                <div className="text-xs md:text-sm font-black text-accent ml-2 shrink-0">${exp.amount}</div>
                                             </div>
                                         )) : (
-                                            <p className="text-center text-foreground/20 text-[10px] font-bold py-10">NO EXPENSE DATA FOUND</p>
+                                            <p className="text-center text-foreground/20 text-[9px] md:text-[10px] font-bold py-10">NO EXPENSE DATA FOUND</p>
                                         )}
                                     </div>
                                     {expenses.length > 0 && (
                                         <div className="mt-4 pt-4 border-t border-border flex justify-between items-end">
-                                            <span className="text-xs font-bold text-foreground/40 uppercase">Total Period Spent</span>
-                                            <span className="text-xl font-black text-foreground">${summaryStats.totalSpent}</span>
+                                            <span className="text-[9px] md:text-xs font-bold text-foreground/40 uppercase">Total Spent</span>
+                                            <span className="text-lg md:text-xl font-black text-foreground">${summaryStats.totalSpent}</span>
                                         </div>
                                     )}
                                 </div>
                             </div>
 
                             {/* Hero Chart Slot */}
-                            <div className="p-8 border border-dashed border-border rounded-[2rem] relative">
-                                <div className="absolute -top-3 left-6 px-2 bg-card text-[10px] font-bold text-foreground/40 uppercase tracking-widest">MOISTURE TREND vs TARGET</div>
-                                <div className="flex justify-between items-start mb-6">
+                            <div className="p-6 md:p-8 border border-dashed border-border rounded-[1.5rem] md:rounded-[2rem] relative">
+                                <div className="absolute -top-3 left-6 px-2 bg-card text-[8px] md:text-[10px] font-bold text-foreground/40 uppercase tracking-widest">MOISTURE TREND vs TARGET</div>
+                                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
                                     <div>
-                                        <h3 className="text-2xl font-black mb-1 text-foreground">Weekly Moisture Levels</h3>
-                                        <p className="text-[10px] font-bold text-foreground/40">History tracked from the last 7 recorded data points</p>
+                                        <h3 className="text-xl md:text-2xl font-black mb-1 text-foreground">Weekly Moisture Levels</h3>
+                                        <p className="text-[9px] md:text-[10px] font-bold text-foreground/40">History tracked from the last 7 recorded data points</p>
                                     </div>
                                     <div className="flex gap-4">
                                         <div className="flex items-center gap-2">
                                             <div className="w-2 h-2 rounded-full bg-accent"></div>
-                                            <span className="text-[10px] font-black text-foreground/40 uppercase tracking-widest">Actual</span>
+                                            <span className="text-[8px] md:text-[10px] font-black text-foreground/40 uppercase tracking-widest">Actual</span>
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <div className="w-2 h-2 rounded-full bg-foreground/10"></div>
-                                            <span className="text-[10px] font-black text-foreground/40 uppercase tracking-widest">Target</span>
+                                            <span className="text-[8px] md:text-[10px] font-black text-foreground/40 uppercase tracking-widest">Target</span>
                                         </div>
                                     </div>
                                 </div>
-                                <div className="h-[250px] w-full">
+                                <div className="h-[200px] md:h-[250px] w-full">
                                     <ResponsiveContainer width="100%" height="100%">
                                         <BarChart data={waterData}>
                                             <CartesianGrid strokeDasharray="3 3" stroke="currentColor" className="text-foreground/5" vertical={false} />
