@@ -16,8 +16,12 @@
 // ============================================
 
 // WiFi credentials
-const char* ssid = "NUM2 STUDENT";
-const char* password = "student@2024";
+const char* ssid = "Wise";
+const char* password = "12345678";
+
+// WiFi credentials
+//const char* ssid = "NUM2 STUDENT";
+//const char* password = "student@2024";
 
 // Change these exact lines:
 const char* mqtt_server = "ballast.proxy.rlwy.net"; 
