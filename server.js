@@ -151,27 +151,37 @@ async function saveSensorData(deviceId, data) {
             return isNaN(num) ? null : num;
         };
 
-        // Save sensor data with AI-generated insights
-        await prisma.sensorData.create({
-            data: {
-                deviceId: device.id,
-                temperature: safeNum(data.temperature),
-                humidity: safeNum(data.humidity),
-                moisture: safeNum(data.moisture),
-                rain: safeNum(data.rain),
-                lightIntensity: safeNum(data.lightIntensity),
-                nitrogen: safeNum(data.nitrogen),
-                phosphorus: safeNum(data.phosphorus),
-                potassium: safeNum(data.potassium),
-                pH: safeNum(data.pH),
-                ec: safeNum(data.ec),
-                // AI-generated fields
-                soilHealth: aiAnalysis?.soilHealth || null,
-                stressLevel: safeNum(aiAnalysis?.stressLevel),
-                moistureLossRate: safeNum(aiAnalysis?.moistureLossRate),
-                timestamp: new Date()
+        // Save sensor data with AI-generated insights (Smart Retry Logic)
+        const sensorPayload = {
+            deviceId: device.id,
+            temperature: safeNum(data.temperature),
+            humidity: safeNum(data.humidity),
+            moisture: safeNum(data.moisture),
+            rain: safeNum(data.rain),
+            lightIntensity: safeNum(data.lightIntensity),
+            nitrogen: safeNum(data.nitrogen),
+            phosphorus: safeNum(data.phosphorus),
+            potassium: safeNum(data.potassium),
+            pH: safeNum(data.pH),
+            ec: safeNum(data.ec),
+            soilHealth: aiAnalysis?.soilHealth || null,
+            stressLevel: safeNum(aiAnalysis?.stressLevel),
+            moistureLossRate: safeNum(aiAnalysis?.moistureLossRate),
+            timestamp: new Date()
+        };
+
+        try {
+            await prisma.sensorData.create({ data: sensorPayload });
+        } catch (err) {
+            // If 'ec' field causes error, retry without it
+            if (err.message.includes('Unknown argument `ec`')) {
+                console.warn('⚠️ Fallback: Saving without ec field...');
+                const { ec, ...fallbackPayload } = sensorPayload;
+                await prisma.sensorData.create({ data: fallbackPayload });
+            } else {
+                throw err;
             }
-        })
+        }
 
         // Create alerts from AI analysis
         if (aiAnalysis && aiAnalysis.alerts.length > 0) {
