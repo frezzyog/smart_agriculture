@@ -33,8 +33,8 @@ const char* device_id   = "SMARTAG-001"; // Must match your dashboard ID
 #define BATTERY_PIN    32   // Battery Voltage Monitor (New!)
 
 // Actuators
-#define RELAY_1_PIN    5    // Water Pump
-#define RELAY_2_PIN    18   // Fertilizer / Second Pump
+#define RELAY_1_PIN    15   // Water Pump (Purple Wire)
+#define RELAY_2_PIN    13   // Fertilizer / Second Pump (Blue Wire)
 
 // Calibration Constants
 #define MOISTURE_DRY   3500 // Dry Value
@@ -87,11 +87,11 @@ void setup() {
   node.preTransmission(preTransmission);
   node.postTransmission(postTransmission);
 
-  // Initialize Relay Pins
+  // Initialize Relay Pins (Default to OFF/HIGH for Active Low)
   pinMode(RELAY_1_PIN, OUTPUT);
   pinMode(RELAY_2_PIN, OUTPUT);
-  digitalWrite(RELAY_1_PIN, LOW);
-  digitalWrite(RELAY_2_PIN, LOW);
+  digitalWrite(RELAY_1_PIN, HIGH);
+  digitalWrite(RELAY_2_PIN, HIGH);
   
   connectWiFi();
   mqtt.setServer(mqtt_server, mqtt_port);
@@ -104,6 +104,18 @@ void setup() {
 void loop() {
   if (!mqtt.connected()) connectMQTT();
   mqtt.loop();
+
+  // --- HARDWARE TEST: Toggle Relays every 5 seconds ---
+  static unsigned long lastRelayTest = 0;
+  if (millis() - lastRelayTest > 5000) {
+    Serial.println("🛠️ Hardware Test: Pulsing Relays...");
+    digitalWrite(RELAY_1_PIN, LOW); // ON
+    digitalWrite(RELAY_2_PIN, LOW); // ON
+    delay(1000);
+    digitalWrite(RELAY_1_PIN, HIGH); // OFF
+    digitalWrite(RELAY_2_PIN, HIGH); // OFF
+    lastRelayTest = millis();
+  }
 
   // Send data every 5 seconds
   if (millis() - lastPublish > 5000) {
@@ -156,10 +168,10 @@ void sendSensorData() {
   float rPercent = map(rRaw, RAIN_DRY, RAIN_WET, 0, 100);
   rPercent = constrain(rPercent, 0, 100);
 
-  // 3. Read Battery Voltage (New!)
-  // Assuming Voltage Divider: R1=100k, R2=10k (Ratio 1:11)
+  // 3. Read Battery Voltage (Updated for User Converter)
+  // Your converter maps ~12.9V down to ~3.3V (Ratio 3.91)
   int bRaw = analogRead(BATTERY_PIN);
-  float voltage = bRaw * (3.3 / 4095.0) * 11.0; 
+  float voltage = bRaw * (3.3 / 4095.0) * 3.91; 
   
   // Simple Percentage calculation for 12V Lead Acid or 3S Lithium
   // Range ~10.5V (0%) to ~12.6V (100%)
@@ -200,21 +212,39 @@ void sendSensorData() {
 // ============================================
 // 8. RECEIVE PUMP COMMANDS
 // ============================================
+// ============================================
+// 8. RECEIVE PUMP COMMANDS
+// ============================================
 void mqttCallback(char* topic, byte* payload, unsigned int length) {
-  Serial.print("📨 Command received on ["); Serial.print(topic); Serial.println("]");
+  Serial.printf("\n📨 MQTT Message Received [%s]\n", topic);
   
-  StaticJsonDocument<200> doc;
-  deserializeJson(doc, payload, length);
+  char message[length + 1];
+  for (int i = 0; i < length; i++) message[i] = (char)payload[i];
+  message[length] = '\0';
+  Serial.println("  Payload: " + String(message));
+
+  StaticJsonDocument<256> doc;
+  DeserializationError error = deserializeJson(doc, payload, length);
   
+  if (error) {
+    Serial.print("  JSON Parse Error: "); Serial.println(error.c_str());
+    return;
+  }
+
   String type   = doc["type"] | "WATER"; 
-  String status = doc["status"]; 
+  String status = doc["status"] | "OFF"; 
+  
+  // NOTE: Most blue relay modules are "Active Low" 
+  // (LOW = Relay ON, HIGH = Relay OFF)
+  bool turnOn = (status == "ON");
   
   if (type == "WATER") {
-    digitalWrite(RELAY_1_PIN, (status == "ON" ? HIGH : LOW));
-    Serial.println(status == "ON" ? "💧 Pump 1 ON" : "💧 Pump 1 OFF");
-  } else if (type == "FERTILIZER") {
-    digitalWrite(RELAY_2_PIN, (status == "ON" ? HIGH : LOW));
-    Serial.println(status == "ON" ? "🧪 Pump 2 ON" : "🧪 Pump 2 OFF");
+    digitalWrite(RELAY_1_PIN, turnOn ? LOW : HIGH); // Active Low Logic
+    Serial.printf("  💧 Water Pump -> %s\n", turnOn ? "ON (LOW)" : "OFF (HIGH)");
+  } 
+  else if (type == "FERTILIZER") {
+    digitalWrite(RELAY_2_PIN, turnOn ? LOW : HIGH); // Active Low Logic
+    Serial.printf("  🧪 Fertilizer Pump -> %s\n", turnOn ? "ON (LOW)" : "OFF (HIGH)");
   }
 }
 

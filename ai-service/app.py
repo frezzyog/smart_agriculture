@@ -245,11 +245,36 @@ async def health_check():
 
 @app.post("/api/ai/interpret", response_model=InterpretResponse)
 async def interpret_sensor_data(request: InterpretRequest):
-    """Real-time interpretation of sensor data"""
+    """Real-time interpretation of sensor data with weather-aware irrigation"""
     try:
         sensor_data = request.sensorData.model_dump()
         device_id = request.deviceId
         
+        # ============================================
+        # FETCH WEATHER FORECAST
+        # ============================================
+        weather_forecast = None
+        tomorrow_rain_probability = 0
+        
+        try:
+            backend_url = os.getenv("BACKEND_URL", "http://localhost:5000")
+            async with httpx.AsyncClient() as client:
+                weather_response = await client.get(f"{backend_url}/api/weather", timeout=5.0)
+                if weather_response.status_code == 200:
+                    weather_data = weather_response.json()
+                    weather_forecast = weather_data.get('forecast', [])
+                    
+                    # Get tomorrow's rain probability
+                    if weather_forecast and len(weather_forecast) > 0:
+                        tomorrow = weather_forecast[0]
+                        tomorrow_rain_probability = tomorrow.get('rainProbability', 0)
+                        print(f"🌦️ Weather Check: Tomorrow's rain probability = {tomorrow_rain_probability}%")
+        except Exception as e:
+            print(f"⚠️ Weather API unavailable: {e}")
+        
+        # ============================================
+        # SENSOR DATA ANALYSIS
+        # ============================================
         soil_health = data_processor.assess_soil_health(
             moisture=sensor_data.get('moisture'),
             pH=sensor_data.get('pH'),
@@ -274,26 +299,64 @@ async def interpret_sensor_data(request: InterpretRequest):
         recommend_action = False
         action = None
         
-        # MOISTURE THRESHOLDS: Optimal 65-75%, Critical < 50%
+        # ============================================
+        # MOISTURE THRESHOLDS WITH WEATHER INTELLIGENCE
+        # ============================================
         moisture = sensor_data.get('moisture', 100)
+        
+        # Check if we should skip irrigation due to rain forecast
+        skip_irrigation_due_to_rain = tomorrow_rain_probability > 50
+        
         if moisture < 45 or stress_level > 80:
-            alerts.append({
-                "severity": "CRITICAL",
-                "type": "MOISTURE_CRITICAL" if moisture < 45 else "STRESS_CRITICAL",
-                "title": "Critical Plant Stress" if stress_level > 80 else "Critical Soil Moisture",
-                "message": f"Extreme stress detected at {stress_level}%" if stress_level > 80 else f"Soil moisture critically low at {moisture}%"
-            })
-            recommend_action = True
-            action = {"type": "irrigation", "deviceId": device_id, "command": {"type": "WATER", "status": "ON", "duration": 420}}
+            # Critical situation - needs immediate action
+            if skip_irrigation_due_to_rain:
+                # Rain expected - add info alert instead of triggering pump
+                alerts.append({
+                    "severity": "INFO",
+                    "type": "WEATHER_SKIP",
+                    "title": "🌧️ Rain Expected - Irrigation Postponed",
+                    "message": f"Moisture at {moisture}% but {tomorrow_rain_probability}% chance of rain tomorrow. AI postponed irrigation to conserve water."
+                })
+                recommend_action = False
+            else:
+                # No rain expected - trigger irrigation
+                alerts.append({
+                    "severity": "CRITICAL",
+                    "type": "MOISTURE_CRITICAL" if moisture < 45 else "STRESS_CRITICAL",
+                    "title": "Critical Plant Stress" if stress_level > 80 else "Critical Soil Moisture",
+                    "message": f"Extreme stress detected at {stress_level}%" if stress_level > 80 else f"Soil moisture critically low at {moisture}%"
+                })
+                recommend_action = True
+                action = {"type": "irrigation", "deviceId": device_id, "command": {"type": "WATER", "status": "ON", "duration": 420}}
+                
         elif moisture < 50:
+            if skip_irrigation_due_to_rain:
+                alerts.append({
+                    "severity": "INFO",
+                    "type": "WEATHER_SKIP",
+                    "title": "🌦️ Irrigation Delayed - Rain Forecast",
+                    "message": f"Soil moisture is {moisture}%. Irrigation delayed due to {tomorrow_rain_probability}% rain probability tomorrow."
+                })
+            else:
+                alerts.append({
+                    "severity": "WARNING",
+                    "type": "MOISTURE_LOW",
+                    "title": "Danger: Low Soil Moisture",
+                    "message": f"Soil moisture has dropped to {moisture}%. Irrigation recommended before reaching 45%."
+                })
+        
+        # Add weather info to alerts if rain is expected
+        if tomorrow_rain_probability > 30:
             alerts.append({
-                "severity": "WARNING",
-                "type": "MOISTURE_LOW",
-                "title": "Danger: Low Soil Moisture",
-                "message": f"Soil moisture has dropped to {moisture}%. Irrigation recommended before reaching 45%."
+                "severity": "INFO",
+                "type": "WEATHER_INFO",
+                "title": f"🌧️ Rain Forecast: {tomorrow_rain_probability}%",
+                "message": f"Natural irrigation expected tomorrow. AI will optimize water usage accordingly."
             })
         
-        # NUTRIENT THRESHOLDS: N (150-200), P (30-50), K (150-250)
+        # ============================================
+        # NUTRIENT THRESHOLDS
+        # ============================================
         if sensor_data.get('nitrogen', 200) < 130:
             alerts.append({
                 "severity": "WARNING",
@@ -315,14 +378,23 @@ async def interpret_sensor_data(request: InterpretRequest):
         # EC THRESHOLDS: 1.2 - 1.6 dS/m (1200-1600 µS/cm)
         if sensor_data.get('ec'):
             if sensor_data['ec'] < 1000:
-                alerts.append({
-                    "severity": "WARNING",
-                    "type": "NPK_LOW",
-                    "title": "Low Nutrient Concentration (EC)",
-                    "message": f"EC is {sensor_data['ec']} µS/cm. Target is 1200-1600. Fertigation suggested."
-                })
-                recommend_action = True
-                action = {"type": "fertilizer", "deviceId": device_id, "command": {"type": "FERTILIZER", "status": "ON", "duration": 180}}
+                # Only recommend fertilizer if not expecting heavy rain (which could wash it away)
+                if tomorrow_rain_probability < 70:
+                    alerts.append({
+                        "severity": "WARNING",
+                        "type": "NPK_LOW",
+                        "title": "Low Nutrient Concentration (EC)",
+                        "message": f"EC is {sensor_data['ec']} µS/cm. Target is 1200-1600. Fertigation suggested."
+                    })
+                    recommend_action = True
+                    action = {"type": "fertilizer", "deviceId": device_id, "command": {"type": "FERTILIZER", "status": "ON", "duration": 180}}
+                else:
+                    alerts.append({
+                        "severity": "INFO",
+                        "type": "WEATHER_SKIP",
+                        "title": "Fertilization Delayed - Heavy Rain Expected",
+                        "message": f"EC low at {sensor_data['ec']} µS/cm but heavy rain ({tomorrow_rain_probability}%) would wash nutrients away."
+                    })
             elif sensor_data['ec'] > 2000:
                  alerts.append({
                     "severity": "CRITICAL",
@@ -336,6 +408,10 @@ async def interpret_sensor_data(request: InterpretRequest):
             stress_level=stress_level,
             alerts=alerts
         )
+        
+        # Add weather context to recommendation
+        if skip_irrigation_due_to_rain:
+            recommendation += f"\n\n🌧️ AI detected {tomorrow_rain_probability}% rain probability tomorrow and optimized water usage accordingly."
         
         return InterpretResponse(
             soilHealth=soil_health,

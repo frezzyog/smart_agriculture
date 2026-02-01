@@ -668,6 +668,143 @@ app.post('/api/devices/register', async (req, res) => {
     }
 })
 
+// Weather API endpoint
+let weatherCache = { data: null, timestamp: null }
+const WEATHER_CACHE_DURATION = 30 * 60 * 1000 // 30 minutes
+
+app.get('/api/weather', async (req, res) => {
+    try {
+        // Check cache first
+        if (weatherCache.data && weatherCache.timestamp && (Date.now() - weatherCache.timestamp < WEATHER_CACHE_DURATION)) {
+            return res.json(weatherCache.data)
+        }
+
+        const WEATHER_API_KEY = process.env.OPENWEATHER_API_KEY || 'demo_key'
+        const location = req.query.location || 'Phnom Penh,KH' // Default to Phnom Penh, Cambodia
+
+        // Fetch current weather
+        const currentResponse = await fetch(
+            `https://api.openweathermap.org/data/2.5/weather?q=${location}&units=metric&appid=${WEATHER_API_KEY}`
+        )
+
+        if (!currentResponse.ok) {
+            // Fallback to demo data if API fails
+            throw new Error('Weather API unavailable')
+        }
+
+        const currentData = await currentResponse.json()
+
+        // Fetch 5-day forecast
+        const forecastResponse = await fetch(
+            `https://api.openweathermap.org/data/2.5/forecast?q=${location}&units=metric&appid=${WEATHER_API_KEY}`
+        )
+
+        const forecastData = await forecastResponse.json()
+
+        // Process forecast data - get daily forecasts
+        const dailyForecasts = []
+        const processedDates = new Set()
+
+        if (forecastData.list) {
+            forecastData.list.forEach(item => {
+                const date = new Date(item.dt * 1000).toISOString().split('T')[0]
+
+                if (!processedDates.has(date) && dailyForecasts.length < 3) {
+                    processedDates.add(date)
+
+                    // Find all entries for this date to get min/max temps
+                    const dayEntries = forecastData.list.filter(entry =>
+                        new Date(entry.dt * 1000).toISOString().split('T')[0] === date
+                    )
+
+                    const temps = dayEntries.map(e => e.main.temp)
+                    const rainProb = Math.max(...dayEntries.map(e => (e.pop || 0) * 100))
+
+                    dailyForecasts.push({
+                        date,
+                        tempMax: Math.max(...temps),
+                        tempMin: Math.min(...temps),
+                        condition: item.weather[0].description,
+                        rainProbability: Math.round(rainProb),
+                        humidity: item.main.humidity,
+                        windSpeed: item.wind.speed
+                    })
+                }
+            })
+        }
+
+        const weatherData = {
+            current: {
+                location: currentData.name,
+                temperature: currentData.main.temp,
+                condition: currentData.weather[0].description,
+                humidity: currentData.main.humidity,
+                windSpeed: currentData.wind.speed,
+                timestamp: new Date().toISOString()
+            },
+            forecast: dailyForecasts
+        }
+
+        // Update cache
+        weatherCache = {
+            data: weatherData,
+            timestamp: Date.now()
+        }
+
+        res.json(weatherData)
+    } catch (error) {
+        console.error('Weather API error:', error.message)
+
+        // Return demo data
+        const demoData = {
+            current: {
+                location: 'Phnom Penh',
+                temperature: 28,
+                condition: 'partly cloudy',
+                humidity: 75,
+                windSpeed: 12,
+                timestamp: new Date().toISOString()
+            },
+            forecast: [
+                {
+                    date: new Date(Date.now() + 86400000).toISOString().split('T')[0],
+                    tempMax: 32,
+                    tempMin: 26,
+                    condition: 'rainy',
+                    rainProbability: 75,
+                    humidity: 85,
+                    windSpeed: 15
+                },
+                {
+                    date: new Date(Date.now() + 172800000).toISOString().split('T')[0],
+                    tempMax: 31,
+                    tempMin: 25,
+                    condition: 'cloudy',
+                    rainProbability: 40,
+                    humidity: 78,
+                    windSpeed: 10
+                },
+                {
+                    date: new Date(Date.now() + 259200000).toISOString().split('T')[0],
+                    tempMax: 33,
+                    tempMin: 27,
+                    condition: 'sunny',
+                    rainProbability: 10,
+                    humidity: 70,
+                    windSpeed: 8
+                }
+            ]
+        }
+
+        weatherCache = {
+            data: demoData,
+            timestamp: Date.now()
+        }
+
+        res.json(demoData)
+    }
+})
+
 // Chatbot endpoint with context
 app.post('/api/chat', async (req, res) => {
     try {

@@ -9,6 +9,7 @@ import NPKTrendChart from '@/components/dashboard/NPKTrendChart'
 import RecentAlerts from '@/components/dashboard/RecentAlerts'
 import ExpenseSummaryCard from '@/components/dashboard/ExpenseSummaryCard'
 import RecentTransactionsMinimal from '@/components/dashboard/RecentTransactionsMinimal'
+import WeatherCard from '@/components/dashboard/WeatherCard'
 import { Droplet } from 'lucide-react'
 import { useRealtimeSensorData } from '@/hooks/useRealtimeSensorData'
 import { getExpenses } from '@/lib/api'
@@ -34,8 +35,8 @@ export default function DashboardPage() {
     return (
         <div className="lg:ml-64 p-4 md:p-10 min-h-screen bg-background transition-all duration-500">
             <div className="max-w-[1600px] mx-auto space-y-10">
-                {/* Top Row: KPIs */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Top Row: KPIs + Weather */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-8">
                     <SensorCard
                         title={t('dashboard.soil_analytics')}
                         subtitle={t('dashboard.advanced_monitor')}
@@ -52,6 +53,7 @@ export default function DashboardPage() {
                         runtime="48h 12m"
                     />
                     <PumpControl deviceId={sensorData.deviceId || 'SMARTAG-001'} />
+                    <WeatherCard />
                 </div>
 
                 {/* Second Row: Expenses Summary & Recent Transactions */}
