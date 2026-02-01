@@ -10,12 +10,14 @@ export function useRealtimeSensorData() {
         nitrogen: 0,
         phosphorus: 0,
         potassium: 0,
-        pH: 7.0,
+        pH: 0.0,
         ec: 0,
         temp: 0,
         humidity: 0,
         moistureRaw: 0,
         rainRaw: 0,
+        battery: 85,
+        voltage: 12.8,
         deviceId: null,
         timestamp: null,
         connected: false
@@ -41,22 +43,23 @@ export function useRealtimeSensorData() {
         // Listen for sensor data updates
         socket.on('sensorData', (data) => {
             console.log('📊 Sensor data received:', data)
-            setSensorData({
-                moisture: data.moisture || 0,
-                rain: data.rain || 0,
-                nitrogen: data.nitrogen || 0,
-                phosphorus: data.phosphorus || 0,
-                potassium: data.potassium || 0,
-                pH: data.pH || 7.0,
-                ec: data.ec || 0,
-                temp: data.temp || 0,
-                humidity: data.humidity || 0,
-                moistureRaw: data.moistureRaw || 0,
-                rainRaw: data.rainRaw || 0,
-                deviceId: data.deviceId,
-                timestamp: data.timestamp,
+            setSensorData(prev => ({
+                ...prev,
+                moisture: data.moisture ?? prev.moisture,
+                rain: data.rain ?? prev.rain,
+                nitrogen: data.nitrogen ?? prev.nitrogen,
+                phosphorus: data.phosphorus ?? prev.phosphorus,
+                potassium: data.potassium ?? prev.potassium,
+                pH: data.pH ?? prev.pH,
+                ec: data.ec ?? prev.ec,
+                temp: data.temp ?? prev.temp,
+                humidity: data.humidity ?? prev.humidity,
+                battery: data.battery ?? prev.battery,
+                voltage: data.voltage ?? prev.voltage,
+                deviceId: data.deviceId || prev.deviceId,
+                timestamp: data.timestamp || new Date().toISOString(),
                 connected: true
-            })
+            }))
         })
 
         // Cleanup on unmount
