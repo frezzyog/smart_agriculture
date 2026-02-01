@@ -15,12 +15,24 @@ import { useRealtimeSensorData } from '@/hooks/useRealtimeSensorData'
 import { getExpenses } from '@/lib/api'
 import { useTranslation } from 'react-i18next'
 
+import { useAuth } from '@/hooks/useAuth'
+import { useRouter } from 'next/navigation'
+
 export default function DashboardPage() {
     const { t } = useTranslation()
+    const { user, loading } = useAuth()
+    const router = useRouter()
     const sensorData = useRealtimeSensorData()
     const [expenses, setExpenses] = React.useState([])
 
+    useEffect(() => {
+        if (!loading && !user) {
+            router.push('/login')
+        }
+    }, [user, loading, router])
+
     React.useEffect(() => {
+        if (!user) return
         const fetchExpenses = async () => {
             try {
                 const data = await getExpenses()

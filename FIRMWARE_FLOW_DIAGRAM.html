@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP32 Smart Agriculture Firmware Flow</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px;
+        }
+
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            max-width: 1000px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        p {
+            color: #7f8c8d;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .mermaid {
+            display: flex;
+            justify-content: center;
+        }
+
+        .instructions {
+            margin-top: 40px;
+            padding: 20px;
+            background: #eef2f3;
+            border-radius: 8px;
+            font-size: 0.9em;
+            color: #34495e;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>ESP32 Smart Agriculture: AI-Driven Closed-Loop Workflow</h1>
+        <p>Technical Firmware Architecture for Project Submission</p>
+
+        <div class="mermaid">
+            graph TD
+            %% Global Styling
+            classDef pink fill:#e91e63,stroke:#333,stroke-width:2px,color:#fff;
+            classDef green fill:#4caf50,stroke:#333,stroke-width:2px,color:#fff;
+            classDef yellowContainer fill:#fffde7,stroke:#fbc02d,stroke-width:2px;
+            classDef blueContainer fill:#e3f2fd,stroke:#1976d2,stroke-width:2px;
+            classDef orangeContainer fill:#fff3e0,stroke:#f57c00,stroke-width:2px;
+            classDef whiteBox fill:#fff,stroke:#333,stroke-width:1px;
+            classDef cloudBox fill:#1976d2,stroke:#0d47a1,stroke-width:3px,color:#fff;
+
+            Start([Power On / Reset]) --> Init[Initialize Hardware]:::green
+            class Start pink
+
+            subgraph Setup_Phase [Setup Phase]
+            IO[Set Pins: Relay Active HIGH<br />Serial & RS485 Modbus]:::whiteBox
+            WiFi{Connect to WiFi}:::whiteBox
+            MQTT[Configure MQTT Broker<br />Set Callback Function]:::whiteBox
+            IO --> WiFi --> MQTT
+            end
+            Init --> Setup_Phase
+
+            subgraph Main_Loop [Main Loop - Continuous]
+            Monitor{MQTT Connected?}:::whiteBox
+            Process[Process MQTT loop]:::whiteBox
+            Timer{5 Seconds Passed?}:::whiteBox
+            Read[Read NPK Sensor & Analog Pins]:::whiteBox
+            Publish[Publish Telemetry to MQTT]:::whiteBox
+
+            Monitor -- Yes --> Process --> Timer
+            Timer -- Yes --> Read --> Publish
+            Publish --> Monitor
+            end
+            Setup_Phase --> Main_Loop
+
+            %% AI Logic Block
+            AI((Cloud AI Analysis Engine)):::cloudBox
+            Publish -.->|Data Stream| AI
+            AI -.->|Logic: If Moisture
+            < 50%<br />OR Nutrients Low| Command
+
+            subgraph Callback [AI Automated Callback]
+            Command[Receive Automated Command]:::whiteBox
+            Decision{Command Type?}:::whiteBox
+            Water[Water Pump: ON]:::whiteBox
+            Fert[Fertilizer Pump: ON]:::whiteBox
+
+            Command --> Decision
+            Decision -- "IRRIGATION" --> Water
+            Decision -- "FERTIGATION" --> Fert
+            end
+
+            class Setup_Phase yellowContainer
+            class Main_Loop blueContainer
+            class Callback orangeContainer
+        </div>
+
+        <div class="instructions">
+            <strong>Documentation Note:</strong> This diagram illustrates the <em>closed-loop intelligence</em> of the
+            system.
+            Telemetry data is pushed from the ESP32 to the Cloud AI Engine. The AI performs high-level threshold
+            analysis
+            and pushes automated control commands back to the device's interrupt-style callback function to trigger
+            physical actuators (Pumps).
+        </div>
+    </div>
+
+    <script>
+        mermaid.initialize({ startOnLoad: true, theme: 'default' });
+    </script>
+</body>
+
+</html>

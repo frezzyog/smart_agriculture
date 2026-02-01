@@ -8,9 +8,13 @@ export const useAuth = () => {
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
-        const session = supabase.auth.getSession()
-        setUser(session?.user ?? null)
-        setLoading(false)
+        const checkUser = async () => {
+            const { data: { session } } = await supabase.auth.getSession()
+            setUser(session?.user ?? null)
+            setLoading(false)
+        }
+
+        checkUser()
 
         const { data: authListener } = supabase.auth.onAuthStateChange(
             async (event, session) => {
@@ -24,5 +28,28 @@ export const useAuth = () => {
         }
     }, [])
 
-    return { user, loading }
+    const signIn = async (email, password) => {
+        const { data, error } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+        })
+        if (error) throw error
+        return data
+    }
+
+    const signUp = async (email, password) => {
+        const { data, error } = await supabase.auth.signUp({
+            email,
+            password,
+        })
+        if (error) throw error
+        return data
+    }
+
+    const signOut = async () => {
+        const { error } = await supabase.auth.signOut()
+        if (error) throw error
+    }
+
+    return { user, loading, signIn, signUp, signOut }
 }
