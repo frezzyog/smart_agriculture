@@ -4,12 +4,13 @@ import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Mail, Lock, User, ArrowRight, Loader2, Sprout, CheckCircle, Leaf } from 'lucide-react';
+import { Mail, Lock, User, ArrowRight, Loader2, Sprout, CheckCircle, Leaf, Phone } from 'lucide-react';
 
 export default function SignupForm() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [name, setName] = useState('');
+    const [phone, setPhone] = useState('');
     const [role, setRole] = useState('user');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -22,7 +23,7 @@ export default function SignupForm() {
         setLoading(true);
 
         try {
-            await signUp(email, password, { name, role });
+            await signUp(email, password, { name, phone, role });
             // Show success or redirect
             router.push('/dashboard');
         } catch (err) {
@@ -102,6 +103,25 @@ export default function SignupForm() {
                                     onChange={(e) => setEmail(e.target.value)}
                                     className="block w-full pl-11 pr-4 py-4 bg-foreground/5 border border-border rounded-2xl focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:bg-card focus:border-indigo-500 transition-all font-bold text-foreground placeholder-foreground/20"
                                     placeholder="farmer@smartag.com"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-xs font-bold text-gray-400 uppercase tracking-widest ml-1">Phone Number</label>
+                            <div className="relative group">
+                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <Phone size={18} className="text-gray-400 group-focus-within:text-indigo-500 transition-colors" />
+                                </div>
+                                <input
+                                    id="phone"
+                                    name="phone"
+                                    type="tel"
+                                    required
+                                    value={phone}
+                                    onChange={(e) => setPhone(e.target.value)}
+                                    className="block w-full pl-11 pr-4 py-4 bg-foreground/5 border border-border rounded-2xl focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:bg-card focus:border-indigo-500 transition-all font-bold text-foreground placeholder-foreground/20"
+                                    placeholder="+855XXXXXXXX"
                                 />
                             </div>
                         </div>
