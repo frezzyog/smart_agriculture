@@ -8,6 +8,12 @@ const { createServer } = require('net')
 const { PrismaClient } = require('@prisma/client')
 const { createClient } = require('@supabase/supabase-js')
 const crypto = require('crypto')
+const twilio = require('twilio')
+
+// Initialize Twilio
+const TWILIO_SID = process.env.TWILIO_ACCOUNT_SID
+const TWILIO_TOKEN = process.env.TWILIO_AUTH_TOKEN
+const smsClient = (TWILIO_SID && !TWILIO_SID.includes('xxx')) ? twilio(TWILIO_SID, TWILIO_TOKEN) : null
 
 // Initialize Prisma and Supabase
 const prisma = new PrismaClient()
@@ -120,14 +126,37 @@ aedes.on('publish', async (packet, client) => {
 })
 
 // ============================================
+// Notification Functions
+// ============================================
+
+async function sendSMSAlert(to, message) {
+    if (!smsClient) {
+        console.log(`📝 [SMS SIMULATOR] To: ${to} | Message: ${message}`)
+        return
+    }
+
+    try {
+        await smsClient.messages.create({
+            body: message,
+            from: process.env.TWILIO_PHONE_NUMBER,
+            to: to
+        })
+        console.log(`📱 SMS Alert Sent successfully to ${to}`)
+    } catch (err) {
+        console.error('❌ Failed to send SMS:', err.message)
+    }
+}
+
+// ============================================
 // Database Functions
 // ============================================
 
 async function saveSensorData(deviceId, data) {
     try {
-        // Find device by deviceId
+        // Find device by deviceId including user phone
         const device = await prisma.device.findUnique({
-            where: { deviceId }
+            where: { deviceId },
+            include: { user: true }
         })
 
         if (!device) {
@@ -248,6 +277,16 @@ async function saveSensorData(deviceId, data) {
                 duration: command.duration,
                 triggeredBy: 'AI_SYSTEM'
             })
+
+            // Send SMS Alert
+            const userPhone = device.user?.phone || process.env.MY_PHONE_NUMBER
+            if (userPhone && !userPhone.includes('xxx')) {
+                const actionType = command.type || 'WATER'
+                const durationMinutes = Math.round((command.duration || 0) / 60)
+                const smsMessage = `🌾 SmartAg Alert: Soil is dry (${data.moisture}%). AI triggered the ${actionType} pump for ${durationMinutes} mins.`
+
+                await sendSMSAlert(userPhone, smsMessage)
+            }
         }
 
         // Update device status to ACTIVE
