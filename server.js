@@ -13,11 +13,24 @@ const twilio = require('twilio')
 // Initialize Twilio
 const TWILIO_SID = process.env.TWILIO_ACCOUNT_SID
 const TWILIO_TOKEN = process.env.TWILIO_AUTH_TOKEN
-const smsClient = (TWILIO_SID && !TWILIO_SID.includes('xxx')) ? twilio(TWILIO_SID, TWILIO_TOKEN) : null
+const TWILIO_PHONE = process.env.TWILIO_PHONE_NUMBER
+
+console.log(`🔍 [DEBUG] Checking SMS Config: SID=${TWILIO_SID ? TWILIO_SID.substring(0, 5) + '...' : 'MISSING'}, Token=${TWILIO_TOKEN ? 'PRESENT' : 'MISSING'}, Phone=${TWILIO_PHONE || 'MISSING'}`)
+
+const smsClient = (TWILIO_SID && !TWILIO_SID.includes('xxx') && TWILIO_TOKEN && !TWILIO_TOKEN.includes('xxx'))
+    ? twilio(TWILIO_SID, TWILIO_TOKEN)
+    : null
+
 if (smsClient) {
     console.log('✅ Twilio SMS Client initialized')
 } else {
-    console.log('⚠️ Twilio SMS Client in SIMULATOR mode (SID missing or contains xxx)')
+    let reason = 'Unknown'
+    if (!TWILIO_SID) reason = 'TWILIO_ACCOUNT_SID is missing'
+    else if (TWILIO_SID.includes('xxx')) reason = 'TWILIO_ACCOUNT_SID contains placeholder "xxx"'
+    else if (!TWILIO_TOKEN) reason = 'TWILIO_AUTH_TOKEN is missing'
+    else if (TWILIO_TOKEN.includes('xxx')) reason = 'TWILIO_AUTH_TOKEN contains placeholder "xxx"'
+
+    console.log(`⚠️ Twilio SMS Client in SIMULATOR mode. Reason: ${reason}`)
 }
 
 // Initialize Prisma and Supabase
@@ -793,9 +806,15 @@ app.get('/api/test-sms', async (req, res) => {
         console.log(`🧪 Testing SMS to: ${testPhone}`);
 
         if (!smsClient) {
+            let reason = 'Unknown initialization failure.'
+            if (!process.env.TWILIO_ACCOUNT_SID) reason = 'TWILIO_ACCOUNT_SID is missing from environment variables (.env).'
+            else if (process.env.TWILIO_ACCOUNT_SID.includes('xxx')) reason = 'TWILIO_ACCOUNT_SID still has the "xxx" placeholder.'
+            else if (!process.env.TWILIO_AUTH_TOKEN) reason = 'TWILIO_AUTH_TOKEN is missing.'
+            else if (process.env.TWILIO_AUTH_TOKEN.includes('xxx')) reason = 'TWILIO_AUTH_TOKEN still has the "xxx" placeholder.'
+
             return res.status(400).json({
                 success: false,
-                error: 'SMS Client not initialized. Check your TWILIO environment variables.'
+                error: `SMS Client not initialized. ${reason}`
             });
         }
 
