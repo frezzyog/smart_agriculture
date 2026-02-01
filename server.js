@@ -254,6 +254,9 @@ async function saveSensorData(deviceId, data) {
 
         // Create alerts from AI analysis
         if (aiAnalysis && aiAnalysis.alerts.length > 0) {
+            const userPhone = device.user?.phone || process.env.MY_PHONE_NUMBER;
+            let smsSummaries = [];
+
             for (const alert of aiAnalysis.alerts) {
                 await prisma.alert.create({
                     data: {
@@ -265,14 +268,26 @@ async function saveSensorData(deviceId, data) {
                         message: alert.message,
                         metadata: JSON.stringify(data)
                     }
-                })
+                });
+
+                // Prepare SMS for important alerts
+                if (alert.severity === 'CRITICAL' || alert.severity === 'WARNING') {
+                    smsSummaries.push(alert.title);
+                }
+            }
+
+            // Send ONE combined SMS for all alerts if no pump action was triggered
+            // (If pump was triggered, a separate specific SMS is sent later)
+            if (smsSummaries.length > 0 && !aiAnalysis.recommendAction && userPhone && !userPhone.includes('xxx')) {
+                const combinedMsg = `🌾 SmartAg Alert: ${smsSummaries.join(', ')}. Please check your dashboard for details.`;
+                await sendSMSAlert(userPhone, combinedMsg);
             }
 
             // Broadcast alerts to dashboard
             io.to(`user:${device.userId}`).emit('newAlert', {
                 alerts: aiAnalysis.alerts,
                 deviceId
-            })
+            });
         }
 
         // Execute automated action if AI recommends it
