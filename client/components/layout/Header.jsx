@@ -1,13 +1,28 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
-import { Bell, User, Calendar, Circle, Menu } from 'lucide-react'
+import React, { useState, useEffect, useRef } from 'react'
+import { Bell, User, Calendar, Circle, Menu, LogOut, Settings, CreditCard, Droplet, Thermometer, Wind } from 'lucide-react'
 import ThemeToggle from './ThemeToggle'
 import { useSidebar } from '@/context/SidebarContext'
+import { useAuth } from '@/hooks/useAuth'
+import { useRouter } from 'next/navigation'
 
 const Header = () => {
     const [currentTime, setCurrentTime] = useState('')
+    const [isProfileOpen, setIsProfileOpen] = useState(false)
+    const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
     const { toggle } = useSidebar()
+    const { user, signOut } = useAuth()
+    const router = useRouter()
+
+    const profileRef = useRef(null)
+    const notificationsRef = useRef(null)
+
+    const notifications = [
+        { id: 1, title: 'Soil Moisture Low', msg: 'Zone A-1 needs watering', icon: Droplet, color: 'text-blue-500', time: '5m ago' },
+        { id: 2, title: 'High Temperature', msg: 'Greenhouse 2 above 32°C', icon: Thermometer, color: 'text-orange-500', time: '15m ago' },
+        { id: 3, title: 'Fertilizer Alert', msg: 'PH levels outside optimal range', icon: Wind, color: 'text-purple-500', time: '1h ago' }
+    ]
 
     useEffect(() => {
         const updateTime = () => {
@@ -18,6 +33,28 @@ const Header = () => {
         const interval = setInterval(updateTime, 60000)
         return () => clearInterval(interval)
     }, [])
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (profileRef.current && !profileRef.current.contains(event.target)) {
+                setIsProfileOpen(false)
+            }
+            if (notificationsRef.current && !notificationsRef.current.contains(event.target)) {
+                setIsNotificationsOpen(false)
+            }
+        }
+        document.addEventListener('mousedown', handleClickOutside)
+        return () => document.removeEventListener('mousedown', handleClickOutside)
+    }, [])
+
+    const handleLogout = async () => {
+        try {
+            await signOut()
+            router.push('/login')
+        } catch (error) {
+            console.error('Logout error:', error)
+        }
+    }
 
     return (
         <header className="h-20 flex items-center justify-between px-4 md:px-8 bg-background/50 backdrop-blur-xl sticky top-0 z-40 lg:ml-64 border-b border-border transition-all duration-500">
@@ -50,14 +87,103 @@ const Header = () => {
 
                 <ThemeToggle />
 
-                <button className="w-10 h-10 bg-card border border-border rounded-xl flex items-center justify-center text-foreground hover:bg-accent/10 transition-colors relative">
-                    <Bell size={20} />
-                    <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-background"></span>
-                </button>
+                {/* Notifications */}
+                <div className="relative" ref={notificationsRef}>
+                    <button
+                        onClick={() => {
+                            setIsNotificationsOpen(!isNotificationsOpen)
+                            setIsProfileOpen(false)
+                        }}
+                        className={`w-10 h-10 border border-border rounded-xl flex items-center justify-center text-foreground hover:bg-accent/10 transition-colors relative ${isNotificationsOpen ? 'bg-accent/10 border-accent/30' : 'bg-card'}`}
+                    >
+                        <Bell size={20} />
+                        <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-background"></span>
+                    </button>
 
-                <button className="hidden sm:flex w-10 h-10 bg-card border border-border rounded-xl items-center justify-center text-foreground hover:bg-accent/10 transition-colors">
-                    <User size={20} />
-                </button>
+                    {isNotificationsOpen && (
+                        <div className="absolute right-0 mt-3 w-80 bg-card/95 backdrop-blur-2xl border border-border rounded-2xl shadow-2xl p-2 animate-in fade-in slide-in-from-top-3 duration-200">
+                            <div className="p-3 border-b border-border mb-2 flex items-center justify-between">
+                                <span className="font-bold text-sm">Notifications</span>
+                                <span className="text-[10px] uppercase tracking-widest text-accent font-bold cursor-pointer hover:underline">Mark all read</span>
+                            </div>
+                            <div className="space-y-1 max-h-72 overflow-y-auto pr-1 custom-scrollbar">
+                                {notifications.map((n) => (
+                                    <div key={n.id} className="p-3 hover:bg-foreground/5 rounded-xl transition-all cursor-pointer group">
+                                        <div className="flex gap-3">
+                                            <div className={`w-10 h-10 rounded-xl bg-foreground/5 flex items-center justify-center shrink-0 ${n.color}`}>
+                                                <n.icon size={20} />
+                                            </div>
+                                            <div className="flex-1">
+                                                <div className="flex items-center justify-between mb-0.5">
+                                                    <h4 className="font-bold text-xs truncate">{n.title}</h4>
+                                                    <span className="text-[10px] text-foreground/30 font-medium">{n.time}</span>
+                                                </div>
+                                                <p className="text-xs text-foreground/50 line-clamp-1">{n.msg}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="mt-2 p-2 pt-0">
+                                <button className="w-full py-2 text-xs font-bold text-foreground/40 hover:text-foreground transition-colors">
+                                    View all activity
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+                {/* Profile Dropdown */}
+                <div className="relative" ref={profileRef}>
+                    <button
+                        onClick={() => {
+                            setIsProfileOpen(!isProfileOpen)
+                            setIsNotificationsOpen(false)
+                        }}
+                        className={`w-10 h-10 border border-border rounded-xl flex items-center justify-center text-foreground hover:bg-accent/10 transition-colors ${isProfileOpen ? 'bg-accent/10 border-accent/30' : 'bg-card'}`}
+                    >
+                        <User size={20} />
+                    </button>
+
+                    {isProfileOpen && (
+                        <div className="absolute right-0 mt-3 w-64 bg-card/95 backdrop-blur-2xl border border-border rounded-2xl shadow-2xl p-2 animate-in fade-in slide-in-from-top-3 duration-200">
+                            <div className="p-4 border-b border-border mb-2">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center text-white font-bold text-lg">
+                                        {user?.email?.[0].toUpperCase() || 'F'}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <h4 className="font-bold text-sm truncate">{user?.email?.split('@')[0] || 'Farmer'}</h4>
+                                        <p className="text-[10px] text-foreground/40 truncate">{user?.email || 'farmer@smartag.com'}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="space-y-1">
+                                <button className="w-full flex items-center gap-3 p-3 hover:bg-foreground/5 rounded-xl transition-all group">
+                                    <User size={18} className="text-foreground/40 group-hover:text-green-500 transition-colors" />
+                                    <span className="text-sm font-bold text-foreground/70 group-hover:text-foreground">My Profile</span>
+                                </button>
+                                <button className="w-full flex items-center gap-3 p-3 hover:bg-foreground/5 rounded-xl transition-all group">
+                                    <Settings size={18} className="text-foreground/40 group-hover:text-green-500 transition-colors" />
+                                    <span className="text-sm font-bold text-foreground/70 group-hover:text-foreground">Settings</span>
+                                </button>
+                                <button className="w-full flex items-center gap-3 p-3 hover:bg-foreground/5 rounded-xl transition-all group border-t border-border mt-1 pt-4">
+                                    <CreditCard size={18} className="text-foreground/40 group-hover:text-green-500 transition-colors" />
+                                    <span className="text-sm font-bold text-foreground/70 group-hover:text-foreground">Subscription</span>
+                                </button>
+                            </div>
+
+                            <button
+                                onClick={handleLogout}
+                                className="w-full mt-4 flex items-center gap-3 p-3 hover:bg-red-500/10 rounded-xl transition-all group text-red-500"
+                            >
+                                <LogOut size={18} className="group-hover:translate-x-1 transition-transform" />
+                                <span className="text-sm font-extrabold uppercase tracking-wider">Sign Out</span>
+                            </button>
+                        </div>
+                    )}
+                </div>
             </div>
         </header>
     )
