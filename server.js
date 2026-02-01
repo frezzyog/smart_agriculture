@@ -759,9 +759,9 @@ app.get('/api/weather', async (req, res) => {
         const demoData = {
             current: {
                 location: 'Phnom Penh',
-                temperature: 28,
-                condition: 'partly cloudy',
-                humidity: 75,
+                temperature: 31,
+                condition: 'sunny',
+                humidity: 65,
                 windSpeed: 12,
                 timestamp: new Date().toISOString()
             },
@@ -769,11 +769,11 @@ app.get('/api/weather', async (req, res) => {
                 {
                     date: new Date(Date.now() + 86400000).toISOString().split('T')[0],
                     tempMax: 32,
-                    tempMin: 26,
-                    condition: 'rainy',
-                    rainProbability: 75,
-                    humidity: 85,
-                    windSpeed: 15
+                    tempMin: 22,
+                    condition: 'partly cloudy',
+                    rainProbability: 20,
+                    humidity: 70,
+                    windSpeed: 10
                 },
                 {
                     date: new Date(Date.now() + 172800000).toISOString().split('T')[0],
