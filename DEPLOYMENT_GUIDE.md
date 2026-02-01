@@ -82,7 +82,7 @@ The AI service handles sensor interpretation and chat.
    # Add environment variables
    railway variables set GEMINI_API_KEY="your-key-here"
    railway variables set DATABASE_URL="your-supabase-db-url"
-   railway variables set NODE_BACKEND_URL="https://your-backend.railway.app"
+   railway variables set NODE_BACKEND_URL="backend-production-8d2c.up.railway.app"
    
    # Deploy
    railway up
@@ -113,9 +113,9 @@ Vercel is the best platform for Next.js apps.
    ```env
    NEXT_PUBLIC_SUPABASE_URL=https://waxcpawswvwzljiiitax.supabase.co
    NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndheGNwYXdzd3Z3emxqaWlpdGF4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc5Mzc4MDAsImV4cCI6MjA4MzUxMzgwMH0.cIf-4IVBZzSx6uQqeYQO46B-vxkOazEgiPJQRUlU7sM
-   NEXT_PUBLIC_API_URL=https://your-backend.railway.app
-   NEXT_PUBLIC_SOCKET_URL=https://your-backend.railway.app
-   NEXT_PUBLIC_MQTT_WS_URL=wss://your-backend.railway.app:1883
+   NEXT_PUBLIC_API_URL=https://backend-production-8d2c.up.railway.app
+   NEXT_PUBLIC_SOCKET_URL=https://backend-production-8d2c.up.railway.app
+   NEXT_PUBLIC_MQTT_WS_URL=https://backend-production-8d2c.up.railway.app
    ```
    
    ⚠️ **Replace `your-backend.railway.app` with your actual Railway URL!**

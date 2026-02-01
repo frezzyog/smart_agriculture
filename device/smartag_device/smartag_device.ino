@@ -1,17 +1,18 @@
 /*
- * 🚀 SMART AGRICULTURE 4.0 - LIGHT VERSION
- * Simplified for: ESP32 + Moisture + Rain + 2-Channel Relay
+ * 🚀 SMART AGRICULTURE 4.0 - PREMIUM VERSION
+ * Supports: ESP32 + 7-in-1 Sensor (RS485) + Analog Moisture + Rain + 2-Channel Relay
  */
 
 #include <WiFi.h>
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
+#include <ModbusMaster.h> // Ensure this is installed via Library Manager
 
 // ============================================
 // 1. WIFI & CLOUD CONFIGURATION
 // ============================================
-const char* ssid = "Wise";           // Your WiFi Name
-const char* password = "12345678";    // Your WiFi Password
+const char* ssid = "NUM2 STUDENT";           // Your WiFi Name
+const char* password = "student@2024";       // Your WiFi Password
 
 // Change these to match your Railway Proxy exactly:
 const char* mqtt_server = "ballast.proxy.rlwy.net"; 
@@ -21,29 +22,74 @@ const char* device_id   = "SMARTAG-001"; // Must match your dashboard ID
 // ============================================
 // 2. PIN DEFINITIONS
 // ============================================
-#define MOISTURE_PIN 34   // Analog Pin for Soil Moisture
-#define RAIN_PIN     35   // Analog Pin for Rain Sensor
-#define RELAY_1_PIN  5    // Water Pump
-#define RELAY_2_PIN  18   // Fertilizer / Second Pump
+// RS485 Module Pins (for 7-in-1 Sensor)
+#define MAX485_DE      4    // Driver Enable (Connect to DE & RE)
+#define MAX485_RX_PIN  16   // RX2 (Connect to RO)
+#define MAX485_TX_PIN  17   // TX2 (Connect to DI)
 
-// Calibration (Adjust these if readings feel wrong)
-#define MOISTURE_DRY 3500 // Value when sensor is in air
-#define MOISTURE_WET 1500 // Value when sensor is in water
-#define RAIN_DRY     4095 // No rain
-#define RAIN_WET     1000 // Heavy rain
+// Analog Sensors
+#define MOISTURE_PIN   34   // Analog Soil Moisture
+#define RAIN_PIN       35   // Analog Rain Sensor
 
-// Constants
+// Actuators
+#define RELAY_1_PIN    5    // Water Pump
+#define RELAY_2_PIN    18   // Fertilizer / Second Pump
+
+// Calibration Constants
+#define MOISTURE_DRY   3500 // Dry Value
+#define MOISTURE_WET   1500 // Wet Value
+#define RAIN_DRY       4095 
+#define RAIN_WET       1000
+
+// ============================================
+// 3. OBJECTS & VARIABLES
+// ============================================
 WiFiClient espClient;
 PubSubClient mqtt(espClient);
+ModbusMaster node; // Modbus Object
+
 unsigned long lastPublish = 0;
 
+// Sensor Data Containers
+float val_moisture = 0;
+float val_temp = 0;
+float val_ec = 0;
+float val_ph = 0;
+float val_n = 0;
+float val_p = 0;
+float val_k = 0;
+
+// RS485 Flow Control Callbacks
+void preTransmission() {
+  digitalWrite(MAX485_DE, HIGH);
+}
+
+void postTransmission() {
+  digitalWrite(MAX485_DE, LOW);
+}
+
+// ============================================
+// 4. SETUP
+// ============================================
 void setup() {
   Serial.begin(115200);
   
-  // Initialize Pins
+  // Initialize RS485 Pins
+  pinMode(MAX485_DE, OUTPUT);
+  digitalWrite(MAX485_DE, LOW);
+  
+  // Initialize Serial2 for RS485 Communication
+  Serial2.begin(9600, SERIAL_8N1, MAX485_RX_PIN, MAX485_TX_PIN);
+  
+  // Initialize Modbus
+  node.begin(1, Serial2); // Address 1 is default
+  node.preTransmission(preTransmission);
+  node.postTransmission(postTransmission);
+
+  // Initialize Relay Pins
   pinMode(RELAY_1_PIN, OUTPUT);
   pinMode(RELAY_2_PIN, OUTPUT);
-  digitalWrite(RELAY_1_PIN, LOW); // Start with pumps OFF
+  digitalWrite(RELAY_1_PIN, LOW);
   digitalWrite(RELAY_2_PIN, LOW);
   
   connectWiFi();
@@ -51,50 +97,94 @@ void setup() {
   mqtt.setCallback(mqttCallback);
 }
 
+// ============================================
+// 5. MAIN LOOP
+// ============================================
 void loop() {
   if (!mqtt.connected()) connectMQTT();
   mqtt.loop();
 
-  // Send data every 10 seconds
-  if (millis() - lastPublish > 10000) {
+  // Send data every 5 seconds
+  if (millis() - lastPublish > 5000) {
+    readSevenInOneSensor();
     sendSensorData();
     lastPublish = millis();
   }
 }
 
 // ============================================
-// 3. READ & SEND SENSOR DATA
+// 6. SENSOR READING (RS485 MODBUS)
+// ============================================
+void readSevenInOneSensor() {
+  Serial.println("\n📡 Reading 7-in-1 Sensor (10 Registers)...");
+  
+  uint8_t result = node.readHoldingRegisters(0x0000, 10);
+  
+  if (result == node.ku8MBSuccess) {
+    // Print Raw Values to Serial for final verification
+    for (int i = 0; i < 10; i++) {
+        Serial.printf("  Reg[%d]: %d\n", i, node.getResponseBuffer(i));
+    }
+
+    // FINAL MAPPING BASED ON LIVE DASHBOARD FEEDBACK:
+    val_moisture = node.getResponseBuffer(0) * 0.1; // Pro Moisture (usually Reg 0)
+    val_temp     = node.getResponseBuffer(3) * 0.1; // Temp is confirmed at Reg 3
+    val_ec       = node.getResponseBuffer(2);       // EC is confirmed at Reg 2
+    val_ph       = node.getResponseBuffer(4) * 0.1; // pH is confirmed at Reg 4
+    
+    val_n        = node.getResponseBuffer(5); // Nitrogen
+    val_p        = node.getResponseBuffer(6); // Phosphorus
+    val_k        = node.getResponseBuffer(7); // Potassium (This was the 1160/2698 value)
+  } else {
+    Serial.print("⚠️ RS485 Read Failed! Error: ");
+    Serial.println(result, HEX);
+  }
+}
+
+// ============================================
+// 7. PUBLISH TO MQTT
 // ============================================
 void sendSensorData() {
-  // Read Moisture
+  // 1. Read Analog Soil Moisture (The reliable one for the main Gauge)
   int mRaw = analogRead(MOISTURE_PIN);
-  float mPercent = map(mRaw, MOISTURE_DRY, MOISTURE_WET, 0, 100);
-  mPercent = constrain(mPercent, 0, 100);
+  float mPercentAnalog = map(mRaw, MOISTURE_DRY, MOISTURE_WET, 0, 100);
+  mPercentAnalog = constrain(mPercentAnalog, 0, 100);
 
-  // Read Rain
+  // 2. Read Rain (Analog)
   int rRaw = analogRead(RAIN_PIN);
   float rPercent = map(rRaw, RAIN_DRY, RAIN_WET, 0, 100);
   rPercent = constrain(rPercent, 0, 100);
 
   // Prepare JSON
-  StaticJsonDocument<256> doc;
+  StaticJsonDocument<512> doc;
   doc["deviceId"] = device_id;
-  doc["moisture"] = mPercent;
-  doc["rain"]     = rPercent;
-  doc["status"]   = "Online";
-
-  char buffer[256];
-  serializeJson(doc, buffer);
   
+  // MAIN DASHBOARD GAUGES
+  doc["moisture"]    = mPercentAnalog; // Use Analog for the main 0-100% Gauge
+  doc["temp"]        = val_temp;
+  doc["pH"]          = val_ph;
+  doc["ec"]          = val_ec;
+  doc["rain"]        = rPercent;
+  
+  // NUTRIENTS (NPK)
+  doc["nitrogen"]    = val_n;
+  doc["phosphorus"]  = val_p;
+  doc["potassium"]   = val_k;
+  
+  // Pro Sensor Reference
+  doc["soil_moisture_pro"] = val_moisture; 
+  doc["status"]      = "Online";
+
+  char buffer[512];
+  serializeJson(doc, buffer);
   String topic = "smartag/" + String(device_id) + "/sensors";
   mqtt.publish(topic.c_str(), buffer);
   
-  Serial.print("📡 Sent: Moisture: "); Serial.print(mPercent);
-  Serial.print("% | Rain: "); Serial.print(rPercent); Serial.println("%");
+  Serial.println("📤 MQTT Sent: " + String(buffer));
 }
 
 // ============================================
-// 4. RECEIVE PUMP COMMANDS FROM DASHBOARD
+// 8. RECEIVE PUMP COMMANDS
 // ============================================
 void mqttCallback(char* topic, byte* payload, unsigned int length) {
   Serial.print("📨 Command received on ["); Serial.print(topic); Serial.println("]");
@@ -103,7 +193,7 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
   deserializeJson(doc, payload, length);
   
   String type   = doc["type"] | "WATER"; 
-  String status = doc["status"]; // "ON" or "OFF"
+  String status = doc["status"]; 
   
   if (type == "WATER") {
     digitalWrite(RELAY_1_PIN, (status == "ON" ? HIGH : LOW));
@@ -115,7 +205,7 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
 }
 
 // ============================================
-// 5. HELPER FUNCTIONS
+// 9. HELPER FUNCTIONS
 // ============================================
 void connectWiFi() {
   Serial.print("Connecting to WiFi: "); Serial.println(ssid);
@@ -131,7 +221,6 @@ void connectMQTT() {
     Serial.print("Attempting MQTT connection...");
     if (mqtt.connect(device_id)) {
       Serial.println("✅ Connected");
-      // Subscribe to pump commands
       String subTopic = "smartag/" + String(device_id) + "/pump/command";
       mqtt.subscribe(subTopic.c_str());
     } else {

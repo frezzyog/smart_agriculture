@@ -8,15 +8,15 @@ logger = logging.getLogger(__name__)
 
 class SensorDataProcessor:
     def __init__(self):
-        # Optimal ranges for lettuce farming
+        # Updated optimal ranges based on MAFF / FAO / CARDI standards (Lettuce farming)
         self.optimal_ranges = {
-            'moisture': (40, 70),  # %
-            'temperature': (15, 25),  # °C
-            'humidity': (50, 70),  # %
-            'pH': (6.0, 7.0),
-            'nitrogen': (40, 100),  # mg/kg
-            'phosphorus': (30, 80),  # mg/kg
-            'potassium': (40, 120),  # mg/kg
+            'moisture': (60, 80),      # % (65-75% is target, 60-80% is safe range)
+            'temperature': (18, 24),   # °C (MAFF/FAO standard)
+            'humidity': (60, 70),      # %
+            'pH': (6.0, 7.0),          # (CARDI standard for Cambodian soil)
+            'nitrogen': (150, 200),    # mg/kg (ppm)
+            'phosphorus': (30, 50),    # mg/kg (ppm)
+            'potassium': (150, 250),   # mg/kg (ppm)
         }
     
     def assess_soil_health(self, moisture=None, pH=None, nitrogen=None, phosphorus=None, potassium=None):
@@ -30,6 +30,7 @@ class SensorDataProcessor:
             if self.optimal_ranges['moisture'][0] <= moisture <= self.optimal_ranges['moisture'][1]:
                 scores.append(100)
             elif moisture < self.optimal_ranges['moisture'][0]:
+                # Score decreases linearly as it drops below 60%
                 scores.append(max(0, (moisture / self.optimal_ranges['moisture'][0]) * 100))
             else:
                 scores.append(max(0, 100 - ((moisture - self.optimal_ranges['moisture'][1]) * 2)))
@@ -39,7 +40,7 @@ class SensorDataProcessor:
                 scores.append(100)
             else:
                 deviation = min(abs(pH - self.optimal_ranges['pH'][0]), abs(pH - self.optimal_ranges['pH'][1]))
-                scores.append(max(0, 100 - (deviation * 20)))
+                scores.append(max(0, 100 - (deviation * 30))) # Faster drop for pH sensitive lettuce
         
         if nitrogen is not None:
             if self.optimal_ranges['nitrogen'][0] <= nitrogen <= self.optimal_ranges['nitrogen'][1]:
@@ -75,33 +76,36 @@ class SensorDataProcessor:
     
     def calculate_stress_level(self, moisture=None, temperature=None, humidity=None):
         """
-        Calculate plant stress level (0-100)
+        Calculate plant stress level (0-100) using new thresholds
         Higher value = more stress
         """
         stress = 0
         count = 0
         
         if moisture is not None:
-            if moisture < 20:
-                stress += 80
-            elif moisture < 30:
-                stress += 50
+            if moisture < 40:
+                stress += 90  # Severe Danger
+            elif moisture < 50:
+                stress += 60  # Warning Level
             elif moisture < self.optimal_ranges['moisture'][0]:
-                stress += 30
+                stress += 30  # Mild Stress
             count += 1
         
         if temperature is not None:
-            if temperature < 10 or temperature > 30:
-                stress += 70
+            if temperature > 33:
+                stress += 90  # Critical - Lettuce roots stop absorbing nutrients
+            elif temperature > 27:
+                stress += 60  # Alert - Heat danger
             elif temperature < 15 or temperature > 25:
-                stress += 40
+                # Slightly outside 18-24 range
+                stress += 25
             count += 1
         
         if humidity is not None:
-            if humidity < 30 or humidity > 90:
-                stress += 60
-            elif humidity < 50 or humidity > 70:
-                stress += 30
+            if humidity > 85:
+                stress += 70  # Tipburn danger
+            elif humidity < 40 or humidity > 75:
+                stress += 20
             count += 1
         
         return min(100, stress / max(1, count))

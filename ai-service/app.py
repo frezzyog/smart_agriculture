@@ -38,11 +38,11 @@ has_gemini = validate_api_key(GEMINI_API_KEY)
 
 # CORRECT MODEL NAMES
 GEMINI_MODELS = [
+    "gemini-2.5-flash",
     "gemini-2.0-flash",
-    "gemini-flash-latest",
-    "gemini-pro-latest",
     "gemini-1.5-flash",
     "gemini-1.5-pro",
+    "gemini-pro",
 ]
 
 # Track state
@@ -274,51 +274,62 @@ async def interpret_sensor_data(request: InterpretRequest):
         recommend_action = False
         action = None
         
-        if sensor_data.get('moisture', 100) < 20 or stress_level > 70:
+        # MOISTURE THRESHOLDS: Optimal 65-75%, Critical < 50%
+        moisture = sensor_data.get('moisture', 100)
+        if moisture < 45 or stress_level > 80:
             alerts.append({
                 "severity": "CRITICAL",
-                "type": "MOISTURE_CRITICAL" if sensor_data.get('moisture', 100) < 20 else "STRESS_CRITICAL",
-                "title": "Critical Soil Stress" if stress_level > 70 else "Critical Soil Moisture",
-                "message": f"High soil stress level at {stress_level}%" if stress_level > 70 else f"Soil moisture critically low at {sensor_data.get('moisture')}%"
+                "type": "MOISTURE_CRITICAL" if moisture < 45 else "STRESS_CRITICAL",
+                "title": "Critical Plant Stress" if stress_level > 80 else "Critical Soil Moisture",
+                "message": f"Extreme stress detected at {stress_level}%" if stress_level > 80 else f"Soil moisture critically low at {moisture}%"
             })
             recommend_action = True
-            # Default to WATER pump for stress/moisture issues
-            action = {"type": "irrigation", "deviceId": device_id, "command": {"type": "WATER", "status": "ON", "duration": 300}}
-        elif sensor_data.get('moisture', 100) < 30:
+            action = {"type": "irrigation", "deviceId": device_id, "command": {"type": "WATER", "status": "ON", "duration": 420}}
+        elif moisture < 50:
             alerts.append({
                 "severity": "WARNING",
                 "type": "MOISTURE_LOW",
-                "title": "Low Soil Moisture",
-                "message": f"Soil moisture low at {sensor_data.get('moisture')}%"
+                "title": "Danger: Low Soil Moisture",
+                "message": f"Soil moisture has dropped to {moisture}%. Irrigation recommended before reaching 45%."
             })
         
-        if sensor_data.get('nitrogen', 100) < 30:
+        # NUTRIENT THRESHOLDS: N (150-200), P (30-50), K (150-250)
+        if sensor_data.get('nitrogen', 200) < 130:
             alerts.append({
                 "severity": "WARNING",
                 "type": "NPK_LOW",
-                "title": "Low Nitrogen Level",
-                "message": f"Nitrogen level is {sensor_data.get('nitrogen')} mg/kg"
+                "title": "Low Nitrogen Levels",
+                "message": f"Nitrogen is {sensor_data.get('nitrogen')} ppm. Standard is 150-200 ppm."
             })
         
+        # pH THRESHOLDS: 6.0 - 7.0
         if sensor_data.get('pH'):
-            if sensor_data['pH'] < 5.5 or sensor_data['pH'] > 7.5:
+            if sensor_data['pH'] < 5.8 or sensor_data['pH'] > 7.2:
                 alerts.append({
                     "severity": "WARNING",
                     "type": "PH_WARNING",
-                    "title": "pH Out of Range",
-                    "message": f"Soil pH is {sensor_data['pH']}"
+                    "title": "Soil pH Alert",
+                    "message": f"Soil pH is {sensor_data['pH']}. Lettuce requires 6.0-7.0 pH to avoid nutrient lock."
                 })
         
+        # EC THRESHOLDS: 1.2 - 1.6 dS/m (1200-1600 µS/cm)
         if sensor_data.get('ec'):
-            if sensor_data['ec'] < 500:
+            if sensor_data['ec'] < 1000:
                 alerts.append({
                     "severity": "WARNING",
                     "type": "NPK_LOW",
-                    "title": "Low Soil Conductivity (EC)",
-                    "message": f"EC is {sensor_data['ec']} µS/cm. Fertigation recommended."
+                    "title": "Low Nutrient Concentration (EC)",
+                    "message": f"EC is {sensor_data['ec']} µS/cm. Target is 1200-1600. Fertigation suggested."
                 })
                 recommend_action = True
-                action = {"type": "fertilizer", "deviceId": device_id, "command": {"type": "FERTILIZER", "status": "ON", "duration": 120}}
+                action = {"type": "fertilizer", "deviceId": device_id, "command": {"type": "FERTILIZER", "status": "ON", "duration": 180}}
+            elif sensor_data['ec'] > 2000:
+                 alerts.append({
+                    "severity": "CRITICAL",
+                    "type": "PH_WARNING",
+                    "title": "High Soil Salinity",
+                    "message": f"EC is {sensor_data['ec']} µS/cm. High salt level! Flush with fresh water."
+                })
         
         recommendation = data_processor.generate_recommendation(
             soil_health=soil_health,
@@ -423,24 +434,31 @@ async def ai_chatbot(request: ChatRequest):
 
 
 def build_prompt(message: str, sensor_data: dict, expenses: list) -> str:
-    """Build context-aware prompt"""
+    """Build context-aware prompt with Cambodian/MAFF standards"""
     total_expenses = sum(float(e.get('amount', 0)) for e in expenses)
     
-    return f"""You are AgriSmart AI, a helpful farming assistant.
+    return f"""You are AgriSmart AI, an agricultural expert specialized in Cambodian lettuce farming.
+    
+FACTS & STANDARDS (MAFF/CARDI):
+• Optimal Soil Temp: 18°C - 24°C (Danger > 27°C)
+• Optimal Moisture: 65% - 75% (Critical < 50%)
+• Optimal pH: 6.0 - 7.0 (CARDI standard)
+• Optimal EC: 1200 - 1600 µS/cm (Low < 1000, Saline > 2000)
+• Nutrient Targets (ppm): Nitrogen 150-200, Phosphorus 30-50, Potassium 150-250
 
 CURRENT FARM DATA:
-• Moisture: {sensor_data.get('moisture', 'N/A')}% (optimal: 40-70%)
+• Moisture: {sensor_data.get('moisture', 'N/A')}%
 • Temperature: {sensor_data.get('temperature', 'N/A')}°C
 • Humidity: {sensor_data.get('humidity', 'N/A')}%
-• N/P/K: {sensor_data.get('nitrogen', 'N/A')}/{sensor_data.get('phosphorus', 'N/A')}/{sensor_data.get('potassium', 'N/A')} mg/kg
+• N/P/K: {sensor_data.get('nitrogen', 'N/A')}/{sensor_data.get('phosphorus', 'N/A')}/{sensor_data.get('potassium', 'N/A')} ppm
 • pH: {sensor_data.get('pH', 'N/A')}
-• EC: {sensor_data.get('ec', 'N/A')} µS/cm (optimal: 800-2000)
+• EC: {sensor_data.get('ec', 'N/A')} µS/cm
 • Expenses: ${total_expenses:.2f}
 
 INSTRUCTIONS:
-- Be helpful and concise (2-3 paragraphs max)
-- Use the sensor data to give specific advice
-- Use bullet points for recommendations
+- Reference specific Cambodian standards if relevant (MAFF, Seed Co, CARDI)
+- Suggest strategies like Rice Straw Mulch for heat or Husk Ash for pH
+- Be professional and bulleted.
 
 FARMER'S QUESTION: {message}
 
@@ -448,27 +466,31 @@ YOUR RESPONSE:"""
 
 
 def rule_based_chat(message: str, sensor_data: dict, expenses: list) -> dict:
-    """Fallback rule-based responses"""
+    """Fallback rule-based responses using new standards"""
     msg = message.lower()
     reply = ""
     
     if any(w in msg for w in ["moisture", "water", "irrigation", "dry", "wet"]):
         m = sensor_data.get('moisture')
         if m is not None:
-            if m < 30:
-                reply = f"🔴 **Moisture LOW: {m}%**\n\nStart irrigation immediately! Target: 50-60%"
-            elif m > 70:
-                reply = f"🔵 **Moisture HIGH: {m}%**\n\nReduce watering to prevent root issues."
+            if m < 50:
+                reply = f"🔴 **Soil Moisture CRITICAL: {m}%**\n\nStandard is 65-75%. Irrigation triggered automatically to prevent wilt."
+            elif m > 80:
+                reply = f"🔵 **Soil Moisture HIGH: {m}%**\n\nReduce water. Excessive wetness leads to root rot in lettuce."
             else:
-                reply = f"🟢 **Moisture OK: {m}%**\n\nYour soil moisture is optimal (40-70%)."
+                reply = f"🟢 **Soil Moisture OK: {m}%**\n\nYour soil is within the optimal Seed Co/MAFF range (60-80%)."
         else:
-            reply = "💧 No moisture data available. Check your sensors."
+            reply = "💧 No moisture data available. Please check sensor connection."
     
     elif any(w in msg for w in ["temperature", "temp", "hot", "cold"]):
         t = sensor_data.get('temperature')
         if t:
-            status = "optimal ✅" if 18 <= t <= 28 else ("too hot 🔥" if t > 28 else "too cold ❄️")
-            reply = f"🌡️ **Temperature: {t}°C** ({status})\n\nOptimal range: 18-28°C"
+            if t > 27:
+                reply = f"🔥 **Temperature Danger: {t}°C**\n\nHeat danger detected (>27°C). MAFF recommends using Rice Straw Mulch to cool the roots."
+            elif 18 <= t <= 24:
+                reply = f"🌡️ **Temperature Optimal: {t}°C**\n\nPerfect range for lettuce growth (18-24°C)."
+            else:
+                reply = f"🌡️ **Temperature: {t}°C**\n\nSlightly outside optimal (18-24°C)."
         else:
             reply = "🌡️ No temperature data available."
     
@@ -477,12 +499,13 @@ def rule_based_chat(message: str, sensor_data: dict, expenses: list) -> dict:
         p = sensor_data.get('phosphorus', 'N/A')
         k = sensor_data.get('potassium', 'N/A')
         ec = sensor_data.get('ec', 'N/A')
-        reply = f"🌱 **Nutrient Status:**\n• Nitrogen: {n} mg/kg\n• Phosphorus: {p} mg/kg\n• Potassium: {k} mg/kg\n• EC: {ec} µS/cm"
+        reply = f"🌱 **Nutrient Status (ppm):**\n• N: {n} (Target: 150-200)\n• P: {p} (Target: 30-50)\n• K: {k} (Target: 150-250)\n• EC: {ec} µS/cm (Target: 1200-1600)"
     
     elif any(w in msg for w in ["ph", "acid", "alkaline"]):
         ph = sensor_data.get('pH')
         if ph:
-            reply = f"⚗️ **Soil pH: {ph}**\n\nOptimal: 6.0-7.0"
+            status = "optimal ✅" if 6.0 <= ph <= 7.0 else ("too acidic ⚠️" if ph < 6.0 else "too alkaline ⚠️")
+            reply = f"⚗️ **Soil pH: {ph}** ({status})\n\nCARDI standard for lettuce: 6.0-7.0."
         else:
             reply = "⚗️ No pH data available."
     
@@ -491,26 +514,25 @@ def rule_based_chat(message: str, sensor_data: dict, expenses: list) -> dict:
         reply = f"💰 **Total Expenses: ${total:.2f}**"
     
     elif any(w in msg for w in ["status", "overview", "summary"]):
-        reply = f"""📊 **Farm Status:**
-• Moisture: {sensor_data.get('moisture', 'N/A')}%
-• Temperature: {sensor_data.get('temperature', 'N/A')}°C
-• pH: {sensor_data.get('pH', 'N/A')}
+        reply = f"""📊 **Farm Status Overview:**
+• Moisture: {sensor_data.get('moisture', 'N/A')}% (Ideal 65-75%)
+• Soil Temp: {sensor_data.get('temperature', 'N/A')}°C (Ideal 18-24°C)
+• Soil pH: {sensor_data.get('pH', 'N/A')} (Ideal 6.0-7.0)
 • Health: {sensor_data.get('soilHealth', 'Unknown')}"""
     
     elif any(w in msg for w in ["hello", "hi", "hey", "help"]):
-        reply = """👋 **Hello! I'm AgriSmart AI**
-
-I can help with:
-• Soil moisture & irrigation
-• Temperature monitoring  
-• NPK & fertilizer levels
-• pH management
-• Farm expenses
-
-What would you like to know?"""
+        reply = """👋 **Hello! I'm your Cambodian AgriSmart AI**
+        
+I monitor your crops using MAFF/CARDI standards. I can help with:
+• Soil health & nutrition
+• Irrigation automation
+• Heat stress management
+• Expense tracking
+        
+What would you like to check today?"""
     
     else:
-        reply = "🤖 Try asking about: **moisture**, **temperature**, **NPK**, **pH**, or **expenses**"
+        reply = "🤖 I can analyze your **moisture**, **temperature**, **NPK**, **pH**, or **expenses** based on Cambodian standards. What can I help with?"
     
     return {
         "reply": reply,
