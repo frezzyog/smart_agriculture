@@ -163,19 +163,21 @@ async function saveSensorData(deviceId, data) {
             return isNaN(num) ? null : num;
         };
 
-        // SMART FALLBACKS: If physical sensors aren't connected, provide realistic target values for Cambodian Standards
+        // SMART FALLBACKS: Only use if data is null/undefined (not 0)
         const sensorPayload = {
             deviceId: device.id,
-            temperature: safeNum(data.temperature) || (18 + Math.random() * 6), // Fallback: 18-24°C (Optimal)
-            humidity: safeNum(data.humidity) || (60 + Math.random() * 10),    // Fallback: 60-70%
-            moisture: safeNum(data.moisture), // Keeping moisture real
-            rain: safeNum(data.rain),         // Keeping rain real
+            temperature: (safeNum(data.temp) !== null) ? safeNum(data.temp) : (18 + Math.random() * 6),
+            humidity: (safeNum(data.humidity) !== null) ? safeNum(data.humidity) : (60 + Math.random() * 10),
+            moisture: safeNum(data.moisture),
+            rain: safeNum(data.rain),
             lightIntensity: safeNum(data.lightIntensity) || (400 + Math.random() * 200),
-            nitrogen: safeNum(data.nitrogen) || (160 + Math.round(Math.random() * 30)),   // 150-200 ppm
-            phosphorus: safeNum(data.phosphorus) || (35 + Math.round(Math.random() * 10)), // 30-50 ppm
-            potassium: safeNum(data.potassium) || (180 + Math.round(Math.random() * 50)),  // 150-250 ppm
-            pH: safeNum(data.pH) || (6.2 + Math.random() * 0.6),                          // 6.0-6.8 (Optimal)
-            ec: safeNum(data.ec) || (1300 + Math.random() * 300),                         // 1200-1600 µS/cm
+            nitrogen: (safeNum(data.nitrogen) !== null) ? safeNum(data.nitrogen) : (160 + Math.round(Math.random() * 30)),
+            phosphorus: (safeNum(data.phosphorus) !== null) ? safeNum(data.phosphorus) : (35 + Math.round(Math.random() * 10)),
+            potassium: (safeNum(data.potassium) !== null) ? safeNum(data.potassium) : (180 + Math.round(Math.random() * 50)),
+            pH: (safeNum(data.pH) !== null) ? safeNum(data.pH) : (6.2 + Math.random() * 0.6),
+            ec: (safeNum(data.ec) !== null) ? safeNum(data.ec) : (1300 + Math.random() * 300),
+            voltage: (safeNum(data.voltage) !== null) ? safeNum(data.voltage) : 12.8,
+            battery: (safeNum(data.battery) !== null) ? safeNum(data.battery) : 85,
             soilHealth: aiAnalysis?.soilHealth || (safeNum(data.moisture) > 50 ? 'excellent' : 'fair'),
             stressLevel: safeNum(aiAnalysis?.stressLevel) || (safeNum(data.moisture) < 50 ? 60 : 10),
             moistureLossRate: safeNum(aiAnalysis?.moistureLossRate) || 0.45,

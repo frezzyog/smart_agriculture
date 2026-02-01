@@ -46,9 +46,9 @@ export default function DashboardPage() {
                         icon={Droplet}
                     />
                     <PowerStatsCard
-                        percentage={85}
-                        voltage={12.8}
-                        charging={true}
+                        percentage={Math.round(sensorData.battery ?? 85)}
+                        voltage={parseFloat(sensorData.voltage ?? 12.8).toFixed(1)}
+                        charging={sensorData.voltage > 12.6}
                         runtime="48h 12m"
                     />
                     <PumpControl deviceId={sensorData.deviceId || 'SMARTAG-001'} />

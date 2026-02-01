@@ -30,6 +30,7 @@ const char* device_id   = "SMARTAG-001"; // Must match your dashboard ID
 // Analog Sensors
 #define MOISTURE_PIN   34   // Analog Soil Moisture
 #define RAIN_PIN       35   // Analog Rain Sensor
+#define BATTERY_PIN    32   // Battery Voltage Monitor (New!)
 
 // Actuators
 #define RELAY_1_PIN    5    // Water Pump
@@ -145,7 +146,7 @@ void readSevenInOneSensor() {
 // 7. PUBLISH TO MQTT
 // ============================================
 void sendSensorData() {
-  // 1. Read Analog Soil Moisture (The reliable one for the main Gauge)
+  // 1. Read Analog Soil Moisture
   int mRaw = analogRead(MOISTURE_PIN);
   float mPercentAnalog = map(mRaw, MOISTURE_DRY, MOISTURE_WET, 0, 100);
   mPercentAnalog = constrain(mPercentAnalog, 0, 100);
@@ -155,12 +156,26 @@ void sendSensorData() {
   float rPercent = map(rRaw, RAIN_DRY, RAIN_WET, 0, 100);
   rPercent = constrain(rPercent, 0, 100);
 
+  // 3. Read Battery Voltage (New!)
+  // Assuming Voltage Divider: R1=100k, R2=10k (Ratio 1:11)
+  int bRaw = analogRead(BATTERY_PIN);
+  float voltage = bRaw * (3.3 / 4095.0) * 11.0; 
+  
+  // Simple Percentage calculation for 12V Lead Acid or 3S Lithium
+  // Range ~10.5V (0%) to ~12.6V (100%)
+  float batteryPercent = map(voltage * 10, 105, 126, 0, 100);
+  batteryPercent = constrain(batteryPercent, 0, 100);
+
   // Prepare JSON
   StaticJsonDocument<512> doc;
   doc["deviceId"] = device_id;
   
+  // Power Stats
+  doc["voltage"]     = voltage;
+  doc["battery"]     = batteryPercent;
+  
   // MAIN DASHBOARD GAUGES
-  doc["moisture"]    = mPercentAnalog; // Use Analog for the main 0-100% Gauge
+  doc["moisture"]    = mPercentAnalog; 
   doc["temp"]        = val_temp;
   doc["pH"]          = val_ph;
   doc["ec"]          = val_ec;
@@ -171,8 +186,6 @@ void sendSensorData() {
   doc["phosphorus"]  = val_p;
   doc["potassium"]   = val_k;
   
-  // Pro Sensor Reference
-  doc["soil_moisture_pro"] = val_moisture; 
   doc["status"]      = "Online";
 
   char buffer[512];
@@ -181,6 +194,7 @@ void sendSensorData() {
   mqtt.publish(topic.c_str(), buffer);
   
   Serial.println("📤 MQTT Sent: " + String(buffer));
+  Serial.printf("🔋 Battery: %.2fV (%d%%)\n", voltage, (int)batteryPercent);
 }
 
 // ============================================
