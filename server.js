@@ -707,6 +707,47 @@ app.post('/api/devices/register', async (req, res) => {
     }
 })
 
+// Sync User from Supabase and Send Welcome SMS
+app.post('/api/auth/register', async (req, res) => {
+    try {
+        const { userId, email, name, phone, role } = req.body
+
+        if (!userId) {
+            return res.status(400).json({ error: 'User ID is required' })
+        }
+
+        // 1. Sync user to Prisma database
+        const user = await prisma.user.upsert({
+            where: { id: userId },
+            update: {
+                name,
+                email,
+                phone,
+                role: (role || 'USER').toUpperCase()
+            },
+            create: {
+                id: userId,
+                name,
+                email,
+                phone,
+                password: 'SUPABASE_AUTH', // Managed by Supabase
+                role: (role || 'USER').toUpperCase()
+            }
+        })
+
+        // 2. Send Welcome SMS
+        if (phone) {
+            const welcomeMsg = `🍀 Welcome to Smart Agriculture 4.0, ${name}! Your account is now linked to our AI alerting system. We will notify you here if your soil needs attention. Happy farming!`
+            await sendSMSAlert(phone, welcomeMsg)
+        }
+
+        res.json({ success: true, user })
+    } catch (error) {
+        console.error('❌ Error in user registration sync:', error)
+        res.status(500).json({ error: 'Failed to sync user data' })
+    }
+})
+
 // Weather API endpoint
 let weatherCache = { data: null, timestamp: null }
 const WEATHER_CACHE_DURATION = 30 * 60 * 1000 // 30 minutes

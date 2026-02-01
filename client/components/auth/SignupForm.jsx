@@ -23,8 +23,25 @@ export default function SignupForm() {
         setLoading(true);
 
         try {
-            await signUp(email, password, { name, phone, role });
-            // Show success or redirect
+            const data = await signUp(email, password, { name, phone, role });
+
+            if (data?.user) {
+                // Sync to our Prisma backend and send welcome SMS
+                const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+                await fetch(`${apiUrl}/api/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userId: data.user.id,
+                        email: data.user.email,
+                        name,
+                        phone,
+                        role
+                    })
+                });
+            }
+
+            // Redirect automatically handled by layout or manually here
             router.push('/dashboard');
         } catch (err) {
             setError(err.message);
