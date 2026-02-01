@@ -748,6 +748,33 @@ app.post('/api/auth/register', async (req, res) => {
     }
 })
 
+// Simulation Endpoint for Testing
+app.post('/api/sensors/simulate', async (req, res) => {
+    try {
+        const { deviceId, moisture, temp, humidity } = req.body;
+        const targetDeviceId = deviceId || 'SMARTAG-001';
+
+        console.log(`🧪 SIMULATION: Triggering sensor data for ${targetDeviceId}`);
+
+        // Call the regular save function with mock data
+        await saveSensorData(targetDeviceId, {
+            moisture: moisture || 35,
+            temp: temp || 32,
+            humidity: humidity || 40,
+            simulated: true
+        });
+
+        res.json({
+            success: true,
+            message: 'Simulation triggered',
+            data: { deviceId: targetDeviceId, moisture: moisture || 35 }
+        });
+    } catch (error) {
+        console.error('❌ Simulation Error:', error);
+        res.status(500).json({ error: 'Failed to trigger simulation' });
+    }
+});
+
 // Weather API endpoint
 let weatherCache = { data: null, timestamp: null }
 const WEATHER_CACHE_DURATION = 30 * 60 * 1000 // 30 minutes

@@ -56,6 +56,32 @@ const Header = () => {
         }
     }
 
+    const handleTestAlert = async () => {
+        try {
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
+            const response = await fetch(`${apiUrl}/api/sensors/simulate`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    deviceId: 'SMARTAG-001',
+                    moisture: 35,
+                    temp: 32,
+                    humidity: 40
+                })
+            })
+
+            if (response.ok) {
+                alert('🧪 Simulation Triggered! Check your phone for SMS alerts.')
+                setIsProfileOpen(false)
+            } else {
+                alert('❌ Failed to trigger simulation. Make sure backend is running.')
+            }
+        } catch (err) {
+            console.error('Simulation error:', err)
+            alert('❌ Network error connecting to backend.')
+        }
+    }
+
     return (
         <header className="h-20 flex items-center justify-between px-4 md:px-8 bg-background/50 backdrop-blur-xl sticky top-0 z-40 lg:ml-64 border-b border-border transition-all duration-500">
             <div className="flex items-center gap-4 md:gap-8">
@@ -175,8 +201,16 @@ const Header = () => {
                             </div>
 
                             <button
+                                onClick={handleTestAlert}
+                                className="w-full mt-2 flex items-center gap-3 p-3 hover:bg-accent/10 rounded-xl transition-all group text-accent"
+                            >
+                                <Bell size={18} className="group-hover:animate-bounce" />
+                                <span className="text-sm font-extrabold uppercase tracking-wider">Test System</span>
+                            </button>
+
+                            <button
                                 onClick={handleLogout}
-                                className="w-full mt-4 flex items-center gap-3 p-3 hover:bg-red-500/10 rounded-xl transition-all group text-red-500"
+                                className="w-full mt-2 flex items-center gap-3 p-3 hover:bg-red-500/10 rounded-xl transition-all group text-red-500"
                             >
                                 <LogOut size={18} className="group-hover:translate-x-1 transition-transform" />
                                 <span className="text-sm font-extrabold uppercase tracking-wider">Sign Out</span>
