@@ -68,87 +68,69 @@ export default function WeatherCard() {
     const rainPrediction = getRainPrediction()
 
     return (
-        <div className="bg-gradient-to-br from-sky-500/10 to-blue-600/10 dark:from-sky-600/20 dark:to-blue-700/20 p-6 rounded-2xl border border-sky-200/50 dark:border-sky-700/50 shadow-lg hover:shadow-xl transition-all duration-300">
-            {/* Header */}
-            <div className="flex items-start justify-between mb-4">
-                <div>
-                    <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100">Weather Forecast</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">{weather.location}</p>
-                </div>
-                <div className="p-3 bg-sky-500/20 dark:bg-sky-600/30 rounded-xl">
-                    <WeatherIcon className="w-6 h-6 text-sky-600 dark:text-sky-400" />
-                </div>
-            </div>
+        <div className="bg-card rounded-[2.5rem] p-6 md:p-8 border border-border flex flex-col h-full relative overflow-hidden group hover:border-sky-500/40 transition-all duration-500 shadow-xl shadow-black/20">
+            {/* Background Gradient Orbs for Glassmorphism */}
+            <div className="absolute -top-10 -right-10 w-32 h-32 bg-sky-500/10 rounded-full blur-[60px] group-hover:bg-sky-500/20 transition-all duration-700"></div>
 
-            {/* Current Weather */}
-            <div className="mb-6">
-                <div className="flex items-end gap-2 mb-2">
-                    <span className="text-5xl font-bold text-gray-900 dark:text-gray-100">{Math.round(weather.temperature)}°</span>
-                    <span className="text-xl text-gray-600 dark:text-gray-400 mb-2">C</span>
-                </div>
-                <p className="text-sm text-gray-700 dark:text-gray-300 font-medium">{weather.condition}</p>
-            </div>
-
-            {/* Weather Details */}
-            <div className="grid grid-cols-2 gap-4 mb-6">
-                <div className="flex items-center gap-2">
-                    <Droplets className="w-4 h-4 text-blue-500" />
+            <div className="flex justify-between items-start mb-6 relative z-10">
+                <div className="flex gap-4 items-center">
+                    <div className="p-3 bg-sky-500/10 rounded-2xl border border-sky-500/20 shadow-inner group-hover:scale-110 transition-transform duration-500">
+                        <WeatherIcon className="w-6 h-6 text-sky-500" />
+                    </div>
                     <div>
-                        <p className="text-xs text-gray-600 dark:text-gray-400">Humidity</p>
-                        <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">{weather.humidity}%</p>
+                        <h3 className="text-xl md:text-2xl font-bold text-foreground tracking-tight leading-none">Weather</h3>
+                        <p className="text-foreground/40 text-[10px] uppercase font-bold tracking-widest mt-2">{weather.location}</p>
                     </div>
                 </div>
-                <div className="flex items-center gap-2">
-                    <Wind className="w-4 h-4 text-gray-500" />
-                    <div>
-                        <p className="text-xs text-gray-600 dark:text-gray-400">Wind</p>
-                        <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">{weather.windSpeed} km/h</p>
-                    </div>
+                <div className="text-right">
+                    <div className="text-3xl font-black text-foreground">{Math.round(weather.temperature)}°C</div>
+                    <div className="text-[10px] font-bold text-foreground/40 uppercase tracking-tighter">{weather.condition}</div>
                 </div>
             </div>
 
-            {/* Rain Prediction Alert */}
-            {rainPrediction && rainPrediction.willRain && (
-                <div className="bg-blue-500/20 dark:bg-blue-600/30 border border-blue-400/50 dark:border-blue-500/50 rounded-xl p-4 mb-4">
-                    <div className="flex items-start gap-3">
-                        <CloudRain className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5" />
-                        <div>
-                            <p className="text-sm font-bold text-blue-800 dark:text-blue-300">Rain Expected Tomorrow</p>
-                            <p className="text-xs text-blue-700 dark:text-blue-400 mt-1">
-                                {rainPrediction.probability}% chance - AI will skip irrigation
-                            </p>
-                        </div>
+            <div className="flex-1 space-y-4 relative z-10">
+                {/* Compact Stats Row */}
+                <div className="grid grid-cols-2 gap-3">
+                    <div className="bg-white/5 rounded-2xl p-3 flex items-center justify-between border border-white/5">
+                        <Droplets className="w-3 h-3 text-sky-500" />
+                        <span className="text-sm font-black text-foreground">{weather.humidity}%</span>
+                    </div>
+                    <div className="bg-white/5 rounded-2xl p-3 flex items-center justify-between border border-white/5">
+                        <Wind className="w-3 h-3 text-sky-500" />
+                        <span className="text-sm font-black text-foreground">{weather.windSpeed}k/h</span>
                     </div>
                 </div>
-            )}
 
-            {/* 3-Day Forecast */}
-            {forecast.length > 0 && (
-                <div>
-                    <h4 className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-3 uppercase tracking-wide">Next 3 Days</h4>
-                    <div className="grid grid-cols-3 gap-2">
+                {/* Simplified Forecast List (Horizontal) */}
+                <div className="bg-foreground/[0.03] rounded-3xl p-4 border border-white/5">
+                    <div className="flex justify-between gap-1 overflow-x-auto pb-1 scrollbar-hide">
                         {forecast.slice(0, 3).map((day, index) => {
                             const DayIcon = getWeatherIcon(day.condition)
                             return (
-                                <div key={index} className="bg-white/50 dark:bg-gray-800/50 rounded-lg p-3 text-center hover:bg-white/70 dark:hover:bg-gray-800/70 transition-colors">
-                                    <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">
-                                        {index === 0 ? 'Tomorrow' : new Date(day.date).toLocaleDateString('en-US', { weekday: 'short' })}
-                                    </p>
-                                    <DayIcon className="w-5 h-5 mx-auto mb-2 text-sky-600 dark:text-sky-400" />
-                                    <p className="text-sm font-bold text-gray-800 dark:text-gray-200">{Math.round(day.tempMax)}°</p>
-                                    <p className="text-xs text-gray-600 dark:text-gray-400">{Math.round(day.tempMin)}°</p>
-                                    {day.rainProbability > 30 && (
-                                        <div className="mt-1 flex items-center justify-center gap-1">
-                                            <CloudRain className="w-3 h-3 text-blue-500" />
-                                            <span className="text-xs text-blue-600 dark:text-blue-400">{day.rainProbability}%</span>
-                                        </div>
-                                    )}
+                                <div key={index} className="flex flex-col items-center min-w-[50px]">
+                                    <span className="text-[9px] font-bold text-foreground/30 uppercase mb-1">
+                                        {index === 0 ? 'Tmr' : new Date(day.date).toLocaleDateString('en-US', { weekday: 'short' })}
+                                    </span>
+                                    <DayIcon className="w-4 h-4 text-sky-500/60 mb-1" />
+                                    <span className="text-xs font-black text-foreground">{Math.round(day.tempMax)}°</span>
                                 </div>
                             )
                         })}
                     </div>
                 </div>
-            )}
+
+                {/* Rain Probability Badge if relevant */}
+                {rainPrediction && rainPrediction.willRain && (
+                    <div className="bg-sky-500/10 border border-sky-500/20 rounded-2xl p-3 flex items-center gap-3">
+                        <CloudRain className="w-4 h-4 text-sky-500 animate-bounce" />
+                        <span className="text-[10px] font-bold text-sky-500 uppercase tracking-tight">Rain Tmr: {rainPrediction.probability}% (AI Adjusting)</span>
+                    </div>
+                )}
+            </div>
+
+            <div className="mt-6 pt-4 border-t border-border flex justify-center relative z-10">
+                <span className="text-[9px] font-bold text-foreground/20 uppercase tracking-[0.2em]">Smart Weather Intelligence</span>
+            </div>
         </div>
     )
 }
