@@ -36,7 +36,7 @@ export default function DashboardPage() {
         <div className="lg:ml-64 p-4 md:p-10 min-h-screen bg-background transition-all duration-500">
             <div className="max-w-[1600px] mx-auto space-y-10">
                 {/* Top Row: KPIs + Weather */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-8">
+                <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
                     <SensorCard
                         title={t('dashboard.soil_analytics')}
                         subtitle={t('dashboard.advanced_monitor')}
@@ -52,7 +52,6 @@ export default function DashboardPage() {
                         charging={sensorData.voltage > 12.6}
                         runtime="48h 12m"
                     />
-                    <PumpControl deviceId={sensorData.deviceId || 'SMARTAG-001'} />
                     <WeatherCard />
                 </div>
 

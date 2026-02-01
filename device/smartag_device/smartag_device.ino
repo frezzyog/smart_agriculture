@@ -33,8 +33,8 @@ const char* device_id   = "SMARTAG-001"; // Must match your dashboard ID
 #define BATTERY_PIN    32   // Battery Voltage Monitor (New!)
 
 // Actuators
-#define RELAY_1_PIN    15   // Water Pump (Purple Wire)
-#define RELAY_2_PIN    13   // Fertilizer / Second Pump (Blue Wire)
+#define RELAY_1_PIN    25   // Water Pump (Yellow Wire)
+#define RELAY_2_PIN    26   // Fertilizer / Second Pump (Green Wire)
 
 // Calibration Constants
 #define MOISTURE_DRY   3500 // Dry Value
@@ -104,18 +104,6 @@ void setup() {
 void loop() {
   if (!mqtt.connected()) connectMQTT();
   mqtt.loop();
-
-  // --- HARDWARE TEST: Toggle Relays every 5 seconds ---
-  static unsigned long lastRelayTest = 0;
-  if (millis() - lastRelayTest > 5000) {
-    Serial.println("🛠️ Hardware Test: Pulsing Relays...");
-    digitalWrite(RELAY_1_PIN, LOW); // ON
-    digitalWrite(RELAY_2_PIN, LOW); // ON
-    delay(1000);
-    digitalWrite(RELAY_1_PIN, HIGH); // OFF
-    digitalWrite(RELAY_2_PIN, HIGH); // OFF
-    lastRelayTest = millis();
-  }
 
   // Send data every 5 seconds
   if (millis() - lastPublish > 5000) {
