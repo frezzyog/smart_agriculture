@@ -56,28 +56,20 @@ const Header = () => {
         }
     }
 
-    const handleTestAlert = async () => {
+    const handleTestSMS = async () => {
         try {
             const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
-            const response = await fetch(`${apiUrl}/api/sensors/simulate`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    deviceId: 'SMARTAG-001',
-                    moisture: 35,
-                    temp: 32,
-                    humidity: 40
-                })
-            })
+            const response = await fetch(`${apiUrl}/api/test-sms`)
 
             if (response.ok) {
-                alert('🧪 Simulation Triggered! Check your phone for SMS alerts.')
+                alert('📱 Test SMS request sent! Please check your phone.')
                 setIsProfileOpen(false)
             } else {
-                alert('❌ Failed to trigger simulation. Make sure backend is running.')
+                const errorData = await response.json()
+                alert(`❌ SMS Test Failed: ${errorData.error || 'Unknown error'}`)
             }
         } catch (err) {
-            console.error('Simulation error:', err)
+            console.error('SMS Test error:', err)
             alert('❌ Network error connecting to backend.')
         }
     }
@@ -201,11 +193,11 @@ const Header = () => {
                             </div>
 
                             <button
-                                onClick={handleTestAlert}
+                                onClick={handleTestSMS}
                                 className="w-full mt-2 flex items-center gap-3 p-3 hover:bg-accent/10 rounded-xl transition-all group text-accent"
                             >
-                                <Bell size={18} className="group-hover:animate-bounce" />
-                                <span className="text-sm font-extrabold uppercase tracking-wider">Test System</span>
+                                <Wind size={18} className="group-hover:animate-bounce" />
+                                <span className="text-sm font-extrabold uppercase tracking-wider">Test SMS</span>
                             </button>
 
                             <button

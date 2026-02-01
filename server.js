@@ -14,6 +14,11 @@ const twilio = require('twilio')
 const TWILIO_SID = process.env.TWILIO_ACCOUNT_SID
 const TWILIO_TOKEN = process.env.TWILIO_AUTH_TOKEN
 const smsClient = (TWILIO_SID && !TWILIO_SID.includes('xxx')) ? twilio(TWILIO_SID, TWILIO_TOKEN) : null
+if (smsClient) {
+    console.log('✅ Twilio SMS Client initialized')
+} else {
+    console.log('⚠️ Twilio SMS Client in SIMULATOR mode (SID missing or contains xxx)')
+}
 
 // Initialize Prisma and Supabase
 const prisma = new PrismaClient()
@@ -179,7 +184,9 @@ async function saveSensorData(deviceId, data) {
 
             if (aiResponse.ok) {
                 aiAnalysis = await aiResponse.json()
-                console.log(`🤖 AI Analysis: Soil Health=${aiAnalysis.soilHealth}, Stress=${aiAnalysis.stressLevel}%`)
+                console.log(`🤖 AI Analysis: Soil Health=${aiAnalysis.soilHealth}, Stress=${aiAnalysis.stressLevel}%, RecommendAction=${aiAnalysis.recommendAction}`)
+            } else {
+                console.warn(`⚠️ AI service returned error: ${aiResponse.status}`)
             }
         } catch (aiError) {
             console.warn('⚠️ AI service unavailable:', aiError.message)
@@ -280,6 +287,8 @@ async function saveSensorData(deviceId, data) {
 
             // Send SMS Alert
             const userPhone = device.user?.phone || process.env.MY_PHONE_NUMBER
+            console.log(`📱 Checking SMS eligibility: Phone=${userPhone}, SID=${process.env.TWILIO_ACCOUNT_SID ? 'Present' : 'Missing'}`)
+
             if (userPhone && !userPhone.includes('xxx')) {
                 const actionType = command.type || 'WATER'
                 const durationMinutes = Math.round((command.duration || 0) / 60)
@@ -772,6 +781,34 @@ app.post('/api/sensors/simulate', async (req, res) => {
     } catch (error) {
         console.error('❌ Simulation Error:', error);
         res.status(500).json({ error: 'Failed to trigger simulation' });
+    }
+});
+
+// Test SMS endpoint
+app.get('/api/test-sms', async (req, res) => {
+    try {
+        const testPhone = process.env.MY_PHONE_NUMBER;
+        const message = "🧪 This is a test SMS from your Smart Agriculture system. If you receive this, your Twilio configuration is working!";
+
+        console.log(`🧪 Testing SMS to: ${testPhone}`);
+
+        if (!smsClient) {
+            return res.status(400).json({
+                success: false,
+                error: 'SMS Client not initialized. Check your TWILIO environment variables.'
+            });
+        }
+
+        await smsClient.messages.create({
+            body: message,
+            from: process.env.TWILIO_PHONE_NUMBER,
+            to: testPhone
+        });
+
+        res.json({ success: true, message: `Test SMS sent to ${testPhone}` });
+    } catch (error) {
+        console.error('❌ Test SMS Error:', error.message);
+        res.status(500).json({ success: false, error: error.message });
     }
 });
 
