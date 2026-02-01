@@ -16,7 +16,8 @@ export default function WeatherCard() {
 
     const fetchWeather = async () => {
         try {
-            const response = await fetch('http://localhost:5000/api/weather')
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
+            const response = await fetch(`${apiUrl}/api/weather`)
             const data = await response.json()
             setWeather(data.current)
             setForecast(data.forecast || [])

@@ -156,6 +156,82 @@ app.get('/api/expenses', (req, res) => {
 
 
 
+// Weather API endpoint
+let weatherCache = { data: null, timestamp: null }
+const WEATHER_CACHE_DURATION = 30 * 60 * 1000 // 30 minutes
+
+app.get('/api/weather', async (req, res) => {
+    try {
+        if (weatherCache.data && weatherCache.timestamp && (Date.now() - weatherCache.timestamp < WEATHER_CACHE_DURATION)) {
+            return res.json(weatherCache.data)
+        }
+
+        const WEATHER_API_KEY = process.env.OPENWEATHER_API_KEY || 'demo_key'
+        const rawLocation = req.query.location || 'Phnom Penh,KH'
+        const location = encodeURIComponent(rawLocation)
+
+        const currentResponse = await fetch(
+            `https://api.openweathermap.org/data/2.5/weather?q=${location}&units=metric&appid=${WEATHER_API_KEY}`
+        )
+
+        if (!currentResponse.ok) throw new Error('Weather API unavailable')
+        const currentData = await currentResponse.json()
+
+        const forecastResponse = await fetch(
+            `https://api.openweathermap.org/data/2.5/forecast?q=${location}&units=metric&appid=${WEATHER_API_KEY}`
+        )
+        const forecastData = await forecastResponse.json()
+
+        const dailyForecasts = []
+        const processedDates = new Set()
+
+        if (forecastData.list) {
+            forecastData.list.forEach(item => {
+                const date = new Date(item.dt * 1000).toISOString().split('T')[0]
+                if (!processedDates.has(date) && dailyForecasts.length < 3) {
+                    processedDates.add(date)
+                    const dayEntries = forecastData.list.filter(entry => new Date(entry.dt * 1000).toISOString().split('T')[0] === date)
+                    const temps = dayEntries.map(e => e.main.temp)
+                    dailyForecasts.push({
+                        date,
+                        tempMax: Math.max(...temps),
+                        tempMin: Math.min(...temps),
+                        condition: item.weather[0].description,
+                        rainProbability: Math.round(Math.max(...dayEntries.map(e => (e.pop || 0) * 100))),
+                        humidity: item.main.humidity,
+                        windSpeed: item.wind.speed
+                    })
+                }
+            })
+        }
+
+        const weatherData = {
+            current: {
+                location: currentData.name,
+                temperature: currentData.main.temp,
+                condition: currentData.weather[0].description,
+                humidity: currentData.main.humidity,
+                windSpeed: currentData.wind.speed,
+                timestamp: new Date().toISOString()
+            },
+            forecast: dailyForecasts
+        }
+
+        weatherCache = { data: weatherData, timestamp: Date.now() }
+        res.json(weatherData)
+    } catch (error) {
+        console.error('Weather API error:', error.message)
+        const demoData = {
+            current: { location: 'Phnom Penh', temperature: 31, condition: 'sunny', humidity: 65, windSpeed: 12, timestamp: new Date().toISOString() },
+            forecast: [
+                { date: new Date(Date.now() + 86400000).toISOString().split('T')[0], tempMax: 32, tempMin: 22, condition: 'partly cloudy', rainProbability: 20 },
+                { date: new Date(Date.now() + 172800000).toISOString().split('T')[0], tempMax: 31, tempMin: 25, condition: 'cloudy', rainProbability: 40 }
+            ]
+        }
+        res.json(demoData)
+    }
+})
+
 app.get('/api/zones', (req, res) => {
     // Return dummy zones for dashboard UI
     res.json([

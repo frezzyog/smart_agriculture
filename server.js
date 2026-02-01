@@ -9,6 +9,8 @@ const { PrismaClient } = require('@prisma/client')
 const { createClient } = require('@supabase/supabase-js')
 const crypto = require('crypto')
 const twilio = require('twilio')
+const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args)).catch(() => global.fetch);
+
 
 // Initialize Twilio
 const TWILIO_SID = process.env.TWILIO_ACCOUNT_SID
@@ -858,7 +860,10 @@ app.get('/api/weather', async (req, res) => {
         }
 
         const WEATHER_API_KEY = process.env.OPENWEATHER_API_KEY || 'demo_key'
-        const location = req.query.location || 'Phnom Penh,KH' // Default to Phnom Penh, Cambodia
+        const rawLocation = req.query.location || 'Phnom Penh,KH'
+        const location = encodeURIComponent(rawLocation)
+
+        console.log(`🌦️ Weather request for: ${rawLocation} (Encoded: ${location})`)
 
         // Fetch current weather
         const currentResponse = await fetch(
