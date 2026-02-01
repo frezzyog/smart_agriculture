@@ -72,19 +72,19 @@ export default function WeatherCard() {
             {/* Background Gradient Orbs for Glassmorphism */}
             <div className="absolute -top-10 -right-10 w-32 h-32 bg-sky-500/10 rounded-full blur-[60px] group-hover:bg-sky-500/20 transition-all duration-700"></div>
 
-            <div className="flex justify-between items-start mb-6 relative z-10">
-                <div className="flex gap-4 items-center">
-                    <div className="p-3 bg-sky-500/10 rounded-2xl border border-sky-500/20 shadow-inner group-hover:scale-110 transition-transform duration-500">
-                        <WeatherIcon className="w-6 h-6 text-sky-500" />
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 relative z-10 gap-2">
+                <div className="flex gap-3 items-center">
+                    <div className="p-2.5 bg-sky-500/10 rounded-2xl border border-sky-500/20 shadow-inner group-hover:scale-111 transition-transform duration-500">
+                        <WeatherIcon className="w-5 h-5 text-sky-500" />
                     </div>
                     <div>
-                        <h3 className="text-xl md:text-2xl font-bold text-foreground tracking-tight leading-none">Weather</h3>
-                        <p className="text-foreground/40 text-[10px] uppercase font-bold tracking-widest mt-2">{weather.location}</p>
+                        <h3 className="text-lg font-bold text-foreground tracking-tight leading-none">Weather</h3>
+                        <p className="text-foreground/40 text-[9px] uppercase font-black tracking-widest mt-1.5">{weather.location}</p>
                     </div>
                 </div>
-                <div className="text-right">
-                    <div className="text-3xl font-black text-foreground">{Math.round(weather.temperature)}°C</div>
-                    <div className="text-[10px] font-bold text-foreground/40 uppercase tracking-tighter">{weather.condition}</div>
+                <div className="flex flex-row sm:flex-col items-baseline sm:items-end gap-2 sm:gap-0">
+                    <div className="text-2xl font-black text-foreground whitespace-nowrap">{Math.round(weather.temperature)}°C</div>
+                    <div className="text-[9px] font-bold text-foreground/40 uppercase tracking-tighter">{weather.condition}</div>
                 </div>
             </div>
 
