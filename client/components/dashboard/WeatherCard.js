@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from 'react'
 import { Cloud, CloudRain, Sun, Wind, Droplets, CloudSnow, CloudDrizzle } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 export default function WeatherCard() {
+    const { t, i18n } = useTranslation()
     const [weather, setWeather] = useState(null)
     const [forecast, setForecast] = useState([])
     const [loading, setLoading] = useState(true)
@@ -60,7 +62,7 @@ export default function WeatherCard() {
     if (!weather) {
         return (
             <div className="bg-gradient-to-br from-sky-500/10 to-blue-600/10 dark:from-sky-600/20 dark:to-blue-700/20 p-6 rounded-2xl border border-sky-200/50 dark:border-sky-700/50 shadow-lg">
-                <p className="text-sm text-gray-600 dark:text-gray-400">Weather data unavailable</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{t('dashboard_cards.weather_unavailable')}</p>
             </div>
         )
     }
@@ -79,7 +81,7 @@ export default function WeatherCard() {
                         <WeatherIcon className="w-5 h-5 text-sky-500" />
                     </div>
                     <div>
-                        <h3 className="text-lg font-bold text-foreground tracking-tight leading-none">Weather</h3>
+                        <h3 className="text-lg font-bold text-foreground tracking-tight leading-none">{t('dashboard_cards.weather')}</h3>
                         <p className="text-foreground/40 text-[9px] uppercase font-black tracking-widest mt-1.5">{weather.location}</p>
                     </div>
                 </div>
@@ -110,7 +112,7 @@ export default function WeatherCard() {
                             return (
                                 <div key={index} className="flex flex-col items-center min-w-[50px]">
                                     <span className="text-[9px] font-bold text-foreground/30 uppercase mb-1">
-                                        {index === 0 ? 'Tmr' : new Date(day.date).toLocaleDateString('en-US', { weekday: 'short' })}
+                                        {index === 0 ? t('dashboard_cards.tomorrow') : new Date(day.date).toLocaleDateString(i18n.language === 'km' ? 'km-KH' : 'en-US', { weekday: 'short' })}
                                     </span>
                                     <DayIcon className="w-4 h-4 text-sky-500/60 mb-1" />
                                     <span className="text-xs font-black text-foreground">{Math.round(day.tempMax)}°</span>
@@ -124,13 +126,13 @@ export default function WeatherCard() {
                 {rainPrediction && rainPrediction.willRain && (
                     <div className="bg-sky-500/10 border border-sky-500/20 rounded-2xl p-3 flex items-center gap-3">
                         <CloudRain className="w-4 h-4 text-sky-500 animate-bounce" />
-                        <span className="text-[10px] font-bold text-sky-500 uppercase tracking-tight">Rain Tmr: {rainPrediction.probability}% (AI Adjusting)</span>
+                        <span className="text-[10px] font-bold text-sky-500 uppercase tracking-tight">{t('dashboard_cards.rain_tomorrow')}: {rainPrediction.probability}% ({t('dashboard_cards.ai_adjusting')})</span>
                     </div>
                 )}
             </div>
 
             <div className="mt-6 pt-4 border-t border-border flex justify-center relative z-10">
-                <span className="text-[9px] font-bold text-foreground/20 uppercase tracking-[0.2em]">Smart Weather Intelligence</span>
+                <span className="text-[9px] font-bold text-foreground/20 uppercase tracking-[0.2em]">{t('dashboard_cards.smart_weather')}</span>
             </div>
         </div>
     )

@@ -28,7 +28,11 @@
         "common_questions": "Common Questions",
         "human_support": "Expert Human Support",
         "human_support_sub": "Available 24/7 for tailored agronomist advice.",
-        "talk_to_human": "Talk to Human"
+        "talk_to_human": "Talk to Human",
+        "faq_q1": "How do I recalibrate the soil moisture sensor?",
+        "faq_a1": "To recalibrate, remove the sensor from soil, wipe it dry, and press the 'Calibrate' button on the device hardware for 5 seconds.",
+        "faq_q2": "Why is the pump not triggering automatically?",
+        "faq_a2": "Check if 'AI Auto-Pilot' mode is enabled in the Dashboard. Manual overrides pause auto-scheduling for 60 minutes."
     },
     "dashboard": {
         "soil_analytics": "Soil Analytics",
@@ -62,5 +66,70 @@
         "alert_battery_full_desc": "Switching Array B to maintenance mode",
         "critical": "Critical",
         "info": "Info"
+    },
+    "header": {
+        "online": "Online",
+        "local_time": "Local Time",
+        "days_to_harvest": "Days to Harvest",
+        "notifications": "Notifications",
+        "mark_all_read": "Mark all read",
+        "view_all_activity": "View all activity",
+        "my_profile": "My Profile",
+        "settings": "Settings",
+        "subscription": "Subscription",
+        "test_telegram": "Test Telegram",
+        "sign_out": "Sign Out",
+        "farmer": "Farmer"
+    },
+    "guide": {
+        "title": "Farmer",
+        "subtitle": "Guide",
+        "description": "Educational resources and expert tips for precision agriculture.",
+        "search_placeholder": "Search for guides, crops, or best practices...",
+        "lettuce_title": "Lettuce Farming in Cambodia",
+        "npk_title": "Optimizing NPK for Lettuce",
+        "pest_title": "Early Pest Detection",
+        "hydro_title": "Hydroponic Best Practices",
+        "storage_title": "From Farm to Table: Storage",
+        "farming_cat": "Farming",
+        "nutrients_cat": "Nutrients",
+        "protection_cat": "Protection",
+        "setup_cat": "Setup",
+        "harvest_cat": "Harvest",
+        "min_read": "min read"
+    },
+    "lettuce_guide": {
+        "back_to_guides": "Back to Guides",
+        "comprehensive_guide": "Comprehensive Guide",
+        "process_overview": "Process Overview",
+        "step_prefix": "Step",
+        "cta_title": "Ready to start planting?",
+        "cta_desc": "Monitor your soil health and automation settings on the dashboard.",
+        "go_to_dashboard": "Go to Dashboard"
+    },
+    "dashboard_cards": {
+        "live_feed": "Live Feed",
+        "array_unit": "Array B - Lithium Unit",
+        "volts": "Volts",
+        "weather": "Weather",
+        "tomorrow": "Tmr",
+        "rain_tomorrow": "Rain Tmr",
+        "ai_adjusting": "AI Adjusting",
+        "weather_unavailable": "Weather data unavailable",
+        "smart_weather": "Smart Weather Intelligence"
+    },
+    "npk_chart": {
+        "title": "NPK Levels (7-Day Trend)",
+        "subtitle": "Measured in mg/kg Soil Mass",
+        "nitrogen": "Nitrogen (N)",
+        "phosphorus": "Phosphorus (P)",
+        "potassium": "Potassium (K)",
+        "mon": "MON",
+        "tue": "TUE",
+        "wed": "WED",
+        "thu": "THU",
+        "fri": "FRI",
+        "sat": "SAT",
+        "sun": "SUN"
     }
 }

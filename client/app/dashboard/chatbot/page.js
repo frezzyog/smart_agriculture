@@ -24,12 +24,12 @@ export default function ChatbotPage() {
 
     const faqs = [
         {
-            question: "How do I recalibrate the soil moisture sensor?",
-            answer: "To recalibrate, remove the sensor from soil, wipe it dry, and press the 'Calibrate' button on the device hardware for 5 seconds."
+            question: t('chatbot.faq_q1'),
+            answer: t('chatbot.faq_a1')
         },
         {
-            question: "Why is the pump not triggering automatically?",
-            answer: "Check if 'AI Auto-Pilot' mode is enabled in the Dashboard. Manual overrides pause auto-scheduling for 60 minutes."
+            question: t('chatbot.faq_q2'),
+            answer: t('chatbot.faq_a2')
         }
     ]
 

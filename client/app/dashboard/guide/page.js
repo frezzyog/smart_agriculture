@@ -3,14 +3,17 @@
 import React from 'react'
 import { BookOpen, Search, Play, Book, Lightbulb, ChefHat, HeartPulse, Microscope, ArrowRight, Droplets, Bug, Cpu, Atom, Sprout } from 'lucide-react'
 import Link from 'next/link'
+import { useTranslation } from 'react-i18next'
 
 export default function GuidePage() {
+    const { t } = useTranslation()
+
     const guides = [
-        { id: 5, title: 'Lettuce Farming in Cambodia', category: 'Farming', time: '15 min read', icon: Sprout, color: 'text-emerald-400', bg: 'bg-emerald-400/10', slug: 'lettuce' },
-        { id: 1, title: 'Optimizing NPK for Lettuce', category: 'Nutrients', time: '12 min read', icon: Microscope, color: 'text-blue-400', bg: 'bg-blue-400/10' },
-        { id: 2, title: 'Early Pest Detection', category: 'Protection', time: '8 min read', icon: HeartPulse, color: 'text-red-400', bg: 'bg-red-400/10' },
-        { id: 3, title: 'Hydroponic Best Practices', category: 'Setup', time: '15 min read', icon: Lightbulb, color: 'text-yellow-400', bg: 'bg-yellow-400/10' },
-        { id: 4, title: 'From Farm to Table: Storage', category: 'Harvest', time: '10 min read', icon: ChefHat, color: 'text-green-400', bg: 'bg-green-400/10' },
+        { id: 5, title: t('guide.lettuce_title'), category: t('guide.farming_cat'), time: `15 ${t('guide.min_read')}`, icon: Sprout, color: 'text-emerald-400', bg: 'bg-emerald-400/10', slug: 'lettuce' },
+        { id: 1, title: t('guide.npk_title'), category: t('guide.nutrients_cat'), time: `12 ${t('guide.min_read')}`, icon: Microscope, color: 'text-blue-400', bg: 'bg-blue-400/10' },
+        { id: 2, title: t('guide.pest_title'), category: t('guide.protection_cat'), time: `8 ${t('guide.min_read')}`, icon: HeartPulse, color: 'text-red-400', bg: 'bg-red-400/10' },
+        { id: 3, title: t('guide.hydro_title'), category: t('guide.setup_cat'), time: `15 ${t('guide.min_read')}`, icon: Lightbulb, color: 'text-yellow-400', bg: 'bg-yellow-400/10' },
+        { id: 4, title: t('guide.storage_title'), category: t('guide.harvest_cat'), time: `10 ${t('guide.min_read')}`, icon: ChefHat, color: 'text-green-400', bg: 'bg-green-400/10' },
     ]
 
     return (
@@ -19,16 +22,16 @@ export default function GuidePage() {
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-10 gap-6">
                     <div>
                         <h1 className="text-3xl md:text-4xl font-black text-foreground tracking-tighter mb-2 flex items-center gap-3">
-                            Farmer <span className="text-accent underline decoration-accent/30 decoration-4 underline-offset-8">Guide</span>
+                            {t('guide.title')} <span className="text-accent underline decoration-accent/30 decoration-4 underline-offset-8">{t('guide.subtitle')}</span>
                         </h1>
-                        <p className="text-sm md:text-base text-foreground/50 font-medium">Educational resources and expert tips for precision agriculture.</p>
+                        <p className="text-sm md:text-base text-foreground/50 font-medium">{t('guide.description')}</p>
                     </div>
                 </div>
 
                 <div className="relative mb-12">
                     <input
                         type="text"
-                        placeholder="Search for guides, crops, or best practices..."
+                        placeholder={t('guide.search_placeholder')}
                         className="w-full h-16 pl-16 pr-8 bg-foreground/5 border border-border rounded-[2rem] text-foreground placeholder-foreground/30 focus:outline-none focus:border-accent/40 focus:ring-4 focus:ring-accent/5 transition-all"
                     />
                     <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-foreground/30" size={24} />

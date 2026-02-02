@@ -18,7 +18,7 @@ import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
 
 export default function LettuceGuide() {
-    const { i18n } = useTranslation()
+    const { i18n, t: translate } = useTranslation()
     const lang = i18n.language === 'km' ? 'kh' : 'en'
 
     const content = {
@@ -240,13 +240,13 @@ export default function LettuceGuide() {
                         className="flex items-center gap-2 text-foreground/50 hover:text-accent transition-colors font-bold text-xs uppercase tracking-widest group"
                     >
                         <ChevronLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
-                        Back to Guides
+                        {translate('lettuce_guide.back_to_guides')}
                     </Link>
                 </div>
 
                 {/* Hero Section */}
                 <div className="mb-16">
-                    <span className="text-[10px] font-black text-accent uppercase tracking-[0.3em] mb-4 block">Comprehensive Guide</span>
+                    <span className="text-[10px] font-black text-accent uppercase tracking-[0.3em] mb-4 block">{translate('lettuce_guide.comprehensive_guide')}</span>
                     <h1 className="text-4xl md:text-6xl font-black text-foreground tracking-tighter mb-6 leading-tight max-w-3xl">
                         {t.title}
                     </h1>
@@ -261,7 +261,7 @@ export default function LettuceGuide() {
                     <div className="relative z-10">
                         <h3 className="text-2xl font-black mb-6 flex items-center gap-3">
                             <BookOpen className="text-accent" />
-                            {lang === 'en' ? 'Process Overview' : 'ទិដ្ឋភាពទូទៅនៃដំណើរការ'}
+                            {translate('lettuce_guide.process_overview')}
                         </h3>
                         <p className="text-foreground/60 text-lg leading-relaxed font-medium">
                             {t.overview}
@@ -287,7 +287,7 @@ export default function LettuceGuide() {
                             <div className="bg-card/50 border border-border p-8 rounded-[2rem] hover:bg-foreground/[0.02] transition-all">
                                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
                                     <h3 className="text-2xl font-black text-foreground">{step.title}</h3>
-                                    <span className="text-[10px] font-black text-foreground/20 uppercase tracking-widest">Step 0{step.id}</span>
+                                    <span className="text-[10px] font-black text-foreground/20 uppercase tracking-widest">{translate('lettuce_guide.step_prefix')} 0{step.id}</span>
                                 </div>
                                 <p className="text-foreground/50 text-base font-medium mb-8 leading-relaxed">
                                     {step.description}
@@ -309,14 +309,14 @@ export default function LettuceGuide() {
                 <div className="mt-20 p-12 bg-accent rounded-[3rem] text-background flex flex-col md:flex-row items-center justify-between gap-8 overflow-hidden relative">
                     <div className="absolute inset-0 bg-white/5 opacity-0 hover:opacity-100 transition-opacity pointer-events-none"></div>
                     <div className="relative z-10 text-center md:text-left">
-                        <h4 className="text-3xl font-black mb-4">Ready to start planting?</h4>
-                        <p className="text-background/70 font-bold mb-0">Monitor your soil health and automation settings on the dashboard.</p>
+                        <h4 className="text-3xl font-black mb-4">{translate('lettuce_guide.cta_title')}</h4>
+                        <p className="text-background/70 font-bold mb-0">{translate('lettuce_guide.cta_desc')}</p>
                     </div>
                     <Link
                         href="/dashboard"
                         className="relative z-10 flex items-center gap-3 px-8 py-5 bg-background text-foreground rounded-2xl font-black text-sm uppercase tracking-widest hover:scale-105 transition-all shadow-2xl"
                     >
-                        Go to Dashboard
+                        {translate('lettuce_guide.go_to_dashboard')}
                         <ArrowRight size={20} />
                     </Link>
                 </div>

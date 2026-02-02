@@ -6,12 +6,14 @@ import ThemeToggle from './ThemeToggle'
 import { useSidebar } from '@/context/SidebarContext'
 import { useAuth } from '@/hooks/useAuth'
 import { useRouter } from 'next/navigation'
+import { useTranslation } from 'react-i18next'
 
 const Header = () => {
     const [currentTime, setCurrentTime] = useState('')
     const [isProfileOpen, setIsProfileOpen] = useState(false)
     const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
     const { toggle } = useSidebar()
+    const { t } = useTranslation()
     const { user, signOut } = useAuth()
     const router = useRouter()
 
@@ -86,13 +88,13 @@ const Header = () => {
 
                 <div className="hidden sm:flex items-center gap-2">
                     <Circle size={8} className="fill-accent text-accent animate-pulse" />
-                    <span className="text-sm font-bold text-foreground tracking-wide">Online</span>
+                    <span className="text-sm font-bold text-foreground tracking-wide">{t('header.online')}</span>
                 </div>
 
                 <div className="hidden sm:block h-4 w-px bg-border"></div>
 
                 <div className="text-sm font-medium text-foreground/60">
-                    <span className="hidden xs:inline">Local Time: </span>
+                    <span className="hidden xs:inline">{t('header.local_time')}: </span>
                     <span className="text-foreground ml-1">{currentTime}</span>
                 </div>
             </div>
@@ -100,7 +102,7 @@ const Header = () => {
             <div className="flex items-center gap-3 md:gap-6">
                 <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-accent/10 border border-accent/20 rounded-xl text-accent">
                     <Calendar size={18} />
-                    <span className="text-sm font-bold tracking-tight">Days to Harvest: 14</span>
+                    <span className="text-sm font-bold tracking-tight">{t('header.days_to_harvest')}: 14</span>
                 </div>
 
                 <ThemeToggle />
@@ -121,8 +123,8 @@ const Header = () => {
                     {isNotificationsOpen && (
                         <div className="absolute right-0 mt-3 w-80 bg-card/95 backdrop-blur-2xl border border-border rounded-2xl shadow-2xl p-2 animate-in fade-in slide-in-from-top-3 duration-200">
                             <div className="p-3 border-b border-border mb-2 flex items-center justify-between">
-                                <span className="font-bold text-sm">Notifications</span>
-                                <span className="text-[10px] uppercase tracking-widest text-accent font-bold cursor-pointer hover:underline">Mark all read</span>
+                                <span className="font-bold text-sm">{t('header.notifications')}</span>
+                                <span className="text-[10px] uppercase tracking-widest text-accent font-bold cursor-pointer hover:underline">{t('header.mark_all_read')}</span>
                             </div>
                             <div className="space-y-1 max-h-72 overflow-y-auto pr-1 custom-scrollbar">
                                 {notifications.map((n) => (
@@ -144,7 +146,7 @@ const Header = () => {
                             </div>
                             <div className="mt-2 p-2 pt-0">
                                 <button className="w-full py-2 text-xs font-bold text-foreground/40 hover:text-foreground transition-colors">
-                                    View all activity
+                                    {t('header.view_all_activity')}
                                 </button>
                             </div>
                         </div>
@@ -171,7 +173,7 @@ const Header = () => {
                                         {user?.email?.[0].toUpperCase() || 'F'}
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <h4 className="font-bold text-sm truncate">{user?.email?.split('@')[0] || 'Farmer'}</h4>
+                                        <h4 className="font-bold text-sm truncate">{user?.email?.split('@')[0] || t('header.farmer')}</h4>
                                         <p className="text-[10px] text-foreground/40 truncate">{user?.email || 'farmer@smartag.com'}</p>
                                     </div>
                                 </div>
@@ -180,15 +182,15 @@ const Header = () => {
                             <div className="space-y-1">
                                 <button className="w-full flex items-center gap-3 p-3 hover:bg-foreground/5 rounded-xl transition-all group">
                                     <User size={18} className="text-foreground/40 group-hover:text-green-500 transition-colors" />
-                                    <span className="text-sm font-bold text-foreground/70 group-hover:text-foreground">My Profile</span>
+                                    <span className="text-sm font-bold text-foreground/70 group-hover:text-foreground">{t('header.my_profile')}</span>
                                 </button>
                                 <button className="w-full flex items-center gap-3 p-3 hover:bg-foreground/5 rounded-xl transition-all group">
                                     <Settings size={18} className="text-foreground/40 group-hover:text-green-500 transition-colors" />
-                                    <span className="text-sm font-bold text-foreground/70 group-hover:text-foreground">Settings</span>
+                                    <span className="text-sm font-bold text-foreground/70 group-hover:text-foreground">{t('header.settings')}</span>
                                 </button>
                                 <button className="w-full flex items-center gap-3 p-3 hover:bg-foreground/5 rounded-xl transition-all group border-t border-border mt-1 pt-4">
                                     <CreditCard size={18} className="text-foreground/40 group-hover:text-green-500 transition-colors" />
-                                    <span className="text-sm font-bold text-foreground/70 group-hover:text-foreground">Subscription</span>
+                                    <span className="text-sm font-bold text-foreground/70 group-hover:text-foreground">{t('header.subscription')}</span>
                                 </button>
                             </div>
 
@@ -197,7 +199,7 @@ const Header = () => {
                                 className="w-full mt-2 flex items-center gap-3 p-3 hover:bg-accent/10 rounded-xl transition-all group text-accent"
                             >
                                 <Wind size={18} className="group-hover:animate-bounce" />
-                                <span className="text-sm font-extrabold uppercase tracking-wider">Test Telegram</span>
+                                <span className="text-sm font-extrabold uppercase tracking-wider">{t('header.test_telegram')}</span>
                             </button>
 
                             <button
@@ -205,7 +207,7 @@ const Header = () => {
                                 className="w-full mt-2 flex items-center gap-3 p-3 hover:bg-red-500/10 rounded-xl transition-all group text-red-500"
                             >
                                 <LogOut size={18} className="group-hover:translate-x-1 transition-transform" />
-                                <span className="text-sm font-extrabold uppercase tracking-wider">Sign Out</span>
+                                <span className="text-sm font-extrabold uppercase tracking-wider">{t('header.sign_out')}</span>
                             </button>
                         </div>
                     )}

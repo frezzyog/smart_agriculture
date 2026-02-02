@@ -15,7 +15,7 @@ const PowerStatsCard = ({ percentage, voltage, charging, runtime }) => {
             <div className="flex justify-between items-start mb-6">
                 <div>
                     <h3 className="text-2xl font-bold text-foreground tracking-tight">{t('dashboard.power_stats')}</h3>
-                    <p className="text-foreground/50 text-sm font-medium mt-1">Array B - Lithium Unit</p>
+                    <p className="text-foreground/50 text-sm font-medium mt-1">{t('dashboard_cards.array_unit')}</p>
                 </div>
                 <div className="text-yellow-400 flex items-center justify-center bg-yellow-400/10 p-2.5 rounded-xl border border-yellow-400/20">
                     <Zap size={22} fill="currentColor" />
@@ -55,7 +55,7 @@ const PowerStatsCard = ({ percentage, voltage, charging, runtime }) => {
                 <div className="space-y-2 xs:space-y-4 text-center xs:text-left">
                     <div>
                         <div className="text-2xl xs:text-3xl font-black text-foreground tracking-tighter">
-                            {voltage} <span className="text-base xs:text-lg text-foreground/50 font-bold uppercase ml-1">Volts</span>
+                            {voltage} <span className="text-base xs:text-lg text-foreground/50 font-bold uppercase ml-1">{t('dashboard_cards.volts')}</span>
                         </div>
                         {charging && (
                             <div className="flex items-center justify-center xs:justify-start gap-1.5 text-[9px] xs:text-[10px] font-bold text-accent uppercase tracking-widest mt-1">

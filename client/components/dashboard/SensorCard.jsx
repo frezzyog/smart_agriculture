@@ -53,7 +53,7 @@ const SensorCard = ({ title, subtitle, moisture, ec, pH, status, icon: Icon }) =
                     <span className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest">{status}</span>
                 </div>
                 <div className="bg-accent/10 px-3 py-1.5 rounded-xl border border-accent/10">
-                    <span className="text-[10px] font-black text-accent uppercase tracking-tighter">Live Feed</span>
+                    <span className="text-[10px] font-black text-accent uppercase tracking-tighter">{t('dashboard_cards.live_feed')}</span>
                 </div>
             </div>
         </div>
