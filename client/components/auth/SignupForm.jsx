@@ -65,8 +65,8 @@ export default function SignupForm() {
                     <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
 
                     <div className="text-center mb-10">
-                        <div className="mx-auto h-20 w-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-[1.5rem] flex items-center justify-center mb-6 shadow-lg shadow-indigo-500/30 transform -rotate-3 hover:rotate-0 transition-transform duration-300">
-                            <Leaf size={40} className="text-white" />
+                        <div className="mx-auto h-24 w-24 mb-6 transform hover:scale-105 transition-transform duration-300">
+                            <img src="/logo.png" alt="SmartAg Logo" className="w-full h-full object-contain" />
                         </div>
                         <h2 className="text-3xl font-black text-foreground tracking-tight mb-2">
                             Join SmartAg
