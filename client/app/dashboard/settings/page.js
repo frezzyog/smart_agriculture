@@ -14,10 +14,10 @@ export default function SettingsPage() {
     const [autoPowerSaving, setAutoPowerSaving] = useState(true)
 
     const notificationMatrix = [
-        { trigger: 'Critical Battery Warning', push: true, sms: true, email: false },
-        { trigger: 'Soil Moisture Breach', push: true, sms: false, email: true },
-        { trigger: 'EC (Nutrient) Variance', push: true, sms: false, email: false },
-        { trigger: 'System Maintenance', push: false, sms: false, email: false },
+        { trigger: 'Critical Battery Warning', push: true, telegram: true, email: false },
+        { trigger: 'Soil Moisture Breach', push: true, telegram: false, email: true },
+        { trigger: 'EC (Nutrient) Variance', push: true, telegram: false, email: false },
+        { trigger: 'System Maintenance', push: false, telegram: false, email: false },
     ]
 
     return (
@@ -168,7 +168,7 @@ export default function SettingsPage() {
                                     <tr>
                                         <th className="p-10 text-[10px] font-black text-gray-500 uppercase tracking-widest">Alert Trigger</th>
                                         <th className="p-10 text-[10px] font-black text-gray-500 uppercase tracking-widest text-center">Push App</th>
-                                        <th className="p-10 text-[10px] font-black text-gray-500 uppercase tracking-widest text-center">SMS</th>
+                                        <th className="p-10 text-[10px] font-black text-gray-500 uppercase tracking-widest text-center">Telegram</th>
                                         <th className="p-10 text-[10px] font-black text-gray-500 uppercase tracking-widest text-center">Email</th>
                                     </tr>
                                 </thead>
@@ -185,8 +185,8 @@ export default function SettingsPage() {
                                             </td>
                                             <td className="p-10">
                                                 <div className="flex justify-center">
-                                                    <div className={`w-7 h-7 rounded-full flex items-center justify-center border-2 transition-all ${item.sms ? 'bg-accent border-accent text-background shadow-[0_0_15px_rgba(21,255,113,0.3)]' : 'border-white/10'}`}>
-                                                        {item.sms && <Check size={16} strokeWidth={4} />}
+                                                    <div className={`w-7 h-7 rounded-full flex items-center justify-center border-2 transition-all ${item.telegram ? 'bg-accent border-accent text-background shadow-[0_0_15px_rgba(21,255,113,0.3)]' : 'border-white/10'}`}>
+                                                        {item.telegram && <Check size={16} strokeWidth={4} />}
                                                     </div>
                                                 </div>
                                             </td>

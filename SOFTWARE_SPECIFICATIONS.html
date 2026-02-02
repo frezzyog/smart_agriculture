@@ -52,6 +52,7 @@
             font-weight: 700;
             background: linear-gradient(to right, var(--accent-secondary), var(--accent-primary));
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 0.5rem;
         }
@@ -285,32 +286,34 @@
                     <div>
                         <h4>1. Data Acquisition</h4>
                         <ul>
-                            <li>Devices: ESP32 + Sensors</li>
-                            <li>Interval: Every 5 seconds</li>
-                            <li>Protocol: MQTT/TCP</li>
+                            <li><strong>Devices</strong>: ESP32 + 7-in-1 Soil Sensor (RS485/Modbus).</li>
+                            <li><strong>Sensors</strong>: NPK, pH, EC, Moisture, Rain, Battery.</li>
+                            <li><strong>Interval</strong>: Telemetry pulse every 5 seconds.</li>
+                            <li><strong>Protocol</strong>: MQTT over TCP (Aedes Broker).</li>
                         </ul>
                     </div>
                     <div>
                         <h4>2. Pre-processing</h4>
                         <ul>
-                            <li>Edge: Map Analog (0-4095) → Standard Units</li>
-                            <li>Cloud: Pydantic Validation & Cleaning</li>
+                            <li><strong>Edge</strong>: Analog-to-Digital mapping & Modbus register conversion.</li>
+                            <li><strong>Cloud</strong>: JSON parsing, validation, & "Smart Fallbacks" for missing data.
+                            </li>
                         </ul>
                     </div>
                     <div>
                         <h4>3. Storage & Logs</h4>
                         <ul>
-                            <li>DB: Supabase PostgreSQL (Time-series)</li>
-                            <li>Logs: Action audits in PumpLog table</li>
-                            <li>History: Persistent sensor_data records</li>
+                            <li><strong>DB</strong>: Supabase PostgreSQL (Time-series optimization).</li>
+                            <li><strong>Audits</strong>: Detailed PumpLog & Alert history.</li>
+                            <li><strong>History</strong>: Persistent records for forecasting.</li>
                         </ul>
                     </div>
                     <div>
-                        <h4>4. Security</h4>
+                        <h4>4. Security Measures</h4>
                         <ul>
-                            <li>Transport: SSL/TLS Encryption</li>
-                            <li>Access: Supabase RLS (Row Level Security)</li>
-                            <li>Secrets: Environment Variables (.env)</li>
+                            <li><strong>Transport</strong>: Encrypted Proxy for MQTT; HTTPS for APIs.</li>
+                            <li><strong>Access</strong>: Supabase RLS (Row Level Security).</li>
+                            <li><strong>Monitoring</strong>: Real-time socket.io heartbeat.</li>
                         </ul>
                     </div>
                 </div>
@@ -334,18 +337,17 @@
 
                     <h4>7.1 Problem Type</h4>
                     <ul>
-                        <li><strong>NLP & Reasoning</strong>: Contextual advisory via LLM interpretation.</li>
-                        <li><strong>Time-Series Regression</strong>: Predictive forecasting of moisture/nutrient trends.
-                        </li>
-                        <li><strong>Classification</strong>: Real-time soil health & stress level categorization.</li>
-                        <li><strong>Optimization</strong>: Prescriptive resource allocation across multi-zones.</li>
+                        <li><strong>Classification</strong>: Real-time soil health & stress categorization.</li>
+                        <li><strong>Regression</strong>: Moisture & nutrient trend forecasting.</li>
+                        <li><strong>NLP Reasoning</strong>: Contextual advisory via LLM interpretation.</li>
+                        <li><strong>Optimization</strong>: Weather-aware resource allocation.</li>
                     </ul>
 
                     <h4>7.3 Architecture Details</h4>
                     <ul>
-                        <li><strong>Type</strong>: Multimodal Transformer (LLM)</li>
-                        <li><strong>Role</strong>: Contextual reasoning & Decision Support</li>
-                        <li><strong>Auxiliary</strong>: Custom Python Logic for Zone Optimization</li>
+                        <li><strong>Type</strong>: Multimodal Transformer (LLM).</li>
+                        <li><strong>Framework</strong>: FastAPI (Backend), Gemini API.</li>
+                        <li><strong>Hybrid Logic</strong>: LLM Reasoning + Deterministic Rule Fallbacks.</li>
                     </ul>
                 </div>
 
@@ -353,18 +355,28 @@
                 <div class="card">
                     <h3>Data & Methodology</h3>
 
-                    <h4>7.2 Dataset / Context</h4>
+                    <h4>7.2 Dataset</h4>
                     <ul>
-                        <li><strong>Input Source</strong>: Real-time telemetry (Live Sensor Data)</li>
-                        <li><strong>Knowledge Base</strong>: LLM General World Knowledge + Farm Expenses</li>
-                        <li><strong>Context Window</strong>: Dynamic injection of current farm state</li>
+                        <li><strong>Source</strong>: Real-time telemetry (5s pulses) & historical trends via Supabase.
+                        </li>
+                        <li><strong>Size</strong>: ~17,280 readings/day per device (5s interval); scaling to 1M+
+                            records.</li>
+                        <li><strong>Data Labeling Process</strong>: Automated contextual tagging (Soil Health, Stress)
+                            by AI Backend.</li>
+                        <li><strong>Dataset Versioning</strong>: SQL schema-based versioning & daily database snapshots.
+                        </li>
                     </ul>
 
-                    <h4>7.4 Training Methodology</h4>
+                    <h4>7.4 Training Details</h4>
                     <ul>
-                        <li><strong>Technique</strong>: In-Context Learning (Prompt Engineering)</li>
-                        <li><strong>Prompt Strategy</strong>: System prompts injected with live JSON data</li>
-                        <li><strong>Params</strong>: Temp 0.7, MaxTokens 800, TopP 0.9</li>
+                        <li><strong>Methodology</strong>: In-Context Learning (Prompt Engineering). Live JSON telemetry
+                            is injected into the LLM context window for real-time inference.</li>
+                        <li><strong>Hyperparameters</strong>: Temperature: 0.7 (optimal for reasoning balance), TopP:
+                            0.9, MaxOutputTokens: 800.</li>
+                        <li><strong>Hardware Used</strong>: Distributed Cloud Inference (Google Cloud TPU/GPU
+                            infrastructure) via Gemini API; Local Dev on local GPU environments.</li>
+                        <li><strong>Inference Strategy</strong>: System-level prompt steering with zero-shot and
+                            few-shot agricultural safety constraints.</li>
                     </ul>
                 </div>
 
@@ -372,19 +384,40 @@
                 <div class="card">
                     <h3>Performance & Deployment</h3>
 
-                    <h4>7.5 Metrics</h4>
+                    <h4>7.5 Model Performance Metrics</h4>
                     <ul>
-                        <li><strong>Latency</strong>: < 2 seconds (optimized via Flash model)</li>
-                        <li><strong>Reliability</strong>: 100% (Rule-Based Fallback System)</li>
-                        <li><strong>Accuracy</strong>: Context-Aware qualitative relevance</li>
+                        <li><strong>Latency</strong>: < 2 seconds per inference.</li>
+                        <li><strong>Reliability</strong>: 100% via smart fallback to rule-based logic.</li>
+                        <li><strong>Inference</strong>: High-speed optimized Flash model.</li>
                     </ul>
 
-                    <h4>7.6 Deployment Strategy</h4>
+                    <h4>7.6 Model Deployment</h4>
                     <ul>
-                        <li><strong>Platform</strong>: Cloud Microservice (Docker/FastAPI)</li>
-                        <li><strong>Update</strong>: CI/CD Pipeline (Git → Railway)</li>
-                        <li><strong>Optimization</strong>: Stateless Request/Response Architecture</li>
+                        <li><strong>Cloud Hosting</strong>: The AI "brain" lives on a cloud server (Railway), making it
+                            accessible to your farm from anywhere.</li>
+                        <li><strong>Automatic Updates</strong>: The system updates instantly whenever code is saved—no
+                            manual uploading needed.</li>
+                        <li><strong>Remote Management</strong>: You can update the AI's logic in the cloud without ever
+                            having to plug in or reprogram the physical ESP32 device.</li>
                     </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- 8. Interactive Flow Diagrams -->
+        <div class="section">
+            <div class="section-header">
+                <span class="section-number">8</span>
+                <h2>Interactive Flow Diagrams</h2>
+            </div>
+            <div class="grid-container">
+                <div class="card" style="text-align: center;">
+                    <h3>System & User Journeys</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Visualize the interaction between
+                        the user, the dashboard, and the AI backend.</p>
+                    <a href="USER_FLOW_DIAGRAM.html"
+                        style="display: inline-block; background: var(--accent-primary); color: var(--bg-color); padding: 0.8rem 1.5rem; border-radius: 8px; font-weight: bold; text-decoration: none; transition: transform 0.2s;">View
+                        User Flow Diagram →</a>
                 </div>
             </div>
         </div>

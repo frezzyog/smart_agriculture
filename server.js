@@ -8,31 +8,20 @@ const { createServer } = require('net')
 const { PrismaClient } = require('@prisma/client')
 const { createClient } = require('@supabase/supabase-js')
 const crypto = require('crypto')
-const twilio = require('twilio')
+// twilio removed
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args)).catch(() => global.fetch);
 
 
-// Initialize Twilio
-const TWILIO_SID = process.env.TWILIO_ACCOUNT_SID
-const TWILIO_TOKEN = process.env.TWILIO_AUTH_TOKEN
-const TWILIO_PHONE = process.env.TWILIO_PHONE_NUMBER
+// Initialize Telegram Bot
+const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN
+const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID
 
-console.log(`🔍 [DEBUG] Checking SMS Config: SID=${TWILIO_SID ? TWILIO_SID.substring(0, 5) + '...' : 'MISSING'}, Token=${TWILIO_TOKEN ? 'PRESENT' : 'MISSING'}, Phone=${TWILIO_PHONE || 'MISSING'}`)
+const hasTelegram = (TELEGRAM_BOT_TOKEN && !TELEGRAM_BOT_TOKEN.includes('xxx') && TELEGRAM_CHAT_ID && !TELEGRAM_CHAT_ID.includes('xxx'))
 
-const smsClient = (TWILIO_SID && !TWILIO_SID.includes('xxx') && TWILIO_TOKEN && !TWILIO_TOKEN.includes('xxx'))
-    ? twilio(TWILIO_SID, TWILIO_TOKEN)
-    : null
-
-if (smsClient) {
-    console.log('✅ Twilio SMS Client initialized')
+if (hasTelegram) {
+    console.log('✅ Telegram Bot Alerting initialized')
 } else {
-    let reason = 'Unknown'
-    if (!TWILIO_SID) reason = 'TWILIO_ACCOUNT_SID is missing'
-    else if (TWILIO_SID.includes('xxx')) reason = 'TWILIO_ACCOUNT_SID contains placeholder "xxx"'
-    else if (!TWILIO_TOKEN) reason = 'TWILIO_AUTH_TOKEN is missing'
-    else if (TWILIO_TOKEN.includes('xxx')) reason = 'TWILIO_AUTH_TOKEN contains placeholder "xxx"'
-
-    console.log(`⚠️ Twilio SMS Client in SIMULATOR mode. Reason: ${reason}`)
+    console.log('⚠️ Telegram Bot in SIMULATOR mode. (Token or ChatID missing/placeholder)')
 }
 
 // Initialize Prisma and Supabase
@@ -149,21 +138,32 @@ aedes.on('publish', async (packet, client) => {
 // Notification Functions
 // ============================================
 
-async function sendSMSAlert(to, message) {
-    if (!smsClient) {
-        console.log(`📝 [SMS SIMULATOR] To: ${to} | Message: ${message}`)
+async function sendTelegramAlert(message) {
+    if (!hasTelegram) {
+        console.log(`📝 [TELEGRAM SIMULATOR] Message: ${message}`)
         return
     }
 
     try {
-        await smsClient.messages.create({
-            body: message,
-            from: process.env.TWILIO_PHONE_NUMBER,
-            to: to
+        const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: TELEGRAM_CHAT_ID,
+                text: message,
+                parse_mode: 'HTML'
+            })
         })
-        console.log(`📱 SMS Alert Sent successfully to ${to}`)
+
+        if (response.ok) {
+            console.log('✅ Telegram Alert Sent successfully')
+        } else {
+            const errData = await response.json()
+            console.error('❌ Failed to send Telegram message:', errData.description)
+        }
     } catch (err) {
-        console.error('❌ Failed to send SMS:', err.message)
+        console.error('❌ Failed to send Telegram Alert:', err.message)
     }
 }
 
@@ -280,9 +280,9 @@ async function saveSensorData(deviceId, data) {
 
             // Send ONE combined SMS for all alerts if no pump action was triggered
             // (If pump was triggered, a separate specific SMS is sent later)
-            if (smsSummaries.length > 0 && !aiAnalysis.recommendAction && userPhone && !userPhone.includes('xxx')) {
-                const combinedMsg = `🌾 SmartAg Alert: ${smsSummaries.join(', ')}. Please check your dashboard for details.`;
-                await sendSMSAlert(userPhone, combinedMsg);
+            if (smsSummaries.length > 0 && !aiAnalysis.recommendAction) {
+                const combinedMsg = `<b>🌾 SmartAg Alert</b>\n\n${smsSummaries.map(s => `• ${s}`).join('\n')}\n\nPlease check your dashboard for details.`
+                await sendTelegramAlert(combinedMsg);
             }
 
             // Broadcast alerts to dashboard
@@ -315,16 +315,12 @@ async function saveSensorData(deviceId, data) {
                 triggeredBy: 'AI_SYSTEM'
             })
 
-            // Send SMS Alert
-            const userPhone = device.user?.phone || process.env.MY_PHONE_NUMBER
-            console.log(`📱 Checking SMS eligibility: Phone=${userPhone}, SID=${process.env.TWILIO_ACCOUNT_SID ? 'Present' : 'Missing'}`)
-
-            if (userPhone && !userPhone.includes('xxx')) {
+            if (hasTelegram) {
                 const actionType = command.type || 'WATER'
                 const durationMinutes = Math.round((command.duration || 0) / 60)
-                const smsMessage = `🌾 SmartAg Alert: Soil is dry (${data.moisture}%). AI triggered the ${actionType} pump for ${durationMinutes} mins.`
+                const telegramMsg = `<b>🌾 SmartAg Alert</b>\n\nSoil is dry (<b>${data.moisture}%</b>). AI triggered the <b>${actionType}</b> pump for <b>${durationMinutes}</b> mins.`
 
-                await sendSMSAlert(userPhone, smsMessage)
+                await sendTelegramAlert(telegramMsg)
             }
         }
 
@@ -774,10 +770,10 @@ app.post('/api/auth/register', async (req, res) => {
             }
         })
 
-        // 2. Send Welcome SMS
-        if (phone) {
-            const welcomeMsg = `🍀 Welcome to Smart Agriculture 4.0, ${name}! Your account is now linked to our AI alerting system. We will notify you here if your soil needs attention. Happy farming!`
-            await sendSMSAlert(phone, welcomeMsg)
+        // 2. Send Welcome Telegram Alert
+        if (hasTelegram) {
+            const welcomeMsg = `<b>🍀 Welcome to Smart Agriculture 4.0, ${name}!</b>\n\nYour account is now linked to our AI alerting system. We will notify you here if your soil needs attention. Happy farming!`
+            await sendTelegramAlert(welcomeMsg)
         }
 
         res.json({ success: true, user })
