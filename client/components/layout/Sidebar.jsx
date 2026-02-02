@@ -61,8 +61,8 @@ const Sidebar = () => {
                 {/* Logo & Close Button */}
                 <div className="flex items-center justify-between mb-10">
                     <div className="flex items-center gap-3">
-                        <div className="w-16 h-16 flex items-center justify-center -ml-2">
-                            <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
+                        <div className="w-48 h-48 flex items-center justify-center -ml-6 mb-4">
+                            <img src="/logo.png" alt="Logo" className="w-full h-full object-contain scale-[1.5]" />
                         </div>
                         <div>
                             <h1 className="text-xl font-bold tracking-tight text-foreground leading-none">{t('sidebar.title')}</h1>
