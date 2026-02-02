@@ -1,10 +1,12 @@
 'use client'
 
 import React from 'react'
-import { BookOpen, Search, Play, Book, Lightbulb, ChefHat, HeartPulse, Microscope, ArrowRight, Droplets, Bug, Cpu, Atom } from 'lucide-react'
+import { BookOpen, Search, Play, Book, Lightbulb, ChefHat, HeartPulse, Microscope, ArrowRight, Droplets, Bug, Cpu, Atom, Sprout } from 'lucide-react'
+import Link from 'next/link'
 
 export default function GuidePage() {
     const guides = [
+        { id: 5, title: 'Lettuce Farming in Cambodia', category: 'Farming', time: '15 min read', icon: Sprout, color: 'text-emerald-400', bg: 'bg-emerald-400/10', slug: 'lettuce' },
         { id: 1, title: 'Optimizing NPK for Lettuce', category: 'Nutrients', time: '12 min read', icon: Microscope, color: 'text-blue-400', bg: 'bg-blue-400/10' },
         { id: 2, title: 'Early Pest Detection', category: 'Protection', time: '8 min read', icon: HeartPulse, color: 'text-red-400', bg: 'bg-red-400/10' },
         { id: 3, title: 'Hydroponic Best Practices', category: 'Setup', time: '15 min read', icon: Lightbulb, color: 'text-yellow-400', bg: 'bg-yellow-400/10' },
@@ -35,40 +37,44 @@ export default function GuidePage() {
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
                     {/* Featured Section */}
                     <div className="lg:col-span-8 space-y-8">
-                        <div className="relative overflow-hidden rounded-[2rem] md:rounded-[2.5rem] bg-card border border-border group p-6 md:p-12">
-                            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-accent rounded-full blur-[150px] opacity-10 -mr-40 -mt-40 group-hover:opacity-20 transition-opacity"></div>
+                        <Link href="/dashboard/guide/lettuce">
+                            <div className="relative overflow-hidden rounded-[2rem] md:rounded-[2.5rem] bg-card border border-border group p-6 md:p-12 cursor-pointer">
+                                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-accent rounded-full blur-[150px] opacity-10 -mr-40 -mt-40 group-hover:opacity-20 transition-opacity"></div>
 
-                            <div className="relative z-10 flex flex-col md:flex-row items-center gap-6 md:gap-10">
-                                <div className="shrink-0 w-full md:w-64 h-48 bg-foreground/5 bg-[url('https://images.unsplash.com/photo-1558449028-b53a39d100fc?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80')] bg-cover bg-center rounded-[2rem] border border-border block relative group/vid overflow-hidden">
-                                    <div className="absolute inset-0 bg-background/40 flex items-center justify-center opacity-0 group-hover/vid:opacity-100 transition-opacity">
-                                        <div className="w-12 h-12 bg-accent text-background rounded-full flex items-center justify-center">
-                                            <Play size={20} fill="currentColor" />
+                                <div className="relative z-10 flex flex-col md:flex-row items-center gap-6 md:gap-10">
+                                    <div className="shrink-0 w-full md:w-64 h-48 bg-foreground/5 bg-[url('https://images.unsplash.com/photo-1558449028-b53a39d100fc?ixlib=rb-1.2.1&auto=format&fit=crop&w=400&q=80')] bg-cover bg-center rounded-[2rem] border border-border block relative group/vid overflow-hidden">
+                                        <div className="absolute inset-0 bg-background/40 flex items-center justify-center opacity-0 group-hover/vid:opacity-100 transition-opacity">
+                                            <div className="w-12 h-12 bg-emerald-500 text-background rounded-full flex items-center justify-center">
+                                                <div className="w-0 h-0 border-t-[8px] border-t-transparent border-l-[12px] border-l-current border-b-[8px] border-b-transparent ml-1"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="text-center md:text-left">
+                                        <span className="text-[10px] font-black text-emerald-400 uppercase tracking-[0.3em] mb-4 block">New Resource</span>
+                                        <h2 className="text-3xl md:text-4xl font-black text-foreground tracking-tight mb-4 leading-tight">Lettuce Farming Process <br className="hidden md:block" />in Cambodia</h2>
+                                        <p className="text-foreground/50 text-xs md:text-sm font-medium leading-relaxed max-w-md mb-8 mx-auto md:mx-0">Explore our detailed, bilingual guide on sustainable lettuce cultivation tailored for the Cambodian climate.</p>
+                                        <div className="flex items-center justify-center md:justify-start gap-2 group text-accent text-xs font-black uppercase tracking-widest w-full md:w-auto">
+                                            Read Full Guide <ArrowRight size={16} className="group-hover:translate-x-2 transition-transform" />
                                         </div>
                                     </div>
                                 </div>
-                                <div className="text-center md:text-left">
-                                    <span className="text-[10px] font-black text-accent uppercase tracking-[0.3em] mb-4 block">Recommended for you</span>
-                                    <h2 className="text-3xl md:text-4xl font-black text-foreground tracking-tight mb-4 leading-tight">Mastering Vertical <br className="hidden md:block" />Farm Automation</h2>
-                                    <p className="text-foreground/50 text-xs md:text-sm font-medium leading-relaxed max-w-md mb-8 mx-auto md:mx-0">Learn how to configure your sensor array for maximum ROI and minimal labor costs using our AI engine.</p>
-                                    <button className="flex items-center justify-center md:justify-start gap-2 group text-accent text-xs font-black uppercase tracking-widest w-full md:w-auto">
-                                        Watch Video Course <ArrowRight size={16} className="group-hover:translate-x-2 transition-transform" />
-                                    </button>
-                                </div>
                             </div>
-                        </div>
+                        </Link>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8">
                             {guides.map((guide) => (
-                                <div key={guide.id} className="bg-card p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border border-border hover:bg-foreground/[0.02] hover:scale-[1.02] transition-all cursor-pointer group">
-                                    <div className="flex justify-between items-start mb-6">
-                                        <div className={`p-3 md:p-4 rounded-xl ${guide.bg} ${guide.color}`}>
-                                            <guide.icon size={20} className="md:w-6 md:h-6" />
+                                <Link key={guide.id} href={guide.slug ? `/dashboard/guide/${guide.slug}` : '#'}>
+                                    <div className="h-full bg-card p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] border border-border hover:bg-foreground/[0.02] hover:scale-[1.02] transition-all cursor-pointer group">
+                                        <div className="flex justify-between items-start mb-6">
+                                            <div className={`p-3 md:p-4 rounded-xl ${guide.bg} ${guide.color}`}>
+                                                <guide.icon size={20} className="md:w-6 md:h-6" />
+                                            </div>
+                                            <span className="text-[8px] md:text-[10px] font-black text-foreground/30 uppercase tracking-widest">{guide.time}</span>
                                         </div>
-                                        <span className="text-[8px] md:text-[10px] font-black text-foreground/30 uppercase tracking-widest">{guide.time}</span>
+                                        <h3 className="text-lg md:text-xl font-bold text-foreground mb-2 group-hover:text-accent transition-colors leading-snug">{guide.title}</h3>
+                                        <p className="text-[9px] md:text-[10px] font-bold text-foreground/40 uppercase tracking-widest">{guide.category}</p>
                                     </div>
-                                    <h3 className="text-lg md:text-xl font-bold text-foreground mb-2 group-hover:text-accent transition-colors leading-snug">{guide.title}</h3>
-                                    <p className="text-[9px] md:text-[10px] font-bold text-foreground/40 uppercase tracking-widest">{guide.category}</p>
-                                </div>
+                                </Link>
                             ))}
                         </div>
                     </div>
