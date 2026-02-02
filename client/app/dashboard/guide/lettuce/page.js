@@ -1,9 +1,8 @@
 'use client'
 
-import React, { useState } from 'react'
+import React from 'react'
 import {
     ChevronLeft,
-    Globe,
     Sprout,
     Layers,
     CheckCircle2,
@@ -16,8 +15,11 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 
+import { useTranslation } from 'react-i18next'
+
 export default function LettuceGuide() {
-    const [lang, setLang] = useState('en')
+    const { i18n } = useTranslation()
+    const lang = i18n.language === 'km' ? 'kh' : 'en'
 
     const content = {
         en: {
@@ -240,14 +242,6 @@ export default function LettuceGuide() {
                         <ChevronLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
                         Back to Guides
                     </Link>
-
-                    <button
-                        onClick={() => setLang(lang === 'en' ? 'kh' : 'en')}
-                        className="flex items-center gap-2 px-4 py-2 bg-accent/10 text-accent rounded-full font-black text-xs uppercase tracking-widest hover:bg-accent hover:text-background transition-all"
-                    >
-                        <Globe size={14} />
-                        {lang === 'en' ? 'Khmer Version' : 'English Version'}
-                    </button>
                 </div>
 
                 {/* Hero Section */}
