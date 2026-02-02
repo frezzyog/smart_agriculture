@@ -145,14 +145,14 @@ class SensorDataProcessor:
         Generate human-readable recommendation
         """
         if stress_level > 70:
-            return "Immediate action required: Plant is under severe stress. Check moisture and temperature levels."
+            return "ត្រូវការសកម្មភាពជាបន្ទាន់៖ រុក្ខជាតិកំពុងស្ថិតក្នុងភាពតានតឹងខ្លាំង។ សូមពិនិត្យកម្រិតសំណើម និងសីតុណ្ហភាព។"
         elif stress_level > 50:
-            return "Warning: Plant is experiencing moderate stress. Monitor conditions closely."
+            return "ការព្រមាន៖ រុក្ខជាតិកំពុងជួបប្រទះភាពតានតឹងមធ្យម។ សូមតាមដានលក្ខខណ្ឌដោយយកចិត្តទុកដាក់។"
         elif soil_health == 'excellent':
-            return "Soil conditions are optimal. Continue current maintenance routine."
+            return "លក្ខខណ្ឌដីគឺល្អបំផុត។ បន្តការថែទាំបច្ចុប្បន្នរបស់អ្នក។"
         elif soil_health == 'good':
-            return "Soil conditions are good. Minor adjustments may improve yield."
+            return "លក្ខខណ្ឌដីគឺល្អ។ ការកែតម្រូវបន្តិចបន្តួចអាចជួយបង្កើនទិន្នផល។"
         elif soil_health == 'fair':
-            return "Soil conditions need improvement. Consider adjusting irrigation or fertilization."
+            return "លក្ខខណ្ឌដីត្រូវការការកែលម្អ។ ពិចារណាកែតម្រូវការស្រោចស្រព ឬការដាក់ជី។"
         else:
-            return "Poor soil conditions detected. Multiple interventions recommended."
+            return "រកឃើញលក្ខខណ្ឌដីមិនល្អ។ ណែនាំឱ្យមានការអន្តរាគមន៍ច្រើនយ៉ាង។"

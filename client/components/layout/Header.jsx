@@ -56,20 +56,20 @@ const Header = () => {
         }
     }
 
-    const handleTestSMS = async () => {
+    const handleTestTelegram = async () => {
         try {
             const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
-            const response = await fetch(`${apiUrl}/api/test-sms`)
+            const response = await fetch(`${apiUrl}/api/test-telegram`)
 
             if (response.ok) {
-                alert('📱 Test SMS request sent! Please check your phone.')
+                alert('📱 Test Telegram alert sent! Please check your Telegram.')
                 setIsProfileOpen(false)
             } else {
                 const errorData = await response.json()
-                alert(`❌ SMS Test Failed: ${errorData.error || 'Unknown error'}`)
+                alert(`❌ Telegram Test Failed: ${errorData.error || 'Unknown error'}`)
             }
         } catch (err) {
-            console.error('SMS Test error:', err)
+            console.error('Telegram Test error:', err)
             alert('❌ Network error connecting to backend.')
         }
     }
@@ -193,11 +193,11 @@ const Header = () => {
                             </div>
 
                             <button
-                                onClick={handleTestSMS}
+                                onClick={handleTestTelegram}
                                 className="w-full mt-2 flex items-center gap-3 p-3 hover:bg-accent/10 rounded-xl transition-all group text-accent"
                             >
                                 <Wind size={18} className="group-hover:animate-bounce" />
-                                <span className="text-sm font-extrabold uppercase tracking-wider">Test SMS</span>
+                                <span className="text-sm font-extrabold uppercase tracking-wider">Test Telegram</span>
                             </button>
 
                             <button

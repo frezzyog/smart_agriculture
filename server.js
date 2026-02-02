@@ -281,7 +281,7 @@ async function saveSensorData(deviceId, data) {
             // Send ONE combined SMS for all alerts if no pump action was triggered
             // (If pump was triggered, a separate specific SMS is sent later)
             if (smsSummaries.length > 0 && !aiAnalysis.recommendAction) {
-                const combinedMsg = `<b>🌾 SmartAg Alert</b>\n\n${smsSummaries.map(s => `• ${s}`).join('\n')}\n\nPlease check your dashboard for details.`
+                const combinedMsg = `<b>🌾 ដំណឹងពី SmartAg</b>\n\n${smsSummaries.map(s => `• ${s}`).join('\n')}\n\nសូមពិនិត្យមើលផ្ទាំងគ្រប់គ្រងរបស់អ្នកសម្រាប់ព័ត៌មានលម្អិត។`
                 await sendTelegramAlert(combinedMsg);
             }
 
@@ -316,9 +316,9 @@ async function saveSensorData(deviceId, data) {
             })
 
             if (hasTelegram) {
-                const actionType = command.type || 'WATER'
+                const actionType = command.type === 'WATER' ? 'ទឹក' : 'ជី'
                 const durationMinutes = Math.round((command.duration || 0) / 60)
-                const telegramMsg = `<b>🌾 SmartAg Alert</b>\n\nSoil is dry (<b>${data.moisture}%</b>). AI triggered the <b>${actionType}</b> pump for <b>${durationMinutes}</b> mins.`
+                const telegramMsg = `<b>🌾 ដំណឹងពី SmartAg</b>\n\nដីស្ងួតពេកហើយ (<b>${data.moisture}%</b>)។ AI បានបើកម៉ាស៊ីនបូម<b>${actionType}</b> ក្នុងរយៈពេល <b>${durationMinutes}</b> នាទី។`
 
                 await sendTelegramAlert(telegramMsg)
             }
@@ -772,7 +772,7 @@ app.post('/api/auth/register', async (req, res) => {
 
         // 2. Send Welcome Telegram Alert
         if (hasTelegram) {
-            const welcomeMsg = `<b>🍀 Welcome to Smart Agriculture 4.0, ${name}!</b>\n\nYour account is now linked to our AI alerting system. We will notify you here if your soil needs attention. Happy farming!`
+            const welcomeMsg = `<b>🍀 សូមស្វាគមន៍មកកាន់ Smart Agriculture 4.0, ${name}!</b>\n\nគណនីរបស់អ្នកត្រូវបានភ្ជាប់ទៅប្រព័ន្ធជូនដំណឹង AI របស់យើងហើយ។ យើងនឹងជូនដំណឹងអ្នកនៅទីនេះ ប្រសិនបើដីរបស់អ្នកត្រូវការការយកចិត្តទុកដាក់។ រីករាយនឹងការធ្វើកសិកម្ម!`
             await sendTelegramAlert(welcomeMsg)
         }
 
@@ -810,36 +810,25 @@ app.post('/api/sensors/simulate', async (req, res) => {
     }
 });
 
-// Test SMS endpoint
-app.get('/api/test-sms', async (req, res) => {
+// Test Telegram endpoint
+app.get('/api/test-telegram', async (req, res) => {
     try {
-        const testPhone = process.env.MY_PHONE_NUMBER;
-        const message = "🧪 This is a test SMS from your Smart Agriculture system. If you receive this, your Twilio configuration is working!";
+        const message = "<b>🧪 សាកល្បង SmartAg</b>\n\nនេះគឺជាការសាកល្បងផ្ញើសារពីផ្ទាំងគ្រប់គ្រងរបស់អ្នក។ ប្រព័ន្ធ Telegram របស់អ្នកដំណើរការយ៉ាងល្អឥតខ្ចោះ!";
 
-        console.log(`🧪 Testing SMS to: ${testPhone}`);
+        console.log(`🧪 Testing Telegram Alert...`);
 
-        if (!smsClient) {
-            let reason = 'Unknown initialization failure.'
-            if (!process.env.TWILIO_ACCOUNT_SID) reason = 'TWILIO_ACCOUNT_SID is missing from environment variables (.env).'
-            else if (process.env.TWILIO_ACCOUNT_SID.includes('xxx')) reason = 'TWILIO_ACCOUNT_SID still has the "xxx" placeholder.'
-            else if (!process.env.TWILIO_AUTH_TOKEN) reason = 'TWILIO_AUTH_TOKEN is missing.'
-            else if (process.env.TWILIO_AUTH_TOKEN.includes('xxx')) reason = 'TWILIO_AUTH_TOKEN still has the "xxx" placeholder.'
-
+        if (!hasTelegram) {
             return res.status(400).json({
                 success: false,
-                error: `SMS Client not initialized. ${reason}`
+                error: `Telegram Bot not initialized. Please check your TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID in .env`
             });
         }
 
-        await smsClient.messages.create({
-            body: message,
-            from: process.env.TWILIO_PHONE_NUMBER,
-            to: testPhone
-        });
+        await sendTelegramAlert(message);
 
-        res.json({ success: true, message: `Test SMS sent to ${testPhone}` });
+        res.json({ success: true, message: `Test Telegram alert sent!` });
     } catch (error) {
-        console.error('❌ Test SMS Error:', error.message);
+        console.error('❌ Test Telegram Error:', error.message);
         res.status(500).json({ success: false, error: error.message });
     }
 });

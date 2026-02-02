@@ -314,8 +314,8 @@ async def interpret_sensor_data(request: InterpretRequest):
                 alerts.append({
                     "severity": "INFO",
                     "type": "WEATHER_SKIP",
-                    "title": "🌧️ Rain Expected - Irrigation Postponed",
-                    "message": f"Moisture at {moisture}% but {tomorrow_rain_probability}% chance of rain tomorrow. AI postponed irrigation to conserve water."
+                    "title": "🌧️ មានភ្លៀងធ្លាក់ - ពន្យារពេលស្រោចស្រព",
+                    "message": f"សំណើមដី {moisture}% ប៉ុន្តែមានលទ្ធភាពភ្លៀងធ្លាក់ {tomorrow_rain_probability}% នៅថ្ងៃស្អែក។ AI បានពន្យារពេលស្រោចស្រពដើម្បីសន្សំសំចៃទឹក។"
                 })
                 recommend_action = False
             else:
@@ -323,8 +323,8 @@ async def interpret_sensor_data(request: InterpretRequest):
                 alerts.append({
                     "severity": "CRITICAL",
                     "type": "MOISTURE_CRITICAL" if moisture < 45 else "STRESS_CRITICAL",
-                    "title": "Critical Plant Stress" if stress_level > 80 else "Critical Soil Moisture",
-                    "message": f"Extreme stress detected at {stress_level}%" if stress_level > 80 else f"Soil moisture critically low at {moisture}%"
+                    "title": "រុក្ខជាតិមានបញ្ហាខ្លាំង" if stress_level > 80 else "កម្រិតសំណើមដីទាបខ្លាំង",
+                    "message": f"រកឃើញបញ្ហាខ្លាំងកម្រិត {stress_level}%" if stress_level > 80 else f"សំណើមដីធ្លាក់ចុះទាបខ្លាំងត្រឹម {moisture}%"
                 })
                 recommend_action = True
                 action = {"type": "irrigation", "deviceId": device_id, "command": {"type": "WATER", "status": "ON", "duration": 420}}
@@ -334,15 +334,15 @@ async def interpret_sensor_data(request: InterpretRequest):
                 alerts.append({
                     "severity": "INFO",
                     "type": "WEATHER_SKIP",
-                    "title": "🌦️ Irrigation Delayed - Rain Forecast",
-                    "message": f"Soil moisture is {moisture}%. Irrigation delayed due to {tomorrow_rain_probability}% rain probability tomorrow."
+                    "title": "🌦️ ពន្យារពេលស្រោចស្រព - មានការព្យាករណ៍ភ្លៀង",
+                    "message": f"សំណើមដីគឺ {moisture}%។ ការស្រោចស្រពត្រូវបានពន្យារពេលដោយសារមានលទ្ធភាពភ្លៀង {tomorrow_rain_probability}% នៅថ្ងៃស្អែក។"
                 })
             else:
                 alerts.append({
                     "severity": "WARNING",
                     "type": "MOISTURE_LOW",
-                    "title": "Danger: Low Soil Moisture",
-                    "message": f"Soil moisture has dropped to {moisture}%. Irrigation recommended before reaching 45%."
+                    "title": "គ្រោះថ្នាក់៖ សំណើមដីទាប",
+                    "message": f"សំណើមដីបានធ្លាក់ចុះមកត្រឹម {moisture}%។ គួរស្រោចស្រពមុនពេលវាធ្លាក់ដល់ ៤៥%។"
                 })
         
         # Add weather info to alerts if rain is expected
@@ -350,8 +350,8 @@ async def interpret_sensor_data(request: InterpretRequest):
             alerts.append({
                 "severity": "INFO",
                 "type": "WEATHER_INFO",
-                "title": f"🌧️ Rain Forecast: {tomorrow_rain_probability}%",
-                "message": f"Natural irrigation expected tomorrow. AI will optimize water usage accordingly."
+                "title": f"🌧️ ការព្យាករណ៍ភ្លៀង៖ {tomorrow_rain_probability}%",
+                "message": f"រំពឹងថានឹងមានការស្រោចស្រពតាមធម្មជាតិនៅថ្ងៃស្អែក។ AI នឹងបង្កើនប្រសិទ្ធភាពការប្រើប្រាស់ទឹក។"
             })
         
         # ============================================
@@ -361,8 +361,8 @@ async def interpret_sensor_data(request: InterpretRequest):
             alerts.append({
                 "severity": "WARNING",
                 "type": "NPK_LOW",
-                "title": "Low Nitrogen Levels",
-                "message": f"Nitrogen is {sensor_data.get('nitrogen')} ppm. Standard is 150-200 ppm."
+                "title": "កម្រិតអាសូតទាប",
+                "message": f"អាសូតគឺ {sensor_data.get('nitrogen', 0)} ppm។ កម្រិតស្តង់ដារគឺ ១៥០-២០០ ppm។"
             })
         
         # pH THRESHOLDS: 6.0 - 7.0
@@ -371,8 +371,8 @@ async def interpret_sensor_data(request: InterpretRequest):
                 alerts.append({
                     "severity": "WARNING",
                     "type": "PH_WARNING",
-                    "title": "Soil pH Alert",
-                    "message": f"Soil pH is {sensor_data['pH']}. Lettuce requires 6.0-7.0 pH to avoid nutrient lock."
+                    "title": "ការព្រមានអំពី pH ដី",
+                    "message": f"pH ដីគឺ {sensor_data['pH']}។ ស្ពៃក្តោបត្រូវការ pH ៦.០-៧.០ ដើម្បីជៀសវាងការស្ទះសារធាតុចិញ្ចឹម។"
                 })
         
         # EC THRESHOLDS: 1.2 - 1.6 dS/m (1200-1600 µS/cm)
@@ -383,8 +383,8 @@ async def interpret_sensor_data(request: InterpretRequest):
                     alerts.append({
                         "severity": "WARNING",
                         "type": "NPK_LOW",
-                        "title": "Low Nutrient Concentration (EC)",
-                        "message": f"EC is {sensor_data['ec']} µS/cm. Target is 1200-1600. Fertigation suggested."
+                        "title": "កម្រិតសារធាតុចិញ្ចឹមទាប (EC)",
+                        "message": f"EC គឺ {sensor_data['ec']} µS/cm។ គោលដៅគឺ ១២០០-១៦០០។ ណែនាំឱ្យដាក់ជី។"
                     })
                     recommend_action = True
                     action = {"type": "fertilizer", "deviceId": device_id, "command": {"type": "FERTILIZER", "status": "ON", "duration": 180}}
@@ -392,15 +392,15 @@ async def interpret_sensor_data(request: InterpretRequest):
                     alerts.append({
                         "severity": "INFO",
                         "type": "WEATHER_SKIP",
-                        "title": "Fertilization Delayed - Heavy Rain Expected",
-                        "message": f"EC low at {sensor_data['ec']} µS/cm but heavy rain ({tomorrow_rain_probability}%) would wash nutrients away."
+                        "title": "ពន្យារពេលដាក់ជី - រំពឹងថាមានភ្លៀងខ្លាំង",
+                        "message": f"EC ទាបត្រឹម {sensor_data['ec']} µS/cm ប៉ុន្តែភ្លៀងខ្លាំង ({tomorrow_rain_probability}%) នឹងលាងជម្រះសារធាតុចិញ្ចឹមអស់។"
                     })
             elif sensor_data['ec'] > 2000:
                  alerts.append({
                     "severity": "CRITICAL",
                     "type": "PH_WARNING",
-                    "title": "High Soil Salinity",
-                    "message": f"EC is {sensor_data['ec']} µS/cm. High salt level! Flush with fresh water."
+                    "title": "កម្រិតជាតិប្រៃក្នុងដីខ្ពស់",
+                    "message": f"EC គឺ {sensor_data['ec']} µS/cm។ កម្រិតជាតិអំបិលខ្ពស់! ត្រូវលាងសម្អាតដោយទឹកស្អាត។"
                 })
         
         recommendation = data_processor.generate_recommendation(
@@ -535,6 +535,8 @@ INSTRUCTIONS:
 - Reference specific Cambodian standards if relevant (MAFF, Seed Co, CARDI)
 - Suggest strategies like Rice Straw Mulch for heat or Husk Ash for pH
 - Be professional and bulleted.
+- RESPOND IN KHMER LANGUAGE IF THE QUESTION IS IN KHMER OR IF IT'S ABOUT CAMBODIAN FARMING.
+- Use polite Khmer terms (e.g., លោកកសិករ).
 
 FARMER'S QUESTION: {message}
 
