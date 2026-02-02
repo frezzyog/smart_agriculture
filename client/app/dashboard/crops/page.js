@@ -2,12 +2,14 @@
 
 import React from 'react'
 import { Sprout, Activity, TrendingUp, Scissors, Leaf, Droplets, Sun, Wind } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 export default function CropsPage() {
+    const { t } = useTranslation()
     const crops = [
-        { id: 1, name: 'Lollo Rossa Lettuce', zone: 'Zone A', stage: 'Growth', progress: 65, health: 'Optimal', icon: Leaf, color: 'text-accent' },
-        { id: 2, name: 'Bok Choy', zone: 'Zone B', stage: 'Seedling', progress: 30, health: 'Optimal', icon: Sprout, color: 'text-green-400' },
-        { id: 3, name: 'Cherry Tomatoes', zone: 'Zone C', stage: 'Harvest Ready', progress: 100, health: 'Check Required', icon: Sun, color: 'text-yellow-400' },
+        { id: 1, name: 'Lollo Rossa Lettuce', zone: 'Zone A', stage: t('crops_page.stages.growth'), progress: 65, health: t('crops_page.health_status.optimal'), icon: Leaf, color: 'text-accent' },
+        { id: 2, name: 'Bok Choy', zone: 'Zone B', stage: t('crops_page.stages.seedling'), progress: 30, health: t('crops_page.health_status.optimal'), icon: Sprout, color: 'text-green-400' },
+        { id: 3, name: 'Cherry Tomatoes', zone: 'Zone C', stage: t('crops_page.stages.harvest_ready'), progress: 100, health: t('crops_page.health_status.check'), icon: Sun, color: 'text-yellow-400' },
     ]
 
     return (
@@ -16,18 +18,18 @@ export default function CropsPage() {
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-10 gap-6">
                     <div>
                         <h1 className="text-3xl md:text-4xl font-black text-foreground tracking-tighter mb-2 flex items-center gap-3">
-                            Crop <span className="text-accent underline decoration-accent/30 decoration-4 underline-offset-8">Management</span>
+                            {t('crops_page.title')} <span className="text-accent underline decoration-accent/30 decoration-4 underline-offset-8">{t('crops_page.subtitle')}</span>
                         </h1>
-                        <p className="text-sm md:text-base text-foreground/50 font-medium">Monitor plant growth stages and biological health metrics.</p>
+                        <p className="text-sm md:text-base text-foreground/50 font-medium">{t('crops_page.description')}</p>
                     </div>
                     <div className="flex flex-col xs:flex-row gap-4 w-full sm:w-auto">
                         <button className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-foreground/5 border border-border text-foreground rounded-2xl font-bold hover:bg-foreground/10 transition-all text-xs uppercase tracking-wider">
                             <Activity size={18} />
-                            Health Scan
+                            {t('crops_page.health_scan')}
                         </button>
                         <button className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-accent text-background rounded-2xl font-bold shadow-[0_10px_30px_rgba(21,255,113,0.2)] hover:scale-[1.02] transition-all text-xs uppercase tracking-wider">
                             <Scissors size={18} />
-                            Plan Harvest
+                            {t('crops_page.plan_harvest')}
                         </button>
                     </div>
                 </div>
@@ -41,7 +43,7 @@ export default function CropsPage() {
                                 <div className={`p-4 rounded-2xl bg-foreground/5 ${crop.color}`}>
                                     <crop.icon size={28} />
                                 </div>
-                                <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider ${crop.health === 'Optimal' ? 'bg-accent/10 text-accent' : 'bg-yellow-400/10 text-yellow-400'}`}>
+                                <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider ${crop.health === t('crops_page.health_status.optimal') ? 'bg-accent/10 text-accent' : 'bg-yellow-400/10 text-yellow-400'}`}>
                                     {crop.health}
                                 </span>
                             </div>
@@ -53,7 +55,7 @@ export default function CropsPage() {
 
                             <div className="space-y-4">
                                 <div className="flex justify-between items-end text-[10px] font-bold uppercase tracking-widest text-foreground/40">
-                                    <span>Growth Progress</span>
+                                    <span>{t('crops_page.growth_progress')}</span>
                                     <span className="text-foreground">{crop.progress}%</span>
                                 </div>
                                 <div className="h-2 w-full bg-foreground/5 rounded-full overflow-hidden">
@@ -85,14 +87,13 @@ export default function CropsPage() {
                         <TrendingUp size={32} className="text-accent md:w-12 md:h-12" />
                     </div>
                     <div className="text-center md:text-left">
-                        <h3 className="text-2xl md:text-3xl font-black text-foreground mb-2">Predicted Yield: 450kg</h3>
+                        <h3 className="text-2xl md:text-3xl font-black text-foreground mb-2">{t('crops_page.predicted_yield')}: 450kg</h3>
                         <p className="text-foreground/50 text-sm md:text-base leading-relaxed max-w-xl mx-auto md:mx-0">
-                            Based on current growth rates and environmental history, your total yield for this cycle is expected to exceed the seasonal average by 12%.
-                            We recommend starting nitrogen enrichment in Zone B to maintain this momentum.
+                            {t('crops_page.yield_desc')}
                         </p>
                     </div>
                     <button className="w-full md:w-auto md:ml-auto px-8 py-4 bg-foreground/5 border border-border rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-foreground/10 transition-all text-foreground text-center">
-                        View Analytics
+                        {t('crops_page.view_analytics')}
                     </button>
                 </div>
             </div>

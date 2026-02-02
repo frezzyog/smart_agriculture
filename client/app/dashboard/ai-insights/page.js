@@ -11,6 +11,7 @@ import {
     Droplets,
     Zap
 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Card } from '@/components/ui/card'
 import PredictionChart from '@/components/dashboard/ai/PredictionChart'
 import DigitalTwinViewer from '@/components/dashboard/ai/DigitalTwinViewer'
@@ -19,6 +20,7 @@ import ReportingCard from '@/components/dashboard/ai/ReportingCard'
 import { useAIInsights } from '@/hooks/useAIInsights'
 
 const AIInsightsPage = () => {
+    const { t } = useTranslation()
     const { alerts, zones, digitalTwin, predictions, latestSensor, isLoading } = useAIInsights()
     const [selectedZone, setSelectedZone] = useState(null)
     const [stats, setStats] = useState({
@@ -65,7 +67,7 @@ const AIInsightsPage = () => {
             <div className="flex items-center justify-center h-[60vh]">
                 <div className="flex flex-col items-center gap-4 text-accent animate-pulse">
                     <Brain size={48} className="animate-bounce" />
-                    <p className="font-bold tracking-widest uppercase text-xs">AI Brain Synchronizing...</p>
+                    <p className="font-bold tracking-widest uppercase text-xs">{t('ai_insights_page.syncing')}</p>
                 </div>
             </div>
         )
@@ -83,21 +85,21 @@ const AIInsightsPage = () => {
                             <div className="p-2 bg-accent/20 rounded-lg">
                                 <Brain className="text-accent" size={24} />
                             </div>
-                            <h1 className="text-3xl font-bold text-foreground">AI Insights</h1>
+                            <h1 className="text-3xl font-bold text-foreground">{t('ai_insights_page.title')}</h1>
                         </div>
-                        <p className="text-foreground/50">Predictive analytics and smart decision support for your farm.</p>
+                        <p className="text-foreground/50">{t('ai_insights_page.description')}</p>
                     </div>
 
                     {/* Single Zone Status Indicator */}
                     <div className="flex items-center gap-4 bg-foreground/5 p-4 rounded-2xl border border-border">
                         <div className="flex flex-col">
-                            <span className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest">Active Monitoring</span>
+                            <span className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest">{t('ai_insights_page.active_monitoring')}</span>
                             <span className="text-sm font-bold text-foreground">{selectedZone?.name || 'Main Field'}</span>
                         </div>
                         <div className="h-8 w-[1px] bg-border"></div>
                         <div className="flex items-center gap-2">
                             <div className="w-2 h-2 rounded-full bg-accent animate-pulse shadow-[0_0_8px_rgba(21,255,113,0.5)]"></div>
-                            <span className="text-[11px] font-bold text-accent uppercase tracking-tighter">Live System</span>
+                            <span className="text-[11px] font-bold text-accent uppercase tracking-tighter">{t('ai_insights_page.live_system')}</span>
                         </div>
                     </div>
                 </div>
@@ -108,7 +110,7 @@ const AIInsightsPage = () => {
                         <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-all text-foreground">
                             <Brain size={60} />
                         </div>
-                        <p className="text-xs font-bold text-foreground/40 uppercase tracking-widest mb-4">Soil Health (AI)</p>
+                        <p className="text-xs font-bold text-foreground/40 uppercase tracking-widest mb-4">{t('ai_insights_page.soil_health_ai')}</p>
                         <div className="flex items-end justify-between">
                             <div>
                                 <h3 className={`text-3xl font-bold ${stats.moisture < 20 ? 'text-red-500' : stats.soilHealth === 'Excellent' ? 'text-accent' : 'text-foreground'}`}>
@@ -117,11 +119,11 @@ const AIInsightsPage = () => {
                                 <p className="text-[10px] text-foreground/50 mt-1 flex items-center gap-1">
                                     {stats.moisture < 20 ? (
                                         <>
-                                            <AlertTriangle size={10} className="text-red-500" /> Critical Level
+                                            <AlertTriangle size={10} className="text-red-500" /> {t('ai_insights_page.critical_level')}
                                         </>
                                     ) : (
                                         <>
-                                            <CheckCircle2 size={10} className="text-accent" /> Normal Range
+                                            <CheckCircle2 size={10} className="text-accent" /> {t('ai_insights_page.normal_range')}
                                         </>
                                     )}
                                 </p>
@@ -133,7 +135,7 @@ const AIInsightsPage = () => {
                     </Card>
 
                     <Card className="p-6 bg-card border-border relative overflow-hidden group hover:border-yellow-500/30 transition-all">
-                        <p className="text-xs font-bold text-foreground/40 uppercase tracking-widest mb-4">Plant Stress Level</p>
+                        <p className="text-xs font-bold text-foreground/40 uppercase tracking-widest mb-4">{t('ai_insights_page.plant_stress')}</p>
                         <div className="flex items-end justify-between">
                             <div>
                                 <h3 className="text-3xl font-bold text-foreground">{stats.stressLevel}%</h3>
@@ -148,18 +150,18 @@ const AIInsightsPage = () => {
                     </Card>
 
                     <Card className="p-6 bg-card border-border relative overflow-hidden group hover:border-blue-500/30 transition-all">
-                        <p className="text-xs font-bold text-foreground/40 uppercase tracking-widest mb-4">Evaporation Rate</p>
+                        <p className="text-xs font-bold text-foreground/40 uppercase tracking-widest mb-4">{t('ai_insights_page.evaporation_rate')}</p>
                         <div className="flex items-end justify-between">
                             <div>
                                 <h3 className="text-3xl font-bold text-foreground">{stats.moistureLoss}</h3>
-                                <p className="text-[10px] text-foreground/50 mt-1 font-medium">Percent / hour</p>
+                                <p className="text-[10px] text-foreground/50 mt-1 font-medium">{t('ai_insights_page.percent_hour')}</p>
                             </div>
                             <TrendingDown className="text-blue-500 mb-2" size={24} />
                         </div>
                     </Card>
 
                     <Card className="p-6 bg-card border-border relative overflow-hidden group hover:border-emerald-500/30 transition-all">
-                        <p className="text-xs font-bold text-foreground/40 uppercase tracking-widest mb-4">EC (MS/CM)</p>
+                        <p className="text-xs font-bold text-foreground/40 uppercase tracking-widest mb-4">{t('ai_insights_page.ec')}</p>
                         <div className="flex items-end justify-between">
                             <div>
                                 <h3 className={`text-3xl font-bold ${stats.moisture < 20 ? 'text-red-500' : 'text-foreground'}`}>
@@ -167,7 +169,7 @@ const AIInsightsPage = () => {
                                 </h3>
                                 <p className="text-[10px] text-foreground/50 mt-1 font-medium flex items-center gap-1">
                                     <span className={`w-1.5 h-1.5 rounded-full ${stats.moisture < 20 ? 'bg-red-500' : 'bg-accent'}`}></span>
-                                    {stats.moisture < 20 ? 'Critical (No Water)' : 'Optimal Range'}
+                                    {stats.moisture < 20 ? t('ai_insights_page.critical_no_water') : t('ai_insights_page.optimal_range')}
                                 </p>
                             </div>
                             {stats.moisture < 20 ? (
@@ -182,12 +184,12 @@ const AIInsightsPage = () => {
                         <div className="absolute top-0 right-0 p-4 opacity-10">
                             <Droplets size={60} className="text-background" />
                         </div>
-                        <p className="text-xs font-bold text-background/60 uppercase tracking-widest mb-4 font-black">AI Recommendation</p>
+                        <p className="text-xs font-bold text-background/60 uppercase tracking-widest mb-4 font-black">{t('ai_insights_page.ai_recommendation')}</p>
                         <div className="flex items-end justify-between">
                             <div>
-                                <h3 className="text-2xl font-black text-background leading-tight">Next Cycle in {stats.nextIrrigation}</h3>
+                                <h3 className="text-2xl font-black text-background leading-tight">{t('ai_insights_page.next_cycle')} {stats.nextIrrigation}</h3>
                                 <p className="text-[10px] text-background/60 mt-2 flex items-center gap-1 font-black uppercase">
-                                    <CheckCircle2 size={10} /> Model Optimized
+                                    <CheckCircle2 size={10} /> {t('ai_insights_page.model_optimized')}
                                 </p>
                             </div>
                         </div>
@@ -201,15 +203,15 @@ const AIInsightsPage = () => {
                         <div className="flex items-center justify-between mb-8">
                             <div>
                                 <div className="flex items-center gap-2">
-                                    <h2 className="text-xl font-bold text-foreground">Moisture Prediction (7 Days)</h2>
-                                    <span className="px-2 py-0.5 bg-accent/10 text-accent text-[9px] font-black uppercase rounded-md border border-accent/20">Proactive</span>
+                                    <h2 className="text-xl font-bold text-foreground">{t('ai_insights_page.moisture_prediction')}</h2>
+                                    <span className="px-2 py-0.5 bg-accent/10 text-accent text-[9px] font-black uppercase rounded-md border border-accent/20">{t('ai_insights_page.proactive')}</span>
                                 </div>
                                 <p className="text-xs text-foreground/50 mt-1">Deep learning forecast tailored to {selectedZone?.name || 'Active Zone'}</p>
                             </div>
                             <div className="flex gap-2">
                                 <div className="flex items-center gap-2 px-3 py-1.5 bg-foreground/5 rounded-lg border border-border">
                                     <div className="w-2 h-2 rounded-full bg-accent shadow-[0_0_8px_rgba(21,255,113,0.5)]"></div>
-                                    <span className="text-[10px] text-foreground/40 font-bold uppercase tracking-wider">AI Predicted</span>
+                                    <span className="text-[10px] text-foreground/40 font-bold uppercase tracking-wider">{t('ai_insights_page.ai_predicted')}</span>
                                 </div>
                             </div>
                         </div>
@@ -239,13 +241,13 @@ const AIInsightsPage = () => {
                                 <AlertTriangle size={20} />
                             </div>
                             <div>
-                                <h2 className="text-xl font-bold text-foreground">Security & Smart Alerts</h2>
-                                <p className="text-xs text-foreground/50">Real-time incident detection via machine learning</p>
+                                <h2 className="text-xl font-bold text-foreground">{t('ai_insights_page.security_alerts')}</h2>
+                                <p className="text-xs text-foreground/50">{t('ai_insights_page.real_time_detection')}</p>
                             </div>
                         </div>
                         {unreadAlertsCount > 0 && (
                             <div className="px-3 py-1 bg-red-500/10 text-red-500 text-[10px] font-black rounded-lg border border-red-500/20 uppercase tracking-widest">
-                                {unreadAlertsCount} New Alerts
+                                {unreadAlertsCount} {t('ai_insights_page.new_alerts')}
                             </div>
                         )}
                     </div>
@@ -276,7 +278,7 @@ const AIInsightsPage = () => {
                                             {new Date(alert.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                         </span>
                                         <button className="text-[9px] text-accent font-black uppercase tracking-tighter opacity-0 group-hover/alert:opacity-100 transition-all hover:underline">
-                                            Details
+                                            {t('ai_insights_page.details')}
                                         </button>
                                     </div>
                                 </div>
@@ -284,8 +286,8 @@ const AIInsightsPage = () => {
                         ) : (
                             <div className="col-span-2 py-12 flex flex-col items-center justify-center bg-foreground/[0.02] rounded-3xl border border-dashed border-border px-4">
                                 <CheckCircle2 size={32} className="text-accent/40 mb-3" />
-                                <p className="text-sm font-bold text-foreground/40 uppercase tracking-widest text-center">No Active Incidents Detected</p>
-                                <p className="text-[10px] text-foreground/30 mt-1 text-center">Smart Monitor is scanning your farm for anomalies</p>
+                                <p className="text-sm font-bold text-foreground/40 uppercase tracking-widest text-center">{t('ai_insights_page.no_incidents')}</p>
+                                <p className="text-[10px] text-foreground/30 mt-1 text-center">{t('ai_insights_page.scanning_anomalies')}</p>
                             </div>
                         )}
                     </div>

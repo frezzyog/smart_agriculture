@@ -15,8 +15,10 @@ import {
     ArrowDownLeft
 } from 'lucide-react'
 import { getIrrigationLogs } from '@/lib/api'
+import { useTranslation } from 'react-i18next'
 
 export default function IrrigationLogsPage() {
+    const { t, i18n } = useTranslation()
     const [logs, setLogs] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
@@ -62,16 +64,16 @@ export default function IrrigationLogsPage() {
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6">
                     <div>
                         <h1 className="text-3xl md:text-4xl font-black text-foreground tracking-tighter mb-2 flex items-center gap-3">
-                            Irrigation <span className="text-accent underline decoration-accent/30 decoration-4 underline-offset-8">Logs</span>
+                            {t('irrigation_page.title')} <span className="text-accent underline decoration-accent/30 decoration-4 underline-offset-8">{t('irrigation_page.subtitle')}</span>
                         </h1>
-                        <p className="text-sm md:text-base text-foreground/50 font-medium">Historical data of all watering events and water consumption.</p>
+                        <p className="text-sm md:text-base text-foreground/50 font-medium">{t('irrigation_page.description')}</p>
                     </div>
                     <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
                         <div className="relative flex-1 sm:flex-none">
                             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/30" />
                             <input
                                 type="text"
-                                placeholder="Search logs..."
+                                placeholder={t('irrigation_page.search_placeholder')}
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 className="w-full sm:w-64 pl-10 pr-4 py-2.5 bg-foreground/5 border border-border rounded-xl text-xs font-bold focus:outline-none focus:border-accent/40"
@@ -79,7 +81,7 @@ export default function IrrigationLogsPage() {
                         </div>
                         <button className="flex items-center justify-center gap-2 px-6 py-2.5 bg-accent text-background rounded-xl font-bold shadow-[0_10px_30px_rgba(21,255,113,0.2)] hover:scale-[1.02] transition-all text-xs uppercase tracking-wider">
                             <Download size={16} />
-                            Export CSV
+                            {t('irrigation_page.export_csv')}
                         </button>
                     </div>
                 </div>
@@ -87,10 +89,10 @@ export default function IrrigationLogsPage() {
                 {/* Stats Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
                     {[
-                        { label: 'Total Events', val: stats.totalEvents, sub: 'All recorded actions', icon: History, col: 'text-accent' },
-                        { label: 'Avg. Duration', val: `${stats.avgDuration}s`, sub: 'Per session', icon: Clock, col: 'text-blue-400' },
-                        { label: 'AI Triggered', val: stats.recentAuto, sub: 'Automated cycles', icon: Droplets, col: 'text-purple-400' },
-                        { label: 'System Health', val: stats.successRate, sub: 'Execution reliability', icon: CheckCircle2, col: 'text-accent' }
+                        { label: t('irrigation_page.total_events'), val: stats.totalEvents, sub: t('irrigation_page.all_recorded'), icon: History, col: 'text-accent' },
+                        { label: t('irrigation_page.avg_duration'), val: `${stats.avgDuration}s`, sub: t('irrigation_page.per_session'), icon: Clock, col: 'text-blue-400' },
+                        { label: t('irrigation_page.ai_triggered'), val: stats.recentAuto, sub: t('irrigation_page.automated_cycles'), icon: Droplets, col: 'text-purple-400' },
+                        { label: t('irrigation_page.system_health'), val: stats.successRate, sub: t('irrigation_page.execution_reliability'), icon: CheckCircle2, col: 'text-accent' }
                     ].map((card, i) => (
                         <div key={i} className="bg-card p-6 md:p-8 rounded-[2rem] border border-border relative overflow-hidden group">
                             <div className="flex justify-between items-start mb-4">
@@ -110,7 +112,7 @@ export default function IrrigationLogsPage() {
                     <div className="p-6 md:p-8 border-b border-border flex items-center justify-between">
                         <h3 className="text-lg md:text-xl font-bold flex items-center gap-3 text-foreground">
                             <History size={22} className="text-accent" />
-                            Activity Logs
+                            {t('irrigation_page.activity_logs')}
                         </h3>
                         {loading && <Loader2 size={18} className="animate-spin text-accent" />}
                     </div>
@@ -119,18 +121,18 @@ export default function IrrigationLogsPage() {
                         <div className="p-20 flex flex-col items-center justify-center gap-4 text-center">
                             <AlertTriangle size={48} className="text-red-500/50" />
                             <p className="text-foreground/50 font-bold uppercase tracking-widest text-xs">{error}</p>
-                            <button onClick={fetchLogs} className="px-6 py-2 bg-foreground/5 rounded-lg text-[10px] font-black uppercase hover:bg-foreground/10">Retry</button>
+                            <button onClick={fetchLogs} className="px-6 py-2 bg-foreground/5 rounded-lg text-[10px] font-black uppercase hover:bg-foreground/10">{t('irrigation_page.retry')}</button>
                         </div>
                     ) : (
                         <div className="w-full overflow-x-auto">
                             <table className="w-full text-left">
                                 <thead className="bg-foreground/[0.02] border-b border-border">
                                     <tr>
-                                        <th className="p-5 md:p-8 text-[10px] font-black text-foreground/40 uppercase tracking-widest min-w-[150px]">Date / Time</th>
-                                        <th className="p-5 md:p-8 text-[10px] font-black text-foreground/40 uppercase tracking-widest min-w-[150px]">Device / Zone</th>
-                                        <th className="p-5 md:p-8 text-[10px] font-black text-foreground/40 uppercase tracking-widest">Duration</th>
-                                        <th className="p-5 md:p-8 text-[10px] font-black text-foreground/40 uppercase tracking-widest">Trigger</th>
-                                        <th className="p-5 md:p-8 text-[10px] font-black text-foreground/40 uppercase tracking-widest">Action</th>
+                                        <th className="p-5 md:p-8 text-[10px] font-black text-foreground/40 uppercase tracking-widest min-w-[150px]">{t('irrigation_page.table.date_time')}</th>
+                                        <th className="p-5 md:p-8 text-[10px] font-black text-foreground/40 uppercase tracking-widest min-w-[150px]">{t('irrigation_page.table.device_zone')}</th>
+                                        <th className="p-5 md:p-8 text-[10px] font-black text-foreground/40 uppercase tracking-widest">{t('irrigation_page.table.duration')}</th>
+                                        <th className="p-5 md:p-8 text-[10px] font-black text-foreground/40 uppercase tracking-widest">{t('irrigation_page.table.trigger')}</th>
+                                        <th className="p-5 md:p-8 text-[10px] font-black text-foreground/40 uppercase tracking-widest">{t('irrigation_page.table.action')}</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-border">
@@ -149,10 +151,10 @@ export default function IrrigationLogsPage() {
                                             <tr key={log.id} className="hover:bg-foreground/[0.01] transition-colors group">
                                                 <td className="p-5 md:p-8 whitespace-nowrap">
                                                     <div className="font-bold text-foreground text-sm md:text-base">
-                                                        {new Date(log.timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                                                        {new Date(log.timestamp).toLocaleDateString(i18n.language === 'km' ? 'km-KH' : undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                                                     </div>
                                                     <div className="text-[10px] md:text-xs text-foreground/40 mt-1 font-medium">
-                                                        {new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                        {new Date(log.timestamp).toLocaleTimeString(i18n.language === 'km' ? 'km-KH' : [], { hour: '2-digit', minute: '2-digit' })}
                                                     </div>
                                                 </td>
                                                 <td className="p-5 md:p-8 whitespace-nowrap">
@@ -191,7 +193,7 @@ export default function IrrigationLogsPage() {
                                             <td colSpan="5" className="p-20 text-center">
                                                 <div className="flex flex-col items-center gap-3">
                                                     <History size={40} className="text-foreground/10" />
-                                                    <p className="text-foreground/30 font-bold uppercase tracking-widest text-[10px]">No logs found</p>
+                                                    <p className="text-foreground/30 font-bold uppercase tracking-widest text-[10px]">{t('irrigation_page.no_logs')}</p>
                                                 </div>
                                             </td>
                                         </tr>

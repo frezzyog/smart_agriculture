@@ -5,8 +5,10 @@ import React from 'react'
 import { DollarSign, Plus, ArrowUpRight, ArrowDownLeft, Receipt, ShoppingCart, Wrench, Sprout, Loader2 } from 'lucide-react'
 import { getExpenses } from '@/lib/api'
 import AddTransactionModal from '@/components/expenses/AddTransactionModal'
+import { useTranslation } from 'react-i18next'
 
 export default function ExpensesPage() {
+    const { t } = useTranslation()
     const [expenses, setExpenses] = React.useState([])
     const [loading, setLoading] = React.useState(true)
     const [isModalOpen, setIsModalOpen] = React.useState(false)
@@ -56,24 +58,24 @@ export default function ExpensesPage() {
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-10 gap-6">
                     <div>
                         <h1 className="text-3xl md:text-4xl font-black text-foreground tracking-tighter mb-2 flex items-center gap-3">
-                            Farm <span className="text-accent underline decoration-accent/30 decoration-4 underline-offset-8">Expenses</span>
+                            {t('expenses_page.title')} <span className="text-accent underline decoration-accent/30 decoration-4 underline-offset-8">{t('expenses_page.subtitle')}</span>
                         </h1>
-                        <p className="text-sm md:text-base text-foreground/50 font-medium">Track your agricultural investments and ROI.</p>
+                        <p className="text-sm md:text-base text-foreground/50 font-medium">{t('expenses_page.description')}</p>
                     </div>
                     <button
                         onClick={() => setIsModalOpen(true)}
                         className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-accent text-background rounded-2xl font-bold shadow-[0_10px_30px_rgba(21,255,113,0.2)] hover:scale-[1.02] transition-all text-xs uppercase tracking-wider"
                     >
                         <Plus size={18} />
-                        Add Transaction
+                        {t('expenses_page.add_transaction')}
                     </button>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 mb-10">
                     {[
-                        { label: 'Total Balance', val: `$${totalBalance.toLocaleString()}`, sub: '+12% from last month', icon: DollarSign, col: 'text-accent' },
-                        { label: 'Monthly Spend', val: `$${monthlySpend.toLocaleString()}`, sub: 'Calculated this month', icon: ArrowUpRight, col: 'text-red-400' },
-                        { label: 'Projected ROI', val: '24%', sub: 'Based on current yield', icon: ArrowDownLeft, col: 'text-blue-400' }
+                        { label: t('expenses_page.total_balance'), val: `$${totalBalance.toLocaleString()}`, sub: `+12% ${t('expenses_page.from_last_month')}`, icon: DollarSign, col: 'text-accent' },
+                        { label: t('expenses_page.monthly_spend'), val: `$${monthlySpend.toLocaleString()}`, sub: t('expenses_page.calculated_this_month'), icon: ArrowUpRight, col: 'text-red-400' },
+                        { label: t('expenses_page.projected_roi'), val: '24%', sub: t('expenses_page.based_on_yield'), icon: ArrowDownLeft, col: 'text-blue-400' }
                     ].map((card, i) => (
                         <div key={i} className="bg-card p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] border border-border shadow-xl backdrop-blur-md">
                             <div className="flex justify-between items-start mb-6">
@@ -92,9 +94,9 @@ export default function ExpensesPage() {
                     <div className="p-8 border-b border-border flex justify-between items-center bg-foreground/[0.02]">
                         <h3 className="text-xl font-bold flex items-center gap-3 text-foreground">
                             <Receipt size={20} className="text-accent" />
-                            Recent Transactions
+                            {t('expenses_page.recent_transactions')}
                         </h3>
-                        <button className="text-xs font-bold text-foreground/40 uppercase tracking-widest hover:text-foreground transition-colors">View All</button>
+                        <button className="text-xs font-bold text-foreground/40 uppercase tracking-widest hover:text-foreground transition-colors">{t('expenses_page.view_all')}</button>
                     </div>
                     <div className="divide-y divide-border">
                         {loading ? (
@@ -112,7 +114,7 @@ export default function ExpensesPage() {
                                             </div>
                                             <div className="overflow-hidden">
                                                 <h4 className="font-bold text-base md:text-lg text-foreground truncate">{t.title}</h4>
-                                                <p className="text-xs md:text-sm text-foreground/50 font-medium truncate">{t.category} • {new Date(t.date).toLocaleDateString()}</p>
+                                                <p className="text-xs md:text-sm text-foreground/50 font-medium truncate">{t(`expenses_page.categories.${t.category.toLowerCase()}`)} • {new Date(t.date).toLocaleDateString()}</p>
                                             </div>
                                         </div>
                                         <div className={`text-lg md:text-xl font-black tracking-tight shrink-0 ${t.amount > 0 ? 'text-accent' : 'text-foreground'}`}>
@@ -123,7 +125,7 @@ export default function ExpensesPage() {
                             })
                         ) : (
                             <div className="p-20 text-center text-foreground/50 font-medium">
-                                No transactions found. Click "Add Transaction" to get started.
+                                {t('expenses_page.no_transactions')}
                             </div>
                         )}
                     </div>

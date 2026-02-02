@@ -5,8 +5,10 @@ import { Dialog, Transition } from '@headlessui/react'
 import { X, DollarSign, Tag, Calendar, FileText, Loader2 } from 'lucide-react'
 import { createExpense } from '@/lib/api'
 import { toast } from 'react-hot-toast'
+import { useTranslation } from 'react-i18next'
 
 const AddTransactionModal = ({ isOpen, onClose, onSuccess }) => {
+    const { t } = useTranslation()
     const [loading, setLoading] = useState(false)
     const [formData, setFormData] = useState({
         title: '',
@@ -34,7 +36,7 @@ const AddTransactionModal = ({ isOpen, onClose, onSuccess }) => {
                 date: new Date(formData.date).toISOString()
             })
 
-            toast.success('Transaction added successfully')
+            toast.success(t('expenses_page.modal.success'))
             onSuccess()
             onClose()
             setFormData({
@@ -45,7 +47,7 @@ const AddTransactionModal = ({ isOpen, onClose, onSuccess }) => {
             })
         } catch (error) {
             console.error('Error adding transaction:', error)
-            toast.error(error.message || 'Failed to add transaction')
+            toast.error(error.message || t('expenses_page.modal.error'))
         } finally {
             setLoading(false)
         }
@@ -80,7 +82,7 @@ const AddTransactionModal = ({ isOpen, onClose, onSuccess }) => {
                             <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-[2.5rem] bg-card border border-border p-8 text-left align-middle shadow-2xl transition-all">
                                 <div className="flex justify-between items-center mb-6">
                                     <Dialog.Title as="h3" className="text-2xl font-black text-foreground tracking-tight">
-                                        Add <span className="text-accent underline decoration-accent/30 decoration-4 underline-offset-4">Transaction</span>
+                                        {t('expenses_page.modal.title')} <span className="text-accent underline decoration-accent/30 decoration-4 underline-offset-4">{t('expenses_page.modal.subtitle')}</span>
                                     </Dialog.Title>
                                     <button onClick={onClose} className="text-foreground/40 hover:text-foreground transition-colors">
                                         <X size={24} />
@@ -90,7 +92,7 @@ const AddTransactionModal = ({ isOpen, onClose, onSuccess }) => {
                                 <form onSubmit={handleSubmit} className="space-y-6">
                                     {/* Title */}
                                     <div>
-                                        <label className="block text-[10px] font-bold text-foreground/40 uppercase tracking-widest mb-2">Item Name</label>
+                                        <label className="block text-[10px] font-bold text-foreground/40 uppercase tracking-widest mb-2">{t('expenses_page.modal.item_name')}</label>
                                         <div className="relative">
                                             <FileText className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground/40 pointer-events-none" size={18} />
                                             <input
@@ -99,7 +101,7 @@ const AddTransactionModal = ({ isOpen, onClose, onSuccess }) => {
                                                 value={formData.title}
                                                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                                                 className="w-full bg-foreground/5 border border-border rounded-2xl py-4 pl-12 pr-4 text-foreground placeholder:text-foreground/20 focus:outline-none focus:border-accent/50 transition-all font-medium"
-                                                placeholder="e.g. NPK Fertilizer"
+                                                placeholder={t('expenses_page.modal.placeholder_item')}
                                             />
                                         </div>
                                     </div>
@@ -107,7 +109,7 @@ const AddTransactionModal = ({ isOpen, onClose, onSuccess }) => {
                                     {/* Category & Amount */}
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
-                                            <label className="block text-[10px] font-bold text-foreground/40 uppercase tracking-widest mb-2">Category</label>
+                                            <label className="block text-[10px] font-bold text-foreground/40 uppercase tracking-widest mb-2">{t('expenses_page.modal.category')}</label>
                                             <div className="relative">
                                                 <Tag className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground/40 pointer-events-none" size={18} />
                                                 <select
@@ -116,13 +118,13 @@ const AddTransactionModal = ({ isOpen, onClose, onSuccess }) => {
                                                     className="w-full bg-foreground/5 border border-border rounded-2xl py-4 pl-12 pr-4 text-foreground appearance-none focus:outline-none focus:border-accent/50 transition-all font-medium cursor-pointer"
                                                 >
                                                     {categories.map(cat => (
-                                                        <option key={cat} value={cat} className="bg-card text-foreground">{cat}</option>
+                                                        <option key={cat} value={cat} className="bg-card text-foreground">{t(`expenses_page.categories.${cat.toLowerCase()}`)}</option>
                                                     ))}
                                                 </select>
                                             </div>
                                         </div>
                                         <div>
-                                            <label className="block text-[10px] font-bold text-foreground/40 uppercase tracking-widest mb-2">Amount</label>
+                                            <label className="block text-[10px] font-bold text-foreground/40 uppercase tracking-widest mb-2">{t('expenses_page.modal.amount')}</label>
                                             <div className="relative">
                                                 <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground/40 pointer-events-none" size={18} />
                                                 <input
@@ -140,7 +142,7 @@ const AddTransactionModal = ({ isOpen, onClose, onSuccess }) => {
 
                                     {/* Date */}
                                     <div>
-                                        <label className="block text-[10px] font-bold text-foreground/40 uppercase tracking-widest mb-2">Transaction Date</label>
+                                        <label className="block text-[10px] font-bold text-foreground/40 uppercase tracking-widest mb-2">{t('expenses_page.modal.date')}</label>
                                         <div className="relative">
                                             <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground/40 pointer-events-none" size={18} />
                                             <input
@@ -169,7 +171,7 @@ const AddTransactionModal = ({ isOpen, onClose, onSuccess }) => {
                                             <Loader2 size={20} className="animate-spin" />
                                         ) : (
                                             <>
-                                                Save Transaction
+                                                {t('expenses_page.modal.save')}
                                                 <X size={18} className="rotate-45 group-hover:translate-x-1 transition-transform" />
                                             </>
                                         )}

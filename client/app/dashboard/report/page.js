@@ -19,6 +19,7 @@ import {
     Search,
     Loader2
 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import {
     BarChart,
     Bar,
@@ -34,6 +35,7 @@ import {
 import { generateDashboardReport } from '@/lib/reportGenerator'
 
 export default function ReportBuilderPage() {
+    const { t } = useTranslation()
     const [frequency, setFrequency] = useState('Weekly')
     const [emails, setEmails] = useState(['marcus@field.io'])
     const [emailInput, setEmailInput] = useState('')
@@ -198,7 +200,7 @@ export default function ReportBuilderPage() {
             <div className="lg:ml-64 flex items-center justify-center min-h-screen bg-background transition-all duration-500">
                 <div className="flex flex-col items-center gap-4">
                     <Loader2 className="w-12 h-12 text-accent animate-spin" />
-                    <p className="text-gray-500 font-bold uppercase tracking-widest text-xs">Loading Farm Data...</p>
+                    <p className="text-gray-500 font-bold uppercase tracking-widest text-xs">{t('report_page.loading')}</p>
                 </div>
             </div>
         )
@@ -209,7 +211,7 @@ export default function ReportBuilderPage() {
             {/* Top Toolbar */}
             <header className="min-h-20 py-4 border-b border-border bg-sidebar/50 backdrop-blur-xl flex flex-col md:flex-row items-center justify-between px-6 md:px-10 sticky top-0 z-40 gap-4">
                 <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
-                    <h1 className="text-lg md:text-xl font-bold tracking-tight text-center sm:text-left">Custom Report Builder</h1>
+                    <h1 className="text-lg md:text-xl font-bold tracking-tight text-center sm:text-left">{t('report_page.title')}</h1>
                     <div className="hidden sm:block h-6 w-px bg-foreground/10 mx-2"></div>
                     <div className="flex items-center gap-2 bg-foreground/5 px-3 py-1.5 rounded-lg border border-border w-full sm:w-auto">
                         <Search size={14} className="text-foreground/40 shrink-0" />
@@ -230,8 +232,8 @@ export default function ReportBuilderPage() {
                 <div className="flex items-center gap-2 md:gap-4 w-full md:w-auto justify-center md:justify-end">
                     <button className="flex-1 md:flex-none flex items-center justify-center gap-2 px-3 md:px-5 py-2 md:py-2.5 bg-foreground/5 hover:bg-foreground/10 rounded-xl text-[10px] md:text-xs font-bold transition-all">
                         <Save size={14} className="md:w-4 md:h-4" />
-                        <span className="hidden xs:inline">Save Template</span>
-                        <span className="xs:hidden">Save</span>
+                        <span className="hidden xs:inline">{t('report_page.save_template')}</span>
+                        <span className="xs:hidden">{t('report_page.save')}</span>
                     </button>
                     <button
                         onClick={handleExport}
@@ -239,7 +241,7 @@ export default function ReportBuilderPage() {
                         className="flex-1 md:flex-none flex items-center justify-center gap-2 px-3 md:px-5 py-2 md:py-2.5 bg-accent text-[#020603] rounded-xl text-[10px] md:text-xs font-bold shadow-[0_10px_30px_rgba(21,255,113,0.2)] hover:scale-[1.02] transition-all disabled:opacity-50"
                     >
                         {isExporting ? <Loader2 size={14} className="animate-spin md:w-4 md:h-4" /> : <Download size={14} className="md:w-4 md:h-4" />}
-                        {isExporting ? 'Wait...' : 'Export'}
+                        {isExporting ? t('report_page.wait') : t('report_page.export')}
                     </button>
                     <div className="hidden sm:block h-8 w-px bg-foreground/10 mx-2"></div>
                     <button className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center text-foreground/40 hover:text-foreground transition-colors shrink-0">
@@ -254,10 +256,10 @@ export default function ReportBuilderPage() {
                     <div className="p-8 space-y-10">
                         {/* Report Config */}
                         <section>
-                            <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground/40 mb-6">Report Config</h2>
+                            <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground/40 mb-6">{t('report_page.config')}</h2>
                             <div className="space-y-6">
                                 <div>
-                                    <label className="text-xs font-bold text-foreground/40 block mb-3">REPORT FREQUENCY</label>
+                                    <label className="text-xs font-bold text-foreground/40 block mb-3">{t('report_page.frequency').toUpperCase()}</label>
                                     <div className="flex bg-foreground/5 p-1 rounded-xl">
                                         {['Daily', 'Weekly', 'Monthly'].map(f => (
                                             <button
@@ -265,14 +267,14 @@ export default function ReportBuilderPage() {
                                                 onClick={() => setFrequency(f)}
                                                 className={`flex-1 py-2 text-[10px] font-black uppercase tracking-wider rounded-lg transition-all ${frequency === f ? 'bg-foreground/10 text-foreground shadow-sm' : 'text-foreground/40 hover:text-foreground/60'}`}
                                             >
-                                                {f}
+                                                {t(`report_page.${f.toLowerCase()}`)}
                                             </button>
                                         ))}
                                     </div>
                                 </div>
 
                                 <div>
-                                    <label className="text-xs font-bold text-foreground/40 block mb-3">RECIPIENT EMAILS</label>
+                                    <label className="text-xs font-bold text-foreground/40 block mb-3">{t('report_page.recipients').toUpperCase()}</label>
                                     <div className="space-y-3">
                                         <div className="relative">
                                             <input
@@ -299,13 +301,13 @@ export default function ReportBuilderPage() {
 
                         {/* Data Widgets */}
                         <section>
-                            <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground/40 mb-6">Available Data</h2>
+                            <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground/40 mb-6">{t('report_page.available_data')}</h2>
                             <div className="space-y-4">
                                 {[
-                                    { label: 'Soil Health Info', value: summaryStats.soilHealth, icon: Sprout, color: 'text-accent' },
-                                    { label: 'Avg Moisture', value: `${summaryStats.avgMoisture}%`, icon: Droplets, color: 'text-blue-400' },
-                                    { label: 'Stress Level', value: `${summaryStats.stressLevel}%`, icon: Zap, color: 'text-yellow-400' },
-                                    { label: 'Total Expenses', value: `$${summaryStats.totalSpent}`, icon: LayoutGrid, color: 'text-purple-400' }
+                                    { label: t('report_page.soil_health_info'), value: summaryStats.soilHealth, icon: Sprout, color: 'text-accent' },
+                                    { label: t('report_page.avg_moisture'), value: `${summaryStats.avgMoisture}%`, icon: Droplets, color: 'text-blue-400' },
+                                    { label: t('report_page.stress_level'), value: `${summaryStats.stressLevel}%`, icon: Zap, color: 'text-yellow-400' },
+                                    { label: t('report_page.total_expenses'), value: `$${summaryStats.totalSpent}`, icon: LayoutGrid, color: 'text-purple-400' }
                                 ].map((w, i) => (
                                     <div key={i} className="bg-card p-5 rounded-2xl border border-border flex items-center justify-between group hover:bg-foreground/5 transition-colors">
                                         <div className="flex items-center gap-4">
@@ -335,16 +337,16 @@ export default function ReportBuilderPage() {
                             {/* Paper Header */}
                             <div className="flex flex-col sm:flex-row justify-between items-start mb-10 md:mb-16 relative z-10 gap-6">
                                 <div>
-                                    <h2 className="text-3xl md:text-4xl lg:text-5xl font-black tracking-tighter mb-4 text-foreground leading-none">{frequency} Crop Analysis</h2>
+                                    <h2 className="text-3xl md:text-4xl lg:text-5xl font-black tracking-tighter mb-4 text-foreground leading-none">{t(`report_page.${frequency.toLowerCase()}`)} {t('report_page.crop_analysis')}</h2>
                                     <p className="text-foreground/40 font-bold uppercase tracking-widest text-[9px] md:text-xs flex items-center flex-wrap gap-2">
-                                        REPORT ID: GS-{selectedDeviceId.split('-')[0]}-{Date.now().toString().slice(-4)}
+                                        {t('report_page.report_id').toUpperCase()}: GS-{selectedDeviceId.split('-')[0]}-{Date.now().toString().slice(-4)}
                                         <Circle size={4} className="fill-foreground/20 text-foreground/20 hidden sm:block" />
                                         {currentDeviceName} - AREA 01
                                     </p>
                                 </div>
                                 <div className="text-left sm:text-right w-full sm:w-auto mt-2 sm:mt-0 pt-4 sm:pt-0 border-t sm:border-t-0 border-border">
-                                    <div className="text-[10px] md:text-sm font-black text-accent mb-1 uppercase tracking-widest">Generated: {new Date().toLocaleDateString()}</div>
-                                    <div className="text-[8px] md:text-[10px] font-bold text-foreground/40 uppercase tracking-widest">Status: {sensorHistory.length > 0 ? 'ACTIVE' : 'NO DATA'}</div>
+                                    <div className="text-[10px] md:text-sm font-black text-accent mb-1 uppercase tracking-widest">{t('report_page.generated')}: {new Date().toLocaleDateString()}</div>
+                                    <div className="text-[8px] md:text-[10px] font-bold text-foreground/40 uppercase tracking-widest">{t('report_page.status')}: {sensorHistory.length > 0 ? t('report_page.active') : t('report_page.no_data')}</div>
                                 </div>
                             </div>
 
@@ -352,9 +354,9 @@ export default function ReportBuilderPage() {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 mb-6 md:mb-10">
                                 {/* Yield Quality Slot (Now AI Stress) */}
                                 <div className="p-6 md:p-8 border border-dashed border-border rounded-[1.5rem] md:rounded-[2rem] relative">
-                                    <div className="absolute -top-3 left-6 px-2 bg-card text-[8px] md:text-[10px] font-bold text-foreground/40 uppercase tracking-widest">AI INSIGHTS</div>
+                                    <div className="absolute -top-3 left-6 px-2 bg-card text-[8px] md:text-[10px] font-bold text-foreground/40 uppercase tracking-widest">{t('ai_insights_page.title').toUpperCase()}</div>
                                     <div className="flex justify-between items-start mb-6 md:mb-8">
-                                        <h3 className="text-lg md:text-xl font-bold text-foreground">Crop Stress <br className="hidden sm:block" />Distribution</h3>
+                                        <h3 className="text-lg md:text-xl font-bold text-foreground">{t('report_page.crop_stress_dist')}</h3>
                                         <button className="text-foreground/40 hover:text-foreground"><Info size={16} /></button>
                                     </div>
                                     <div className="flex flex-col sm:flex-row lg:flex-row items-center gap-6 md:gap-8">
@@ -365,22 +367,22 @@ export default function ReportBuilderPage() {
                                             </svg>
                                             <div className="absolute inset-0 flex flex-col items-center justify-center">
                                                 <span className="text-3xl font-black text-foreground">{100 - summaryStats.stressLevel}%</span>
-                                                <span className="text-[8px] font-black text-foreground/40 uppercase">Health</span>
+                                                <span className="text-[8px] font-black text-foreground/40 uppercase">{t('report_page.health_label')}</span>
                                             </div>
                                         </div>
                                         <div className="space-y-4">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-1.5 h-3 bg-accent rounded-full"></div>
                                                 <div>
-                                                    <div className="text-xs font-bold text-foreground">Soil Condition:</div>
+                                                    <div className="text-xs font-bold text-foreground">{t('report_page.soil_condition')}:</div>
                                                     <div className="text-[10px] text-foreground/40 font-bold uppercase">{summaryStats.soilHealth}</div>
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-3">
                                                 <div className="w-1.5 h-3 bg-blue-500 rounded-full"></div>
                                                 <div>
-                                                    <div className="text-xs font-bold text-foreground/40">Moisture:</div>
-                                                    <div className="text-[10px] text-foreground/40 font-bold">{summaryStats.avgMoisture}% (Avg)</div>
+                                                    <div className="text-xs font-bold text-foreground/40">{t('report_page.avg_moisture')}:</div>
+                                                    <div className="text-[10px] text-foreground/40 font-bold">{summaryStats.avgMoisture}% ({t('report_page.avg_label')})</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -389,9 +391,9 @@ export default function ReportBuilderPage() {
 
                                 {/* Seasonal Expenses */}
                                 <div className="p-6 md:p-8 border border-dashed border-border rounded-[1.5rem] md:rounded-[2rem] relative">
-                                    <div className="absolute -top-3 left-6 px-2 bg-card text-[8px] md:text-[10px] font-bold text-foreground/40 uppercase tracking-widest">FINANCIAL SUMMARY</div>
+                                    <div className="absolute -top-3 left-6 px-2 bg-card text-[8px] md:text-[10px] font-bold text-foreground/40 uppercase tracking-widest">{t('report_page.financial_summary').toUpperCase()}</div>
                                     <div className="flex justify-between items-start mb-6 md:mb-8">
-                                        <h3 className="text-lg md:text-xl font-bold text-foreground">Recent Expenses</h3>
+                                        <h3 className="text-lg md:text-xl font-bold text-foreground">{t('report_page.recent_expenses')}</h3>
                                         <button className="text-foreground/40 hover:text-foreground"><Info size={16} /></button>
                                     </div>
                                     <div className="space-y-4 max-h-[160px] overflow-y-auto custom-scrollbar pr-2">
@@ -399,17 +401,17 @@ export default function ReportBuilderPage() {
                                             <div key={idx} className="flex justify-between items-center bg-foreground/5 p-3 rounded-xl border border-border">
                                                 <div className="min-w-0">
                                                     <div className="text-xs font-bold text-foreground truncate">{exp.title}</div>
-                                                    <div className="text-[9px] text-foreground/40 uppercase font-black">{exp.category}</div>
+                                                    <div className="text-[9px] text-foreground/40 uppercase font-black">{t(`expenses_page.categories.${exp.category.toLowerCase()}`)}</div>
                                                 </div>
                                                 <div className="text-xs md:text-sm font-black text-accent ml-2 shrink-0">${exp.amount}</div>
                                             </div>
                                         )) : (
-                                            <p className="text-center text-foreground/20 text-[9px] md:text-[10px] font-bold py-10">NO EXPENSE DATA FOUND</p>
+                                            <p className="text-center text-foreground/20 text-[9px] md:text-[10px] font-bold py-10">{t('report_page.no_expense_data')}</p>
                                         )}
                                     </div>
                                     {expenses.length > 0 && (
                                         <div className="mt-4 pt-4 border-t border-border flex justify-between items-end">
-                                            <span className="text-[9px] md:text-xs font-bold text-foreground/40 uppercase">Total Spent</span>
+                                            <span className="text-[9px] md:text-xs font-bold text-foreground/40 uppercase">{t('report_page.total_spent')}</span>
                                             <span className="text-lg md:text-xl font-black text-foreground">${summaryStats.totalSpent}</span>
                                         </div>
                                     )}
@@ -418,20 +420,20 @@ export default function ReportBuilderPage() {
 
                             {/* Hero Chart Slot */}
                             <div className="p-6 md:p-8 border border-dashed border-border rounded-[1.5rem] md:rounded-[2rem] relative">
-                                <div className="absolute -top-3 left-6 px-2 bg-card text-[8px] md:text-[10px] font-bold text-foreground/40 uppercase tracking-widest">MOISTURE TREND vs TARGET</div>
+                                <div className="absolute -top-3 left-6 px-2 bg-card text-[8px] md:text-[10px] font-bold text-foreground/40 uppercase tracking-widest">{t('report_page.moisture_trend_target')}</div>
                                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
                                     <div>
-                                        <h3 className="text-xl md:text-2xl font-black mb-1 text-foreground">Weekly Moisture Levels</h3>
-                                        <p className="text-[9px] md:text-[10px] font-bold text-foreground/40">History tracked from the last 7 recorded data points</p>
+                                        <h3 className="text-xl md:text-2xl font-black mb-1 text-foreground">{t('report_page.weekly_moisture')}</h3>
+                                        <p className="text-[9px] md:text-[10px] font-bold text-foreground/40">{t('report_page.history_tracked')}</p>
                                     </div>
                                     <div className="flex gap-4">
                                         <div className="flex items-center gap-2">
                                             <div className="w-2 h-2 rounded-full bg-accent"></div>
-                                            <span className="text-[8px] md:text-[10px] font-black text-foreground/40 uppercase tracking-widest">Actual</span>
+                                            <span className="text-[8px] md:text-[10px] font-black text-foreground/40 uppercase tracking-widest">{t('report_page.actual')}</span>
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <div className="w-2 h-2 rounded-full bg-foreground/10"></div>
-                                            <span className="text-[8px] md:text-[10px] font-black text-foreground/40 uppercase tracking-widest">Target</span>
+                                            <span className="text-[8px] md:text-[10px] font-black text-foreground/40 uppercase tracking-widest">{t('report_page.target')}</span>
                                         </div>
                                     </div>
                                 </div>
