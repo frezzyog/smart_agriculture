@@ -360,6 +360,9 @@ async def interpret_sensor_data(request: InterpretRequest):
         # ============================================
         # NUTRIENT THRESHOLDS
         # ============================================
+        # Only recommend fertilizer if moisture is sufficient (to avoid fertilizer burn)
+        can_fertilize = moisture >= 50 and not recommend_action
+        
         if sensor_data.get('nitrogen', 200) < 130:
             alerts.append({
                 "severity": "WARNING",
@@ -381,22 +384,31 @@ async def interpret_sensor_data(request: InterpretRequest):
         # EC THRESHOLDS: 1.2 - 1.6 dS/m (1200-1600 µS/cm)
         if sensor_data.get('ec'):
             if sensor_data['ec'] < 1000:
-                # Only recommend fertilizer if not expecting heavy rain (which could wash it away)
-                if tomorrow_rain_probability < 70:
-                    alerts.append({
-                        "severity": "WARNING",
-                        "type": "NPK_LOW",
-                        "title": "កម្រិតសារធាតុចិញ្ចឹមទាប (EC)",
-                        "message": f"EC គឺ {sensor_data['ec']} µS/cm។ គោលដៅគឺ ១២០០-១៦០០។ ណែនាំឱ្យដាក់ជី។"
-                    })
-                    recommend_action = True
-                    action = {"type": "fertilizer", "deviceId": device_id, "command": {"type": "FERTILIZER", "status": "ON", "duration": 180}}
+                if can_fertilize:
+                    # Only recommend fertilizer if not expecting heavy rain (which could wash it away)
+                    if tomorrow_rain_probability < 70:
+                        alerts.append({
+                            "severity": "WARNING",
+                            "type": "NPK_LOW",
+                            "title": "កម្រិតសារធាតុចិញ្ចឹមទាប (EC)",
+                            "message": f"EC គឺ {sensor_data['ec']} µS/cm។ គោលដៅគឺ ១២០០-១៦០០។ ណែនាំឱ្យដាក់ជី។"
+                        })
+                        recommend_action = True
+                        action = {"type": "fertilizer", "deviceId": device_id, "command": {"type": "FERTILIZER", "status": "ON", "duration": 180}}
+                    else:
+                        alerts.append({
+                            "severity": "INFO",
+                            "type": "WEATHER_SKIP",
+                            "title": "ពន្យារពេលដាក់ជី - រំពឹងថាមានភ្លៀងខ្លាំង",
+                            "message": f"EC ទាបត្រឹម {sensor_data['ec']} µS/cm ប៉ុន្តែភ្លៀងខ្លាំង ({tomorrow_rain_probability}%) នឹងលាងជម្រះសារធាតុចិញ្ចឹមអស់។"
+                        })
                 else:
+                    # If dry, add warning alert but don't trigger pump (water takes priority)
                     alerts.append({
                         "severity": "INFO",
-                        "type": "WEATHER_SKIP",
-                        "title": "ពន្យារពេលដាក់ជី - រំពឹងថាមានភ្លៀងខ្លាំង",
-                        "message": f"EC ទាបត្រឹម {sensor_data['ec']} µS/cm ប៉ុន្តែភ្លៀងខ្លាំង ({tomorrow_rain_probability}%) នឹងលាងជម្រះសារធាតុចិញ្ចឹមអស់។"
+                        "type": "NPK_LOW",
+                        "title": "កម្រិតសារធាតុចិញ្ចឹមទាប (EC)",
+                        "message": f"EC ទាបត្រឹម {sensor_data['ec']} µS/cm។ ប៉ុន្តែត្រូវស្រោចទឹកជាមុនសិនដើម្បីជៀសវាងការខូចឫស។"
                     })
             elif sensor_data['ec'] > 2000:
                  alerts.append({
