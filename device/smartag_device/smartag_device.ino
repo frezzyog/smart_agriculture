@@ -22,15 +22,13 @@ const char* device_id   = "SMARTAG-001"; // Must match your dashboard ID
 // ============================================
 // 2. PIN DEFINITIONS
 // ============================================
-// RS485 Module Pins (for 7-in-1 Sensor)
-#define MAX485_DE      4    // Driver Enable (Connect to DE & RE)
-#define MAX485_RX_PIN  16   // RX2 (Connect to RO)
-#define MAX485_TX_PIN  17   // TX2 (Connect to DI)
+#define MAX485_RX_PIN  16   // RX2 (Connect to TXD on module)
+#define MAX485_TX_PIN  17   // TX2 (Connect to RXD on module)
 
 // Analog Sensors
 #define MOISTURE_PIN   34   // Analog Soil Moisture
-#define RAIN_PIN       35   // Analog Rain Sensor
-#define BATTERY_PIN    32   // Battery Voltage Monitor (New!)
+#define RAIN_PIN       32   // Analog Rain Sensor (Updated to 32)
+#define BATTERY_PIN    33   // Battery Voltage Monitor (Moved to 33)
 
 // Actuators
 #define RELAY_1_PIN    25   // Water Pump (Yellow Wire)
@@ -60,14 +58,7 @@ float val_n = 0;
 float val_p = 0;
 float val_k = 0;
 
-// RS485 Flow Control Callbacks
-void preTransmission() {
-  digitalWrite(MAX485_DE, HIGH);
-}
-
-void postTransmission() {
-  digitalWrite(MAX485_DE, LOW);
-}
+// No flow control needed for Auto-Direction MAX485 modules
 
 // ============================================
 // 4. SETUP
@@ -75,17 +66,11 @@ void postTransmission() {
 void setup() {
   Serial.begin(115200);
   
-  // Initialize RS485 Pins
-  pinMode(MAX485_DE, OUTPUT);
-  digitalWrite(MAX485_DE, LOW);
-  
   // Initialize Serial2 for RS485 Communication
   Serial2.begin(9600, SERIAL_8N1, MAX485_RX_PIN, MAX485_TX_PIN);
   
   // Initialize Modbus
   node.begin(1, Serial2); // Address 1 is default
-  node.preTransmission(preTransmission);
-  node.postTransmission(postTransmission);
 
   // Initialize Relay Pins (Default to OFF/HIGH for Active Low)
   pinMode(RELAY_1_PIN, OUTPUT);

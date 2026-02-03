@@ -326,3 +326,39 @@ If something doesn't work:
 4. Use the backup demo materials
 
 **Good luck with your presentation! 🚀**
+---
+
+## 🔌 **Final System Connection Summary**
+
+### **1️⃣ Solar & Power Flow**
+- **Solar Panel** → PV+/PV- on Controller
+- **Battery** → BAT+/BAT- on Controller (Connect Battery FIRST)
+- **ESP32 Power**: Controller USB → USB cable → ESP32 USB port (5V Safest)
+- **Sensor Rail**: ESP32 3.3V → 3.3V Rail; ESP32 GND → GND Rail
+
+### **2️⃣ Pin Assignments (ESP32)**
+| Component | ESP32 Pin | Logic |
+|-----------|-----------|-------|
+| Soil Moisture (Capacitive) | **GPIO 34** | Analog Input |
+| Rain Sensor (YL-83 AO) | **GPIO 32** | Analog Input |
+| Battery Monitoring | **GPIO 33** | Analog Input |
+| MAX485 (TXD) | **GPIO 16** | RX2 |
+| MAX485 (RXD) | **GPIO 17** | TX2 |
+| Relay IN1 (Water Pump) | **GPIO 25** | Active Low |
+| Relay IN2 (Fertilizer) | **GPIO 26** | Active Low |
+
+### **3️⃣ RS485 Wiring (JXBS-3001)**
+- **JXBS Power**: 12V+ → Battery +; 12V- → Battery -
+- **Data**: JXBS A → MAX485 A; JXBS B → MAX485 B
+- **TTL**: ESP32 TX (17) → MAX485 RXD; ESP32 RX (16) → MAX485 TXD
+
+### **4️⃣ Actuator Wiring (Pumps)**
+- **Power**: 12V+ → Relay COM
+- **Command**: Relay NO → Pump +
+- **Ground**: Pump - → Battery -
+- **Ground Rule**: ALL grounds (Battery, ESP32, Relay, RS485) MUST be tied together.
+
+---
+
+## 🧠 **One-Sentence System Explanation**
+"In the prototype system, the ESP32 is powered directly from the 5V USB output of the solar charge controller, while the battery supplies 12V loads such as pumps and industrial sensors, with the ESP32 controlling actuation based on sensor inputs."
