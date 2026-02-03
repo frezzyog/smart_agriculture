@@ -22,10 +22,10 @@ const RainSensorCard = ({ isRaining, rainValue, status }) => {
             </div>
 
             <div className="flex-1 flex flex-col justify-center items-center relative z-10">
-                <div className={`text-4xl md:text-5xl font-black tracking-tighter mb-2 ${isRaining ? 'text-blue-500' : 'text-foreground/60'}`}>
+                <div className={`text-4xl md:text-5xl font-black tracking-tighter mb-2 ${isRaining ? 'text-blue-500' : 'text-foreground/90'}`}>
                     {isRaining ? t('dashboard.raining') : t('dashboard.no_rain')}
                 </div>
-                <div className="text-xs font-bold text-foreground/30 uppercase tracking-[0.2em]">
+                <div className="text-xs font-bold text-foreground/60 uppercase tracking-[0.2em]">
                     {t('dashboard.intensity')}: {rainValue}
                 </div>
             </div>

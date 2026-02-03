@@ -24,7 +24,7 @@ const SoilSensorCard = ({ moisture, status }) => {
             <div className="flex-1 space-y-8 relative z-10">
                 <div className="bg-foreground/[0.03] rounded-3xl p-5 border border-white/5 shadow-inner">
                     <div className="flex items-end justify-between mb-1">
-                        <span className="text-xs font-bold text-foreground/30 uppercase tracking-[0.2em]">{t('dashboard.moisture_percentage')}</span>
+                        <span className="text-xs font-bold text-foreground/60 uppercase tracking-[0.2em]">{t('dashboard.moisture_percentage')}</span>
                     </div>
                     <div className="flex items-baseline gap-1">
                         <span className="text-4xl md:text-5xl font-black text-emerald-500 tracking-tighter drop-shadow-sm">{moisture}</span>
@@ -36,7 +36,7 @@ const SoilSensorCard = ({ moisture, status }) => {
             <div className="mt-8 pt-6 border-t border-border flex justify-between items-center relative z-10">
                 <div className="flex items-center gap-2">
                     <div className={`w-2 h-2 rounded-full ${status?.includes('Live') || status?.includes('ផ្ទាល់') ? 'bg-accent shadow-[0_0_10px_rgba(var(--accent-rgb),0.5)]' : 'bg-yellow-500'}`}></div>
-                    <span className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest">{status}</span>
+                    <span className="text-[10px] font-bold text-foreground/70 uppercase tracking-widest">{status}</span>
                 </div>
             </div>
         </div>

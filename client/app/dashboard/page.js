@@ -55,14 +55,14 @@ export default function DashboardPage() {
                         <h1 className="text-4xl md:text-5xl font-black text-foreground tracking-tight drop-shadow-sm flex items-center gap-3">
                             <button
                                 onClick={() => setActiveTab('soil')}
-                                className={`transition-all duration-300 ${activeTab === 'soil' ? 'text-accent underline decoration-4 decoration-accent/30 underline-offset-8' : 'text-foreground/20 hover:text-foreground/40'}`}
+                                className={`transition-all duration-300 ${activeTab === 'soil' ? 'text-accent underline decoration-4 decoration-accent/30 underline-offset-8' : 'text-foreground/40 hover:text-foreground/60'}`}
                             >
                                 {t('dashboard.soil_data')}
                             </button>
                             <span className="text-foreground/10 font-thin">/</span>
                             <button
                                 onClick={() => setActiveTab('balance')}
-                                className={`transition-all duration-300 ${activeTab === 'balance' ? 'text-emerald-500 underline decoration-4 decoration-emerald-500/30 underline-offset-8' : 'text-foreground/20 hover:text-foreground/40'}`}
+                                className={`transition-all duration-300 ${activeTab === 'balance' ? 'text-emerald-500 underline decoration-4 decoration-emerald-500/30 underline-offset-8' : 'text-foreground/40 hover:text-foreground/60'}`}
                             >
                                 {t('dashboard.balance')}
                             </button>

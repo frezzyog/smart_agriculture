@@ -36,11 +36,11 @@ const SevenInOneSensorCard = ({ nitrogen, phosphorus, potassium, pH, ec, temp, h
                     <div key={idx} className="bg-foreground/[0.03] rounded-2xl p-4 border border-white/5 flex flex-col">
                         <div className="flex items-center gap-2 mb-2">
                             <stat.icon size={14} className={`${stat.color}`} />
-                            <span className="text-[10px] font-bold text-foreground/30 uppercase tracking-widest">{stat.label}</span>
+                            <span className="text-[10px] font-bold text-foreground/60 uppercase tracking-widest">{stat.label}</span>
                         </div>
                         <div className="flex items-baseline gap-1">
                             <span className="text-xl font-black text-foreground">{stat.value}</span>
-                            <span className="text-[10px] font-bold text-foreground/40">{stat.unit}</span>
+                            <span className="text-[10px] font-bold text-foreground/70">{stat.unit}</span>
                         </div>
                     </div>
                 ))}
@@ -49,7 +49,7 @@ const SevenInOneSensorCard = ({ nitrogen, phosphorus, potassium, pH, ec, temp, h
             <div className="mt-8 pt-6 border-t border-border flex justify-between items-center relative z-10">
                 <div className="flex items-center gap-2">
                     <div className={`w-2 h-2 rounded-full ${status?.includes('Live') || status?.includes('ផ្ទាល់') ? 'bg-accent shadow-[0_0_10px_rgba(var(--accent-rgb),0.5)]' : 'bg-yellow-500'}`}></div>
-                    <span className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest">{status}</span>
+                    <span className="text-[10px] font-bold text-foreground/70 uppercase tracking-widest">{status}</span>
                 </div>
             </div>
         </div>
