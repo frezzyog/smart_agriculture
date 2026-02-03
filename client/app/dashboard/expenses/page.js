@@ -49,8 +49,9 @@ export default function ExpensesPage() {
         }
     }
 
-    const totalBalance = expenses.reduce((sum, e) => sum + e.amount, 12450)
-    const monthlySpend = Math.abs(expenses.filter(e => e.amount < 0).reduce((sum, e) => sum + e.amount, 0))
+    const expensesList = Array.isArray(expenses) ? expenses : []
+    const totalBalance = expensesList.reduce((sum, e) => sum + (e.amount || 0), 12450)
+    const monthlySpend = Math.abs(expensesList.filter(e => (e.amount || 0) < 0).reduce((sum, e) => sum + (e.amount || 0), 0))
 
     return (
         <div className="lg:ml-64 p-4 md:p-10 min-h-screen bg-background text-foreground transition-colors duration-300">
@@ -103,22 +104,22 @@ export default function ExpensesPage() {
                             <div className="p-20 flex justify-center items-center">
                                 <Loader2 className="animate-spin text-accent" size={40} />
                             </div>
-                        ) : expenses.length > 0 ? (
-                            expenses.map((t) => {
-                                const Icon = getIcon(t.category)
+                        ) : expensesList.length > 0 ? (
+                            expensesList.map((expense) => {
+                                const Icon = getIcon(expense.category)
                                 return (
-                                    <div key={t.id} className="p-5 md:p-8 flex items-center justify-between hover:bg-foreground/[0.02] transition-colors gap-4">
+                                    <div key={expense.id} className="p-5 md:p-8 flex items-center justify-between hover:bg-foreground/[0.02] transition-colors gap-4">
                                         <div className="flex items-center gap-4 md:gap-6 overflow-hidden">
-                                            <div className={`p-3 md:p-4 bg-foreground/5 rounded-xl md:rounded-2xl ${getColor(t.category)} shrink-0`}>
+                                            <div className={`p-3 md:p-4 bg-foreground/5 rounded-xl md:rounded-2xl ${getColor(expense.category)} shrink-0`}>
                                                 <Icon size={20} className="md:w-6 md:h-6" />
                                             </div>
                                             <div className="overflow-hidden">
-                                                <h4 className="font-bold text-base md:text-lg text-foreground truncate">{t.title}</h4>
-                                                <p className="text-xs md:text-sm text-foreground/50 font-medium truncate">{t(`expenses_page.categories.${t.category.toLowerCase()}`)} • {new Date(t.date).toLocaleDateString()}</p>
+                                                <h4 className="font-bold text-base md:text-lg text-foreground truncate">{expense.title || 'Untitled'}</h4>
+                                                <p className="text-xs md:text-sm text-foreground/50 font-medium truncate">{t(`expenses_page.categories.${(expense.category || 'Other').toLowerCase()}`)} • {expense.date ? new Date(expense.date).toLocaleDateString() : 'N/A'}</p>
                                             </div>
                                         </div>
-                                        <div className={`text-lg md:text-xl font-black tracking-tight shrink-0 ${t.amount > 0 ? 'text-accent' : 'text-foreground'}`}>
-                                            {t.amount > 0 ? '+' : ''}${Math.abs(t.amount).toFixed(2)}
+                                        <div className={`text-lg md:text-xl font-black tracking-tight shrink-0 ${expense.amount > 0 ? 'text-accent' : 'text-foreground'}`}>
+                                            {expense.amount > 0 ? '+' : ''}${Math.abs(expense.amount).toFixed(2)}
                                         </div>
                                     </div>
                                 )
