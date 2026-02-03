@@ -7,6 +7,53 @@ const aedes = require('aedes')()
 const { createServer } = require('net')
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 
+// Initialize Telegram-Bot
+const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN
+const hasTelegram = (TELEGRAM_BOT_TOKEN && !TELEGRAM_BOT_TOKEN.includes('xxx'))
+
+async function sendTelegramAlert(chatId, message) {
+    if (!hasTelegram || !chatId) {
+        console.log(`📝 [TELEGRAM SIMULATOR] ChatId: ${chatId}, Message: ${message}`)
+        return
+    }
+    try {
+        await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chat_id: chatId, text: message, parse_mode: 'HTML' })
+        })
+    } catch (e) {
+        console.error('❌ Telegram error:', e.message)
+    }
+}
+
+// Memory store for Telegram IDs (since this is Lite mode)
+let userTelegramMap = {} // userId -> chatId
+
+if (hasTelegram) {
+    let lastUpdateId = 0
+    async function pollTelegram() {
+        try {
+            const res = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getUpdates?offset=${lastUpdateId + 1}&timeout=30`)
+            const data = await res.json()
+            if (data.result) {
+                for (const update of data.result) {
+                    lastUpdateId = update.update_id
+                    if (update.message?.text?.startsWith('/start ')) {
+                        const userId = update.message.text.split(' ')[1]
+                        const chatId = update.message.chat.id
+                        userTelegramMap[userId] = chatId
+                        await sendTelegramAlert(chatId, `<b>✅ បានភ្ជាប់រួចរាល់!</b>\nអ្នកនឹងទទួលបានដំណឹងនៅទីនេះ។`)
+                        console.log(`🔗 Linked user ${userId} to Telegram ${chatId}`)
+                    }
+                }
+            }
+        } catch (e) { }
+        setTimeout(pollTelegram, 5000)
+    }
+    pollTelegram()
+}
+
 // Express app setup
 const app = express()
 app.use(cors())
@@ -89,6 +136,18 @@ aedes.on('publish', async (packet, client) => {
 
                         console.log(`💧 [AUTOMATION] Triggered 5min irrigation for ${deviceId} (Reason: ${data.moisture < 30 ? 'Low Moisture' : 'High AI Stress'})`)
 
+                        const alertMsg = `<b>💧 ការស្រោចស្រពស្វ័យប្រវត្តិ</b>\nប្រព័ន្ធបានបើកទឹកសម្រាប់ ${deviceId} ដោយសារសំណើមទាប (${data.moisture}%)។`
+
+                        // Send to all linked users who might own this (Lite mode sends to all linked users)
+                        Object.values(userTelegramMap).forEach(chatId => {
+                            sendTelegramAlert(chatId, alertMsg)
+                        })
+
+                        // Also send to master ADMIN_CHAT_ID
+                        if (process.env.TELEGRAM_CHAT_ID) {
+                            sendTelegramAlert(process.env.TELEGRAM_CHAT_ID, `[ADMIN] ${alertMsg}`)
+                        }
+
                         alerts.unshift({
                             id: Date.now().toString() + '_auto',
                             title: 'Automated Irrigation Started',
@@ -98,7 +157,16 @@ aedes.on('publish', async (packet, client) => {
                             isRead: false
                         })
                     } else if (aiAnalysis.stressLevel > 50) {
-                        // Just regular alert if not critical enough for auto-pump
+                        const alertMsg = `<b>⚠️ ការដាស់តឿនពី SmartAg</b>\nរុក្ខជាតិ ${deviceId} មានបញ្ហា stress ${aiAnalysis.stressLevel}%។`
+
+                        Object.values(userTelegramMap).forEach(chatId => {
+                            sendTelegramAlert(chatId, alertMsg)
+                        })
+
+                        if (process.env.TELEGRAM_CHAT_ID) {
+                            sendTelegramAlert(process.env.TELEGRAM_CHAT_ID, `[ADMIN] ${alertMsg}`)
+                        }
+
                         alerts.unshift({
                             id: Date.now().toString(),
                             title: 'High Stress Detected',

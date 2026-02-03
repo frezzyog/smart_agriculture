@@ -12,16 +12,64 @@ const crypto = require('crypto')
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args)).catch(() => global.fetch);
 
 
-// Initialize Telegram Bot
+// Initialize Telegram-Bot
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN
-const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID
 
-const hasTelegram = (TELEGRAM_BOT_TOKEN && !TELEGRAM_BOT_TOKEN.includes('xxx') && TELEGRAM_CHAT_ID && !TELEGRAM_CHAT_ID.includes('xxx'))
+const hasTelegram = (TELEGRAM_BOT_TOKEN && !TELEGRAM_BOT_TOKEN.includes('xxx'))
 
 if (hasTelegram) {
     console.log('✅ Telegram Bot Alerting initialized')
 } else {
-    console.log('⚠️ Telegram Bot in SIMULATOR mode. (Token or ChatID missing/placeholder)')
+    console.log('⚠️ Telegram Bot in SIMULATOR mode. (Token missing/placeholder)')
+}
+
+// Simple Telegram Polling for linking users
+if (hasTelegram) {
+    let lastUpdateId = 0;
+
+    async function pollTelegram() {
+        try {
+            const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getUpdates?offset=${lastUpdateId + 1}&timeout=30`;
+            const response = await fetch(url);
+            if (!response.ok) return;
+
+            const data = await response.json();
+            if (data.result && data.result.length > 0) {
+                for (const update of data.result) {
+                    lastUpdateId = update.update_id;
+                    if (update.message && update.message.text) {
+                        const text = update.message.text;
+                        const chatId = update.message.chat.id;
+
+                        // Check for /start {userId}
+                        if (text.startsWith('/start ')) {
+                            const userId = text.split(' ')[1];
+                            if (userId) {
+                                try {
+                                    // Link user to this chat ID
+                                    await prisma.user.update({
+                                        where: { id: userId },
+                                        data: { telegramChatId: chatId.toString() }
+                                    });
+
+                                    await sendTelegramAlert(chatId, `<b>✅ បានភ្ជាប់មករួចរាល់!</b>\n\nគណនីរបស់អ្នកត្រូវបានភ្ជាប់ជាមួយប្រព័ន្ធ SmartAg។ អ្នកនឹងទទួលបានការជូនដំណឹងនៅទីនេះ។`);
+                                    console.log(`🔗 Linked User ${userId} to Telegram Chat ${chatId}`);
+                                } catch (e) {
+                                    console.error('❌ Failed to link user:', e.message);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (err) {
+            // Ignore polling errors
+        } finally {
+            setTimeout(pollTelegram, 5000);
+        }
+    }
+
+    pollTelegram();
 }
 
 // Initialize Prisma and Supabase
@@ -138,9 +186,9 @@ aedes.on('publish', async (packet, client) => {
 // Notification Functions
 // ============================================
 
-async function sendTelegramAlert(message) {
-    if (!hasTelegram) {
-        console.log(`📝 [TELEGRAM SIMULATOR] Message: ${message}`)
+async function sendTelegramAlert(chatId, message) {
+    if (!hasTelegram || !chatId) {
+        console.log(`📝 [TELEGRAM SIMULATOR] ChatId: ${chatId}, Message: ${message}`)
         return
     }
 
@@ -150,14 +198,14 @@ async function sendTelegramAlert(message) {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                chat_id: TELEGRAM_CHAT_ID,
+                chat_id: chatId,
                 text: message,
                 parse_mode: 'HTML'
             })
         })
 
         if (response.ok) {
-            console.log('✅ Telegram Alert Sent successfully')
+            console.log(`✅ Telegram Alert Sent to ${chatId}`)
         } else {
             const errData = await response.json()
             console.error('❌ Failed to send Telegram message:', errData.description)
@@ -282,7 +330,17 @@ async function saveSensorData(deviceId, data) {
             // (If pump was triggered, a separate specific SMS is sent later)
             if (smsSummaries.length > 0 && !aiAnalysis.recommendAction) {
                 const combinedMsg = `<b>🌾 ដំណឹងពី SmartAg</b>\n\n${smsSummaries.map(s => `• ${s}`).join('\n')}\n\nសូមពិនិត្យមើលផ្ទាំងគ្រប់គ្រងរបស់អ្នកសម្រាប់ព័ត៌មានលម្អិត។`
-                await sendTelegramAlert(combinedMsg);
+
+                // Alert the specific user if they have linked Telegram
+                if (device.user?.telegramChatId) {
+                    await sendTelegramAlert(device.user.telegramChatId, combinedMsg);
+                }
+
+                // Also alert Admin (legacy behavior)
+                const ADMIN_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+                if (ADMIN_CHAT_ID && ADMIN_CHAT_ID !== device.user?.telegramChatId) {
+                    await sendTelegramAlert(ADMIN_CHAT_ID, `<b>[ADMIN] Alert for ${device.name}:</b>\n\n${combinedMsg}`);
+                }
             }
 
             // Broadcast alerts to dashboard
@@ -320,7 +378,16 @@ async function saveSensorData(deviceId, data) {
                 const durationMinutes = Math.round((command.duration || 0) / 60)
                 const telegramMsg = `<b>🌾 ដំណឹងពី SmartAg</b>\n\nដីស្ងួតពេកហើយ (<b>${data.moisture}%</b>)។ AI បានបើកម៉ាស៊ីនបូម<b>${actionType}</b> ក្នុងរយៈពេល <b>${durationMinutes}</b> នាទី។`
 
-                await sendTelegramAlert(telegramMsg)
+                // Alert the specific user
+                if (device.user?.telegramChatId) {
+                    await sendTelegramAlert(device.user.telegramChatId, telegramMsg)
+                }
+
+                // Alert Admin
+                const ADMIN_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+                if (ADMIN_CHAT_ID && ADMIN_CHAT_ID !== device.user?.telegramChatId) {
+                    await sendTelegramAlert(ADMIN_CHAT_ID, `<b>[ADMIN] Action for ${device.name}:</b>\n${telegramMsg}`)
+                }
             }
         }
 
@@ -773,7 +840,17 @@ app.post('/api/auth/register', async (req, res) => {
         // 2. Send Welcome Telegram Alert
         if (hasTelegram) {
             const welcomeMsg = `<b>🍀 សូមស្វាគមន៍មកកាន់ Smart Agriculture 4.0, ${name}!</b>\n\nគណនីរបស់អ្នកត្រូវបានភ្ជាប់ទៅប្រព័ន្ធជូនដំណឹង AI របស់យើងហើយ។ យើងនឹងជូនដំណឹងអ្នកនៅទីនេះ ប្រសិនបើដីរបស់អ្នកត្រូវការការយកចិត្តទុកដាក់។ រីករាយនឹងការធ្វើកសិកម្ម!`
-            await sendTelegramAlert(welcomeMsg)
+
+            // If user already linked Telegram (unlikely here but good for consistency)
+            if (user.telegramChatId) {
+                await sendTelegramAlert(user.telegramChatId, welcomeMsg)
+            } else {
+                // Fallback to Admin
+                const ADMIN_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+                if (ADMIN_CHAT_ID) {
+                    await sendTelegramAlert(ADMIN_CHAT_ID, `<b>[ADMIN] New User Registered:</b> ${name} (${email})`)
+                }
+            }
         }
 
         res.json({ success: true, user })
@@ -824,7 +901,12 @@ app.get('/api/test-telegram', async (req, res) => {
             });
         }
 
-        await sendTelegramAlert(message);
+        const ADMIN_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+        if (!ADMIN_CHAT_ID) {
+            return res.status(400).json({ success: false, error: 'ADMIN_CHAT_ID not set' });
+        }
+
+        await sendTelegramAlert(ADMIN_CHAT_ID, message);
 
         res.json({ success: true, message: `Test Telegram alert sent!` });
     } catch (error) {

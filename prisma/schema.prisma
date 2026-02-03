@@ -9,17 +9,18 @@ datasource db {
 }
 
 model User {
-  id        String     @id @default(uuid())
-  email     String     @unique
-  name      String
-  password  String
-  role      Role       @default(USER)
-  phone     String?
-  createdAt DateTime   @default(now()) @map("created_at")
-  updatedAt DateTime   @updatedAt @map("updated_at")
-  devices   Device[]
-  expenses  expenses[]
-  zones     Zone[]
+  id             String     @id @default(uuid())
+  email          String     @unique
+  name           String
+  password       String
+  role           Role       @default(USER)
+  phone          String?
+  telegramChatId String?    @map("telegram_chat_id")
+  createdAt      DateTime   @default(now()) @map("created_at")
+  updatedAt      DateTime   @updatedAt @map("updated_at")
+  devices        Device[]
+  expenses       expenses[]
+  zones          Zone[]
 
   @@map("users")
 }
