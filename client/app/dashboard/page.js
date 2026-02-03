@@ -1,13 +1,13 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import CompactWeatherCard from '@/components/dashboard/CompactWeatherCard'
+import CompactPowerCard from '@/components/dashboard/CompactPowerCard'
 import RainSensorCard from '@/components/dashboard/RainSensorCard'
 import SoilSensorCard from '@/components/dashboard/SoilSensorCard'
 import SevenInOneSensorCard from '@/components/dashboard/SevenInOneSensorCard'
-import PowerStatsCard from '@/components/dashboard/PowerStatsCard'
 import ExpenseSummaryCard from '@/components/dashboard/ExpenseSummaryCard'
 import RecentTransactionsMinimal from '@/components/dashboard/RecentTransactionsMinimal'
-import WeatherCard from '@/components/dashboard/WeatherCard'
 import { Droplet, LayoutDashboard, Wallet, Sprout, Zap } from 'lucide-react'
 import { useRealtimeSensorData } from '@/hooks/useRealtimeSensorData'
 import { getExpenses } from '@/lib/api'
@@ -92,14 +92,13 @@ export default function DashboardPage() {
                     </div>
                 </div>
 
-                {/* SHARED STATS: original boxes but sized to match each other */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <WeatherCard />
-                    <PowerStatsCard
+                {/* COMPACT SHARED STATS: Matching the user's reference image style */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                    <CompactWeatherCard />
+                    <CompactPowerCard
                         percentage={Math.round(sensorData.battery ?? 85)}
                         voltage={parseFloat(sensorData.voltage ?? 12.8).toFixed(1)}
                         charging={sensorData.voltage > 12.6}
-                        runtime="48h 12m"
                     />
                 </div>
 
