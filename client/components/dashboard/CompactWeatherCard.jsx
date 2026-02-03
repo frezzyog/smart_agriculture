@@ -44,8 +44,8 @@ export default function CompactWeatherCard() {
     }
 
     return (
-        <div className="bg-white rounded-full px-4 py-2 border border-border flex items-center gap-3 group cursor-default shadow-sm min-w-[160px]">
-            <div className="bg-sky-50 p-2.5 rounded-2xl text-sky-500">
+        <div className="bg-card rounded-full px-4 py-2 border border-border flex items-center gap-3 group cursor-default shadow-sm min-w-[160px] transition-colors">
+            <div className="bg-sky-50 dark:bg-sky-500/10 p-2.5 rounded-2xl text-sky-500">
                 {getWeatherIcon(weather.condition, 22)}
             </div>
             <div className="flex flex-col pr-2">

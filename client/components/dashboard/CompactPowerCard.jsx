@@ -15,14 +15,14 @@ const CompactPowerCard = ({ percentage, voltage, charging }) => {
     }
 
     const getBatteryBg = (pct) => {
-        if (charging) return 'bg-yellow-50'
-        if (pct > 75) return 'bg-emerald-50'
-        if (pct > 40) return 'bg-yellow-50'
-        return 'bg-orange-50'
+        if (charging) return 'bg-yellow-50 dark:bg-yellow-500/10'
+        if (pct > 75) return 'bg-emerald-50 dark:bg-emerald-500/10'
+        if (pct > 40) return 'bg-yellow-50 dark:bg-yellow-500/10'
+        return 'bg-orange-50 dark:bg-orange-500/10'
     }
 
     return (
-        <div className="bg-white rounded-full px-4 py-2 border border-border flex items-center gap-3 group cursor-default shadow-sm min-w-[160px]">
+        <div className="bg-card rounded-full px-4 py-2 border border-border flex items-center gap-3 group cursor-default shadow-sm min-w-[160px] transition-colors">
             <div className={`${getBatteryBg(percentage)} p-2.5 rounded-2xl`}>
                 {getBatteryIcon(percentage, 22)}
             </div>
