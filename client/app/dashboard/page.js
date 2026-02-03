@@ -92,39 +92,30 @@ export default function DashboardPage() {
                     </div>
                 </div>
 
-                {/* SHARED STATS: Compact cards styled like sensor boxes */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {/* MAIN DASHBOARD GRID: Integrates shared stats with tabbed content for one-screen view */}
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 transition-all duration-500">
+
+                    {/* Persistent Shared Widgets (Always Top Left) */}
                     <CompactWeatherCard />
                     <CompactPowerCard
                         percentage={Math.round(sensorData.battery ?? 85)}
                         voltage={parseFloat(sensorData.voltage ?? 12.8).toFixed(1)}
-                        charging={sensorData.voltage > 12.6}
+                        charging={(sensorData.voltage ?? 0) > 12.6}
                     />
-                </div>
 
-                {/* TABBED CONTENT: Focused on Soil or Balance specifically */}
-                <div className="transition-all duration-500 border-t border-border pt-8">
+                    {/* Tab-Specific Content (Fills the rest of the top row and below) */}
                     {activeTab === 'soil' ? (
-                        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                            <div className="flex items-center gap-3 mb-2">
-                                <div className="p-2 bg-accent/10 rounded-xl text-accent">
-                                    <Sprout size={20} className="animate-pulse" />
-                                </div>
-                                <h2 className="text-2xl font-bold text-foreground">Soil Data Monitor</h2>
-                            </div>
-
-                            <div className="space-y-6">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <SoilSensorCard
-                                        moisture={sensorData.moisture.toFixed(0)}
-                                        status={statusText}
-                                    />
-                                    <RainSensorCard
-                                        isRaining={sensorData.rain > 50}
-                                        rainValue={sensorData.rain.toFixed(0)}
-                                        status={statusText}
-                                    />
-                                </div>
+                        <>
+                            <SoilSensorCard
+                                moisture={sensorData.moisture.toFixed(0)}
+                                status={statusText}
+                            />
+                            <RainSensorCard
+                                isRaining={sensorData.rain > 50}
+                                rainValue={sensorData.rain.toFixed(0)}
+                                status={statusText}
+                            />
+                            <div className="md:col-span-2 xl:col-span-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
                                 <SevenInOneSensorCard
                                     nitrogen={sensorData.nitrogen}
                                     phosphorus={sensorData.phosphorus}
@@ -136,27 +127,18 @@ export default function DashboardPage() {
                                     status={statusText}
                                 />
                             </div>
-                        </div>
+                        </>
                     ) : (
-                        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                            <div className="flex items-center gap-3 mb-2">
-                                <div className="p-2 bg-emerald-500/10 rounded-xl text-emerald-500">
-                                    <Wallet size={20} />
-                                </div>
-                                <h2 className="text-2xl font-bold text-foreground">Financial Balance</h2>
+                        <>
+                            <div className="md:col-span-2 xl:col-span-2 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                                <ExpenseSummaryCard
+                                    totalBalance={expenses.length > 0 ? `$${expenses.reduce((sum, e) => sum + e.amount, 0).toLocaleString()}` : '$0'}
+                                />
                             </div>
-
-                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                                <div className="lg:col-span-2">
-                                    <ExpenseSummaryCard
-                                        totalBalance={expenses.length > 0 ? `$${expenses.reduce((sum, e) => sum + e.amount, 0).toLocaleString()}` : '$0'}
-                                    />
-                                </div>
-                                <div>
-                                    <RecentTransactionsMinimal transactions={expenses} />
-                                </div>
+                            <div className="md:col-span-2 xl:col-span-4 animate-in fade-in slide-in-from-bottom-4 duration-700 mt-2">
+                                <RecentTransactionsMinimal transactions={expenses} />
                             </div>
-                        </div>
+                        </>
                     )}
                 </div>
 

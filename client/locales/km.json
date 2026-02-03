@@ -65,7 +65,22 @@
         "alert_battery_full": "ថ្មសាកពេញហើយ",
         "alert_battery_full_desc": "កំពុងប្តូរទៅរបៀបថែទាំ",
         "critical": "សំខាន់",
-        "info": "ព័ត៌មាន"
+        "info": "ព័ត៌មាន",
+        "soil_moisture": "សំណើមដី",
+        "moisture_level": "សំណើមស្រទាប់ដីខាងលើ",
+        "moisture_percentage": "កម្រិតតិត្ថិភាព",
+        "rain_sensor": "សិនស័រទឹកភ្លៀង",
+        "precipitation_monitor": "ការតាមដានទឹកភ្លៀងផ្ទាល់",
+        "raining": "កំពុងមានភ្លៀង",
+        "no_rain": "មេឃស្រឡះ",
+        "intensity": "កម្រិតទឹកភ្លៀង",
+        "soil_7in1": "បណ្តាញសិនស័រ 7-ក្នុង-1",
+        "comprehensive_monitor": "បណ្តាញត្រួតពិនិត្យ NPK និងបរិស្ថាន",
+        "nitrogen": "អាសូត",
+        "phosphorus": "ផូស្វ័រ",
+        "potassium": "ប៉ូតាស្យូម",
+        "temperature": "សីតុណ្ហភាព",
+        "humidity": "សំណើម"
     },
     "header": {
         "online": "អនឡាញ",

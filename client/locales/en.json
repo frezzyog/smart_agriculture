@@ -65,7 +65,22 @@
         "alert_battery_full": "Battery Fully Charged",
         "alert_battery_full_desc": "Switching Array B to maintenance mode",
         "critical": "Critical",
-        "info": "Info"
+        "info": "Info",
+        "soil_moisture": "Soil Moisture",
+        "moisture_level": "Surface Layer Moisture",
+        "moisture_percentage": "Saturation Level",
+        "rain_sensor": "Rain Sensor",
+        "precipitation_monitor": "Real-time Rain Tracking",
+        "raining": "Currently Raining",
+        "no_rain": "Clear Conditions",
+        "intensity": "Intensity",
+        "soil_7in1": "7-in-1 Sensor Network",
+        "comprehensive_monitor": "Advanced NPK & Environment Grid",
+        "nitrogen": "Nitrogen",
+        "phosphorus": "Phosphorus",
+        "potassium": "Potassium",
+        "temperature": "Temperature",
+        "humidity": "Humidity"
     },
     "header": {
         "online": "Online",
