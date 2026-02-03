@@ -1,7 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import RainSensorCard from '@/components/dashboard/RainSensorCard'
 import SoilSensorCard from '@/components/dashboard/SoilSensorCard'
 import SevenInOneSensorCard from '@/components/dashboard/SevenInOneSensorCard'
@@ -9,7 +8,7 @@ import PowerStatsCard from '@/components/dashboard/PowerStatsCard'
 import ExpenseSummaryCard from '@/components/dashboard/ExpenseSummaryCard'
 import RecentTransactionsMinimal from '@/components/dashboard/RecentTransactionsMinimal'
 import WeatherCard from '@/components/dashboard/WeatherCard'
-import { Droplet, LayoutDashboard, Wallet, Sprout } from 'lucide-react'
+import { Droplet, LayoutDashboard, Wallet, Sprout, Zap } from 'lucide-react'
 import { useRealtimeSensorData } from '@/hooks/useRealtimeSensorData'
 import { getExpenses } from '@/lib/api'
 import { useTranslation } from 'react-i18next'
@@ -22,7 +21,7 @@ export default function DashboardPage() {
     const { user, loading } = useAuth()
     const router = useRouter()
     const sensorData = useRealtimeSensorData()
-    const [expenses, setExpenses] = React.useState([])
+    const [expenses, setExpenses] = useState([])
     const [activeTab, setActiveTab] = useState('soil') // 'soil' or 'balance'
 
     useEffect(() => {
@@ -31,7 +30,7 @@ export default function DashboardPage() {
         }
     }, [user, loading, router])
 
-    React.useEffect(() => {
+    useEffect(() => {
         if (!user) return
         const fetchExpenses = async () => {
             try {
