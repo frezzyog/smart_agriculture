@@ -11,20 +11,24 @@ const CompactPowerCard = ({ percentage, voltage, charging }) => {
         if (charging) return <Zap size={size} className="text-yellow-500" fill="currentColor" />
         if (pct > 75) return <BatteryFull size={size} className="text-emerald-500" />
         if (pct > 40) return <BatteryMedium size={size} className="text-yellow-500" />
-        return <BatteryLow size={size} className="text-red-500" />
+        return <BatteryLow size={size} className="text-red-500" strokeWidth={2.5} />
+    }
+
+    const getBatteryBg = (pct) => {
+        if (charging) return 'bg-yellow-50'
+        if (pct > 75) return 'bg-emerald-50'
+        if (pct > 40) return 'bg-yellow-50'
+        return 'bg-orange-50'
     }
 
     return (
-        <div className="bg-white hover:bg-white/80 transition-all duration-300 rounded-[1.25rem] px-5 py-3 border border-border flex items-center gap-4 group cursor-default shadow-sm hover:shadow-md">
-            <div className="bg-yellow-500/10 p-2 rounded-xl text-yellow-500 group-hover:scale-110 transition-transform duration-500">
-                {getBatteryIcon(percentage, 20)}
+        <div className="bg-white rounded-full px-4 py-2 border border-border flex items-center gap-3 group cursor-default shadow-sm min-w-[160px]">
+            <div className={`${getBatteryBg(percentage)} p-2.5 rounded-2xl`}>
+                {getBatteryIcon(percentage, 22)}
             </div>
-            <div className="flex flex-col">
-                <span className="text-[10px] font-bold text-foreground/30 uppercase tracking-[0.1em] leading-none mb-1">{t('dashboard.power_stats')}</span>
-                <div className="flex items-center gap-2">
-                    <span className="text-xl font-black text-foreground tracking-tighter">{percentage}%</span>
-                    <span className="text-[11px] font-bold text-foreground/40 border-l border-border pl-2 leading-none">{voltage}V</span>
-                </div>
+            <div className="flex flex-col pr-2">
+                <span className="text-[10px] font-bold text-foreground/30 uppercase tracking-widest leading-none mb-0.5">{t('dashboard.power_stats')}</span>
+                <span className="text-lg font-black text-foreground tracking-tighter leading-none">{percentage}%</span>
             </div>
         </div>
     )

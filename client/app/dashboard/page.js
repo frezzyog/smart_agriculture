@@ -92,18 +92,14 @@ export default function DashboardPage() {
                     </div>
                 </div>
 
-                {/* MINI STATUS BAR: Sleek, non-intrusive pills */}
-                <div className="flex flex-wrap gap-4 mb-8">
-                    <div className="w-full sm:w-auto">
-                        <CompactWeatherCard />
-                    </div>
-                    <div className="w-full sm:w-auto">
-                        <CompactPowerCard
-                            percentage={Math.round(sensorData.battery ?? 85)}
-                            voltage={parseFloat(sensorData.voltage ?? 12.8).toFixed(1)}
-                            charging={(sensorData.voltage ?? 0) > 12.6}
-                        />
-                    </div>
+                {/* MINI STATUS BAR: Pill style matching reference */}
+                <div className="flex items-center gap-3 mb-8 overflow-x-auto pb-2 scrollbar-hide">
+                    <CompactWeatherCard />
+                    <CompactPowerCard
+                        percentage={Math.round(sensorData.battery ?? 85)}
+                        voltage={parseFloat(sensorData.voltage ?? 12.8).toFixed(1)}
+                        charging={(sensorData.voltage ?? 0) > 12.6}
+                    />
                 </div>
 
                 {/* MAIN DASHBOARD CONTENT */}
