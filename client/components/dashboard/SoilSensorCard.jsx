@@ -27,8 +27,10 @@ const SoilSensorCard = ({ moisture, status }) => {
                         <span className="text-xs font-bold text-foreground/60 uppercase tracking-[0.2em]">{t('dashboard.moisture_percentage')}</span>
                     </div>
                     <div className="flex items-baseline gap-1">
-                        <span className="text-4xl md:text-5xl font-black text-emerald-500 tracking-tighter drop-shadow-sm">{moisture}</span>
-                        <span className="text-xl font-bold text-emerald-500/60">%</span>
+                        <span className={`text-4xl md:text-5xl font-black tracking-tighter drop-shadow-sm ${Number(moisture) < 60 ? 'text-red-500' : 'text-emerald-500'}`}>
+                            {moisture}
+                        </span>
+                        <span className={`text-xl font-bold ${Number(moisture) < 60 ? 'text-red-500/60' : 'text-emerald-500/60'}`}>%</span>
                     </div>
                 </div>
             </div>
