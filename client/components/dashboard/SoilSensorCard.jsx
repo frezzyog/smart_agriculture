@@ -6,17 +6,18 @@ import { useTranslation } from 'react-i18next'
 
 const SoilSensorCard = ({ moisture, status }) => {
     const { t } = useTranslation()
+    const isLow = Number(moisture) < 60
 
     return (
-        <div className="bg-card rounded-[2.5rem] p-6 md:p-8 border border-border flex flex-col h-full relative overflow-hidden group hover:border-emerald-500/40 transition-all duration-500 shadow-xl shadow-black/20">
-            <div className="absolute -top-20 -right-20 w-40 h-40 bg-emerald-500/10 rounded-full blur-[80px] group-hover:bg-emerald-500/20 transition-all duration-700"></div>
+        <div className={`bg-card rounded-[2.5rem] p-6 md:p-8 border transition-all duration-500 shadow-xl shadow-black/20 relative overflow-hidden group ${isLow ? 'border-red-500/50 shadow-red-500/10' : 'border-border hover:border-emerald-500/40'}`}>
+            <div className={`absolute -top-20 -right-20 w-40 h-40 rounded-full blur-[80px] transition-all duration-700 ${isLow ? 'bg-red-500/20' : 'bg-emerald-500/10 group-hover:bg-emerald-500/20'}`}></div>
 
             <div className="flex justify-between items-start mb-8 relative z-10">
                 <div>
                     <h3 className="text-xl md:text-2xl font-bold text-foreground tracking-tight leading-none">{t('dashboard.soil_moisture')}</h3>
                     <p className="text-foreground/40 text-xs md:text-sm font-medium mt-2">{t('dashboard.moisture_level')}</p>
                 </div>
-                <div className="text-emerald-500 flex items-center justify-center bg-emerald-500/10 p-3 rounded-2xl border border-emerald-500/20 shadow-inner group-hover:scale-110 transition-transform duration-500">
+                <div className={`flex items-center justify-center p-3 rounded-2xl border shadow-inner group-hover:scale-110 transition-transform duration-500 ${isLow ? 'text-red-500 bg-red-500/10 border-red-500/20' : 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20'}`}>
                     <Droplet size={24} strokeWidth={2.5} />
                 </div>
             </div>
