@@ -87,7 +87,7 @@ async def call_gemini(prompt: str) -> Optional[str]:
                         "contents": [{"parts": [{"text": prompt}]}],
                         "generationConfig": {
                             "temperature": 0.7,
-                            "maxOutputTokens": 800,
+                            "maxOutputTokens": 2048,
                             "topP": 0.9
                         }
                     },
