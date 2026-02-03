@@ -92,20 +92,24 @@ export default function DashboardPage() {
                     </div>
                 </div>
 
-                {/* MAIN DASHBOARD GRID: Integrates shared stats with tabbed content for one-screen view */}
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 transition-all duration-500">
+                {/* MINI STATUS BAR: Sleek, non-intrusive pills */}
+                <div className="flex flex-wrap gap-4 mb-8">
+                    <div className="w-full sm:w-auto">
+                        <CompactWeatherCard />
+                    </div>
+                    <div className="w-full sm:w-auto">
+                        <CompactPowerCard
+                            percentage={Math.round(sensorData.battery ?? 85)}
+                            voltage={parseFloat(sensorData.voltage ?? 12.8).toFixed(1)}
+                            charging={(sensorData.voltage ?? 0) > 12.6}
+                        />
+                    </div>
+                </div>
 
-                    {/* Persistent Shared Widgets (Always Top Left) */}
-                    <CompactWeatherCard />
-                    <CompactPowerCard
-                        percentage={Math.round(sensorData.battery ?? 85)}
-                        voltage={parseFloat(sensorData.voltage ?? 12.8).toFixed(1)}
-                        charging={(sensorData.voltage ?? 0) > 12.6}
-                    />
-
-                    {/* Tab-Specific Content (Fills the rest of the top row and below) */}
+                {/* MAIN DASHBOARD CONTENT */}
+                <div className="transition-all duration-500">
                     {activeTab === 'soil' ? (
-                        <>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
                             <SoilSensorCard
                                 moisture={sensorData.moisture.toFixed(0)}
                                 status={statusText}
@@ -115,7 +119,7 @@ export default function DashboardPage() {
                                 rainValue={sensorData.rain.toFixed(0)}
                                 status={statusText}
                             />
-                            <div className="md:col-span-2 xl:col-span-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                            <div className="md:col-span-2">
                                 <SevenInOneSensorCard
                                     nitrogen={sensorData.nitrogen}
                                     phosphorus={sensorData.phosphorus}
@@ -127,18 +131,16 @@ export default function DashboardPage() {
                                     status={statusText}
                                 />
                             </div>
-                        </>
+                        </div>
                     ) : (
-                        <>
-                            <div className="md:col-span-2 xl:col-span-2 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                        <div className="grid grid-cols-1 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                            <div className="md:col-span-1 xl:col-span-1">
                                 <ExpenseSummaryCard
                                     totalBalance={expenses.length > 0 ? `$${expenses.reduce((sum, e) => sum + e.amount, 0).toLocaleString()}` : '$0'}
                                 />
                             </div>
-                            <div className="md:col-span-2 xl:col-span-4 animate-in fade-in slide-in-from-bottom-4 duration-700 mt-2">
-                                <RecentTransactionsMinimal transactions={expenses} />
-                            </div>
-                        </>
+                            <RecentTransactionsMinimal transactions={expenses} />
+                        </div>
                     )}
                 </div>
 
