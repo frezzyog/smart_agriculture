@@ -374,9 +374,16 @@ async function saveSensorData(deviceId, data) {
             })
 
             if (hasTelegram) {
-                const actionType = command.type === 'WATER' ? 'ទឹក' : 'ជី'
-                const durationMinutes = Math.round((command.duration || 0) / 60)
-                const telegramMsg = `<b>🌾 ដំណឹងពី SmartAg</b>\n\nដីស្ងួតពេកហើយ (<b>${data.moisture}%</b>)។ AI បានបើកម៉ាស៊ីនបូម<b>${actionType}</b> ក្នុងរយៈពេល <b>${durationMinutes}</b> នាទី។`
+                const isWater = command.type === 'WATER';
+                const actionType = isWater ? 'ទឹក' : 'ជី';
+                const durationMinutes = Math.round((command.duration || 0) / 60);
+
+                // Fix: Custom message based on action type
+                let reason = isWater
+                    ? `ដីស្ងួតពេកហើយ (<b>${data.moisture}%</b>)`
+                    : `កម្រិតសារធាតុចិញ្ចឹមទាប (EC: <b>${data.ec || 'N/A'}</b>)`;
+
+                const telegramMsg = `<b>🌾 ដំណឹងពី SmartAg</b>\n\n${reason}។ AI បានបើកម៉ាស៊ីនបូម<b>${actionType}</b> ក្នុងរយៈពេល <b>${durationMinutes}</b> នាទី។`;
 
                 // Alert the specific user
                 if (device.user?.telegramChatId) {
