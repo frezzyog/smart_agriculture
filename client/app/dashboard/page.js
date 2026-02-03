@@ -23,6 +23,7 @@ export default function DashboardPage() {
     const router = useRouter()
     const sensorData = useRealtimeSensorData()
     const [expenses, setExpenses] = React.useState([])
+    const [activeTab, setActiveTab] = useState('soil') // 'soil' or 'balance'
 
     useEffect(() => {
         if (!loading && !user) {
@@ -50,84 +51,113 @@ export default function DashboardPage() {
             <div className="max-w-[1600px] mx-auto space-y-12">
 
                 {/* Dashboard Main Title */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                     <div>
                         <h1 className="text-4xl md:text-5xl font-black text-foreground tracking-tight drop-shadow-sm flex items-center gap-3">
-                            <span className="text-accent underline decoration-4 decoration-accent/30 underline-offset-8">Soil Data</span>
-                            <span className="text-foreground/30 font-thin">/</span>
-                            <span>Balance</span>
+                            <button
+                                onClick={() => setActiveTab('soil')}
+                                className={`transition-all duration-300 ${activeTab === 'soil' ? 'text-accent underline decoration-4 decoration-accent/30 underline-offset-8' : 'text-foreground/20 hover:text-foreground/40'}`}
+                            >
+                                Soil Data
+                            </button>
+                            <span className="text-foreground/10 font-thin">/</span>
+                            <button
+                                onClick={() => setActiveTab('balance')}
+                                className={`transition-all duration-300 ${activeTab === 'balance' ? 'text-emerald-500 underline decoration-4 decoration-emerald-500/30 underline-offset-8' : 'text-foreground/20 hover:text-foreground/40'}`}
+                            >
+                                Balance
+                            </button>
                         </h1>
                         <p className="text-foreground/40 font-medium mt-3 flex items-center gap-2">
                             <LayoutDashboard size={16} />
-                            {t('dashboard.overview_motto', 'Comprehensive Farm & Finance Intelligence')}
+                            {activeTab === 'soil' ? 'Environmental status and live sensor telemetry' : 'Financial overview and expenditure logs'}
                         </p>
+                    </div>
+
+                    {/* Quick Toggle UI */}
+                    <div className="flex bg-foreground/[0.03] p-1.5 rounded-[1.5rem] border border-white/5 backdrop-blur-md shadow-inner">
+                        <button
+                            onClick={() => setActiveTab('soil')}
+                            className={`flex items-center gap-2 px-6 py-2.5 rounded-2xl transition-all duration-300 font-bold text-sm ${activeTab === 'soil' ? 'bg-accent text-white shadow-lg shadow-accent/20' : 'text-foreground/40 hover:text-foreground/60'}`}
+                        >
+                            <Sprout size={18} />
+                            Soil Data
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('balance')}
+                            className={`flex items-center gap-2 px-6 py-2.5 rounded-2xl transition-all duration-300 font-bold text-sm ${activeTab === 'balance' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'text-foreground/40 hover:text-foreground/60'}`}
+                        >
+                            <Wallet size={18} />
+                            Balance
+                        </button>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 xl:grid-cols-3 gap-10">
-
-                    {/* LEFT COLUMN: SOIL DATA (2/3 width on desktop) */}
-                    <div className="xl:col-span-2 space-y-8">
-                        <div className="flex items-center gap-3 mb-2">
-                            <div className="p-2 bg-accent/10 rounded-xl text-accent">
-                                <Sprout size={20} className="animate-pulse" />
+                <div className="transition-all duration-500">
+                    {activeTab === 'soil' ? (
+                        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                            <div className="flex items-center gap-3 mb-2">
+                                <div className="p-2 bg-accent/10 rounded-xl text-accent">
+                                    <Sprout size={20} className="animate-pulse" />
+                                </div>
+                                <h2 className="text-2xl font-bold text-foreground">Soil Analytics</h2>
                             </div>
-                            <h2 className="text-2xl font-bold text-foreground">Soil Data</h2>
-                        </div>
 
-                        {/* Top boxes: Weather & Power Stat */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <WeatherCard />
-                            <PowerStatsCard
-                                percentage={Math.round(sensorData.battery ?? 85)}
-                                voltage={parseFloat(sensorData.voltage ?? 12.8).toFixed(1)}
-                                charging={sensorData.voltage > 12.6}
-                                runtime="48h 12m"
-                            />
-                        </div>
-
-                        {/* Sensor boxes under weather/power */}
-                        <div className="space-y-6">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <SoilSensorCard
-                                    moisture={sensorData.moisture.toFixed(0)}
-                                    status={statusText}
-                                />
-                                <RainSensorCard
-                                    isRaining={sensorData.rain > 50} // Assuming threshold
-                                    rainValue={sensorData.rain.toFixed(0)}
-                                    status={statusText}
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                <WeatherCard />
+                                <PowerStatsCard
+                                    percentage={Math.round(sensorData.battery ?? 85)}
+                                    voltage={parseFloat(sensorData.voltage ?? 12.8).toFixed(1)}
+                                    charging={sensorData.voltage > 12.6}
+                                    runtime="48h 12m"
                                 />
                             </div>
-                            <SevenInOneSensorCard
-                                nitrogen={sensorData.nitrogen}
-                                phosphorus={sensorData.phosphorus}
-                                potassium={sensorData.potassium}
-                                pH={sensorData.pH.toFixed(1)}
-                                ec={sensorData.ec.toFixed(1)}
-                                temp={sensorData.temp.toFixed(1)}
-                                humidity={sensorData.humidity.toFixed(1)}
-                                status={statusText}
-                            />
-                        </div>
-                    </div>
 
-                    {/* RIGHT COLUMN: BALANCE (1/3 width on desktop) */}
-                    <div className="space-y-8">
-                        <div className="flex items-center gap-3 mb-2">
-                            <div className="p-2 bg-emerald-500/10 rounded-xl text-emerald-500">
-                                <Wallet size={20} />
+                            <div className="space-y-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <SoilSensorCard
+                                        moisture={sensorData.moisture.toFixed(0)}
+                                        status={statusText}
+                                    />
+                                    <RainSensorCard
+                                        isRaining={sensorData.rain > 50}
+                                        rainValue={sensorData.rain.toFixed(0)}
+                                        status={statusText}
+                                    />
+                                </div>
+                                <SevenInOneSensorCard
+                                    nitrogen={sensorData.nitrogen}
+                                    phosphorus={sensorData.phosphorus}
+                                    potassium={sensorData.potassium}
+                                    pH={sensorData.pH.toFixed(1)}
+                                    ec={sensorData.ec.toFixed(1)}
+                                    temp={sensorData.temp.toFixed(1)}
+                                    humidity={sensorData.humidity.toFixed(1)}
+                                    status={statusText}
+                                />
                             </div>
-                            <h2 className="text-2xl font-bold text-foreground">Balance</h2>
                         </div>
+                    ) : (
+                        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                            <div className="flex items-center gap-3 mb-2">
+                                <div className="p-2 bg-emerald-500/10 rounded-xl text-emerald-500">
+                                    <Wallet size={20} />
+                                </div>
+                                <h2 className="text-2xl font-bold text-foreground">Financial Overview</h2>
+                            </div>
 
-                        <div className="flex flex-col gap-6">
-                            <ExpenseSummaryCard
-                                totalBalance={expenses.length > 0 ? `$${expenses.reduce((sum, e) => sum + e.amount, 0).toLocaleString()}` : '$0'}
-                            />
-                            <RecentTransactionsMinimal transactions={expenses} />
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                                <div className="lg:col-span-2">
+                                    <ExpenseSummaryCard
+                                        totalBalance={expenses.length > 0 ? `$${expenses.reduce((sum, e) => sum + e.amount, 0).toLocaleString()}` : '$0'}
+                                    />
+                                </div>
+                                <div>
+                                    <RecentTransactionsMinimal transactions={expenses} />
+                                </div>
+                            </div>
                         </div>
-                    </div>
+                    )}
                 </div>
 
             </div>
