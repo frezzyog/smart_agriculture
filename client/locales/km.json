@@ -80,7 +80,11 @@
         "phosphorus": "ផូស្វ័រ",
         "potassium": "ប៉ូតាស្យូម",
         "temperature": "សីតុណ្ហភាព",
-        "humidity": "សំណើម"
+        "humidity": "សំណើម",
+        "soil_data": "ទិន្នន័យដី",
+        "balance": "សមតុល្យ",
+        "environmental_telemetry": "រង្វាស់ទិន្នន័យបរិស្ថាន",
+        "financial_overview": "ទិដ្ឋភាពទូទៅនៃហិរញ្ញវត្ថុ"
     },
     "header": {
         "online": "អនឡាញ",

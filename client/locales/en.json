@@ -80,7 +80,11 @@
         "phosphorus": "Phosphorus",
         "potassium": "Potassium",
         "temperature": "Temperature",
-        "humidity": "Humidity"
+        "humidity": "Humidity",
+        "soil_data": "Soil Data",
+        "balance": "Balances",
+        "environmental_telemetry": "Environmental telemetry",
+        "financial_overview": "Financial overview"
     },
     "header": {
         "online": "Online",
