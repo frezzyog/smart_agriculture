@@ -93,24 +93,26 @@ export default function DashboardPage() {
                     </div>
                 </div>
 
-                <div className="transition-all duration-500">
+                {/* SHARED SECTION: Persistent Weather and Power Stat boxes */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <WeatherCard />
+                    <PowerStatsCard
+                        percentage={Math.round(sensorData.battery ?? 85)}
+                        voltage={parseFloat(sensorData.voltage ?? 12.8).toFixed(1)}
+                        charging={sensorData.voltage > 12.6}
+                        runtime="48h 12m"
+                    />
+                </div>
+
+                {/* TABBED CONTENT */}
+                <div className="transition-all duration-500 border-t border-border pt-8">
                     {activeTab === 'soil' ? (
                         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
                             <div className="flex items-center gap-3 mb-2">
                                 <div className="p-2 bg-accent/10 rounded-xl text-accent">
                                     <Sprout size={20} className="animate-pulse" />
                                 </div>
-                                <h2 className="text-2xl font-bold text-foreground">Soil Analytics</h2>
-                            </div>
-
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                                <WeatherCard />
-                                <PowerStatsCard
-                                    percentage={Math.round(sensorData.battery ?? 85)}
-                                    voltage={parseFloat(sensorData.voltage ?? 12.8).toFixed(1)}
-                                    charging={sensorData.voltage > 12.6}
-                                    runtime="48h 12m"
-                                />
+                                <h2 className="text-2xl font-bold text-foreground">Sensor Network</h2>
                             </div>
 
                             <div className="space-y-6">
