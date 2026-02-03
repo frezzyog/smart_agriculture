@@ -92,35 +92,15 @@ export default function DashboardPage() {
                     </div>
                 </div>
 
-                {/* COMPACT SHARED STATS: Small boxes under the title */}
-                <div className="flex flex-wrap gap-4">
-                    {/* Compact Weather Box */}
-                    <div className="bg-white/5 hover:bg-white/10 transition-colors rounded-2xl p-4 border border-white/5 flex items-center gap-4 min-w-[200px] group">
-                        <div className="p-2 bg-sky-500/10 rounded-xl text-sky-500 group-hover:scale-110 transition-transform">
-                            <Droplet size={20} />
-                        </div>
-                        <div>
-                            <div className="text-[10px] font-bold text-foreground/30 uppercase tracking-[0.15em] mb-0.5">Atmosphere</div>
-                            <div className="flex items-baseline gap-2">
-                                <span className="text-xl font-black text-foreground">28°C</span>
-                                <span className="text-xs font-bold text-foreground/40">72% Humidity</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Compact Power Box */}
-                    <div className="bg-white/5 hover:bg-white/10 transition-colors rounded-2xl p-4 border border-white/5 flex items-center gap-4 min-w-[200px] group">
-                        <div className="p-2 bg-yellow-500/10 rounded-xl text-yellow-500 group-hover:scale-110 transition-transform">
-                            <Zap size={20} />
-                        </div>
-                        <div>
-                            <div className="text-[10px] font-bold text-foreground/30 uppercase tracking-[0.15em] mb-0.5">Power System</div>
-                            <div className="flex items-baseline gap-2">
-                                <span className="text-xl font-black text-foreground">{Math.round(sensorData.battery ?? 85)}%</span>
-                                <span className="text-xs font-bold text-foreground/40">{parseFloat(sensorData.voltage ?? 12.8).toFixed(1)}V</span>
-                            </div>
-                        </div>
-                    </div>
+                {/* SHARED STATS: original boxes but sized to match each other */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <WeatherCard />
+                    <PowerStatsCard
+                        percentage={Math.round(sensorData.battery ?? 85)}
+                        voltage={parseFloat(sensorData.voltage ?? 12.8).toFixed(1)}
+                        charging={sensorData.voltage > 12.6}
+                        runtime="48h 12m"
+                    />
                 </div>
 
                 {/* TABBED CONTENT: Focused on Soil or Balance specifically */}
