@@ -422,6 +422,50 @@
             </div>
         </div>
 
+        <!-- 9. Testing & Validation -->
+        <div class="section">
+            <div class="section-header">
+                <span class="section-number">9</span>
+                <h2>Testing & Validation</h2>
+            </div>
+            <div class="grid-container">
+                <div class="card">
+                    <h3>៩.២ ការធ្វើតេស្តការរួមបញ្ចូល (Integration Tests)</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                        ការធ្វើ Integration Tests ត្រូវបានអនុវត្តន៍
+                        ដើម្បីផ្ទៀងផ្ទាត់ការធ្វើការរួមគ្នារវាងស្រទាប់ប្រព័ន្ធនីមួយៗ
+                        និងធានាថាប្រព័ន្ធដំណើរការបានត្រឹមត្រូវពីដើមដល់ចុង។
+                    </p>
+                    <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                        ការធ្វើតេស្តនេះបានបញ្ជាក់ថា ទិន្នន័យអាចហូរបានដោយរលូនចាប់ពីសិនស័រ តាម ESP32 តាម MQTT ទៅ Cloud
+                        Backend ទៅ Database និងបង្ហាញលើ Dashboard
+                        ហើយបញ្ជូនពាក្យបញ្ជាត្រឡប់មកវិញដល់ឧបករណ៍បញ្ជាដោយគ្មានបញ្ហា។
+                    </p>
+
+                    <h4>សេណារីយោសំខាន់ៗដែលត្រូវបានធ្វើតេស្ត៖</h4>
+                    <ul>
+                        <li><strong>Data Flow</strong>: Sensors → ESP32 → MQTT → Cloud Backend → Database → Dashboard
+                        </li>
+                        <li><strong>AI Logic</strong>: Soil Integrated Sensor ទៅ Cloud Analytics និង AI Decision Logic
+                        </li>
+                        <li><strong>Closed-Loop Command</strong>: ការបញ្ជូនពាក្យបញ្ជាស្រោចស្រពទឹក និង ជីទឹក ដែលបង្កើតដោយ
+                            AI ត្រឡប់ទៅ ESP32 ដើម្បីអនុវត្តន៍តាមរយៈ Relay Module</li>
+                        <li><strong>Environmental Intelligence</strong>: ការរួមបញ្ចូលទិន្នន័យអាកាសធាតុពី OpenWeatherMap
+                            ជាមួយ Logic បង្កើនប្រសិទ្ធភាពរបស់ AI</li>
+                        <li><strong>Audit Trails</strong>: ការធ្វើបច្ចុប្បន្នភាពកត់ត្រាទិន្នន័យ បិទ/បើក ដោយស្វ័យប្រវត្តិ
+                            បន្ទាប់ពីម៉ាស៊ីនបូមដំណើរការ</li>
+                    </ul>
+
+                    <div class="flow-diagram"
+                        style="margin-top: 1.5rem; border-left: 4px solid var(--accent-secondary);">
+                        <strong>លទ្ធផលតេស្ត៖</strong> ក្នុងករណីដាច់ភ្លើង ឬ ដាច់ WiFi ប្រព័ន្ធដំណើរការជា Closed-Loop
+                        IoT–AI Architecture ដោយគ្មានការបាត់បង់ទិន្នន័យ ឬបរាជ័យក្នុងការបញ្ជាសកម្មភាពស្រោចស្រពទឹក
+                        និងជីទឹក។
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <footer style="text-align: center; margin-top: 4rem; color: var(--text-secondary); font-size: 0.9rem;">
             <p>&copy; 2026 Smart Agriculture 4.0 System Documentation. All rights reserved.</p>
         </footer>
