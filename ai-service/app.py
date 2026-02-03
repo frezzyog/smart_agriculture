@@ -257,7 +257,10 @@ async def interpret_sensor_data(request: InterpretRequest):
         tomorrow_rain_probability = 0
         
         try:
-            backend_url = os.getenv("BACKEND_URL", "http://localhost:5000")
+            backend_url = os.getenv("NODE_BACKEND_URL") or os.getenv("BACKEND_URL", "http://localhost:5000")
+            # Ensure https:// prefix
+            if backend_url and not backend_url.startswith("http"):
+                backend_url = f"https://{backend_url}"
             async with httpx.AsyncClient() as client:
                 weather_response = await client.get(f"{backend_url}/api/weather", timeout=5.0)
                 if weather_response.status_code == 200:
