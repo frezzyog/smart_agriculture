@@ -431,36 +431,61 @@
             <div class="grid-container">
                 <div class="card">
                     <h3>៩.២ ការធ្វើតេស្តការរួមបញ្ចូល (Integration Tests)</h3>
+                    <div style="margin-bottom: 2rem;">
+                        <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                            ការធ្វើតេស្តការរួមបញ្ចូល (Integration Tests)
+                            បានផ្ទៀងផ្ទាត់លើទំនាក់ទំនងរវាងស្រទាប់ប្រព័ន្ធនីមួយៗ
+                            និងធានាថាប្រព័ន្ធដំណើរការបានត្រឹមត្រូវពីដើមដល់ចុង។
+                            ការធ្វើតេស្តទាំងនេះបានបញ្ជាក់ពីការហូរចូលនៃទិន្នន័យយ៉ាងរលូនពីសិនស័ររូបវន្ត តាមរយៈឧបករណ៍បញ្ជា
+                            និងហេដ្ឋារចនាសម្ព័ន្ធក្លោត (Cloud) ទៅកាន់ចំណុចប្រទាក់អ្នកប្រើ (UI)
+                            និងត្រឡប់មកវិញនូវសកម្មភាពរូបវន្ត។
+                        </p>
+
+                        <h4>សេណារីយោសំខាន់ៗដែលត្រូវបានធ្វើតេស្ត រួមមាន៖</h4>
+                        <ul>
+                            <li><strong>ការបញ្ជូនទិន្នន័យពីដើមដល់ចុង</strong>៖ sensors → ESP32 → MQTT → cloud backend →
+                                database → dashboard</li>
+                            <li><strong>ការដំណើរការសិនស័រ</strong>៖ ដំណើរការដោយជោគជ័យនូវទិន្នន័យចេញពីសិនស័រដី LoRaWAN
+                                7-ក្នុង-1 ទៅក្នុងវិភាគលើក្លោត និង AI decision logic</li>
+                            <li><strong>រង្វង់ត្រួតពិនិត្យ (Control Loop)</strong>៖ ការបញ្ជូនពាក្យបញ្ជាស្រោចស្រព
+                                និងដាក់ជីដែលបង្កើតដោយ AI ត្រឡប់ទៅ ESP32 ដើម្បីអនុវត្តតាមរយៈ relay modules</li>
+                            <li><strong>ការធ្វើឱ្យប្រសើរឡើងតាមអាកាសធាតុ</strong>៖
+                                ការរួមបញ្ចូលត្រឹមត្រូវនៃទិន្នន័យអាកាសធាតុពី OpenWeatherMap ទៅក្នុង AI-based optimization
+                                logic</li>
+                            <li><strong>ការធ្វើសមកាលកម្មហិរញ្ញវត្ថុ</strong>៖
+                                ការធ្វើបច្ចុប្បន្នភាពដោយស្វ័យប្រវត្តិនូវបញ្ជីតាមដានចំណាយ បន្ទាប់ពីសកម្មភាពម៉ាស៊ីនបូម
+                            </li>
+                        </ul>
+                    </div>
+
+                    <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 2rem 0;">
+
+                    <h3>9.2 Integration Tests</h3>
                     <p style="color: var(--text-secondary); margin-bottom: 1rem;">
-                        ការធ្វើ Integration Tests ត្រូវបានអនុវត្តន៍
-                        ដើម្បីផ្ទៀងផ្ទាត់ការធ្វើការរួមគ្នារវាងស្រទាប់ប្រព័ន្ធនីមួយៗ
-                        និងធានាថាប្រព័ន្ធដំណើរការបានត្រឹមត្រូវពីដើមដល់ចុង។
-                    </p>
-                    <p style="color: var(--text-secondary); margin-bottom: 1rem;">
-                        ការធ្វើតេស្តនេះបានបញ្ជាក់ថា ទិន្នន័យអាចហូរបានដោយរលូនចាប់ពីសិនស័រ តាម ESP32 តាម MQTT ទៅ Cloud
-                        Backend ទៅ Database និងបង្ហាញលើ Dashboard
-                        ហើយបញ្ជូនពាក្យបញ្ជាត្រឡប់មកវិញដល់ឧបករណ៍បញ្ជាដោយគ្មានបញ្ហា។
+                        Integration testing validated interactions between system layers and ensured correct end-to-end
+                        system behavior. These tests confirmed seamless data flow from physical sensors through the edge
+                        device and cloud infrastructure to the user interface and back to physical actuation.
                     </p>
 
-                    <h4>សេណារីយោសំខាន់ៗដែលត្រូវបានធ្វើតេស្ត៖</h4>
+                    <h4>Key integration scenarios included:</h4>
                     <ul>
-                        <li><strong>Data Flow</strong>: Sensors → ESP32 → MQTT → Cloud Backend → Database → Dashboard
-                        </li>
-                        <li><strong>AI Logic</strong>: Soil Integrated Sensor ទៅ Cloud Analytics និង AI Decision Logic
-                        </li>
-                        <li><strong>Closed-Loop Command</strong>: ការបញ្ជូនពាក្យបញ្ជាស្រោចស្រពទឹក និង ជីទឹក ដែលបង្កើតដោយ
-                            AI ត្រឡប់ទៅ ESP32 ដើម្បីអនុវត្តន៍តាមរយៈ Relay Module</li>
-                        <li><strong>Environmental Intelligence</strong>: ការរួមបញ្ចូលទិន្នន័យអាកាសធាតុពី OpenWeatherMap
-                            ជាមួយ Logic បង្កើនប្រសិទ្ធភាពរបស់ AI</li>
-                        <li><strong>Audit Trails</strong>: ការធ្វើបច្ចុប្បន្នភាពកត់ត្រាទិន្នន័យ បិទ/បើក ដោយស្វ័យប្រវត្តិ
-                            បន្ទាប់ពីម៉ាស៊ីនបូមដំណើរការ</li>
+                        <li><strong>End-to-end data transmission</strong>: sensors → ESP32 → MQTT → cloud backend →
+                            database → dashboard</li>
+                        <li><strong>Sensor Processing</strong>: Successful processing of data originating from the
+                            LoRaWAN 7-in-1 soil sensor into cloud analytics and AI decision logic</li>
+                        <li><strong>Control Loop</strong>: Transmission of AI-generated irrigation and fertilization
+                            commands back to the ESP32 for execution via relay modules</li>
+                        <li><strong>Weather Optimization</strong>: Proper integration of weather data from
+                            OpenWeatherMap into AI-based optimization logic</li>
+                        <li><strong>Financial Sync</strong>: Automatic updating of expense tracking records following
+                            pump activation events</li>
                     </ul>
 
                     <div class="flow-diagram"
                         style="margin-top: 1.5rem; border-left: 4px solid var(--accent-secondary);">
-                        <strong>លទ្ធផលតេស្ត៖</strong> ក្នុងករណីដាច់ភ្លើង ឬ ដាច់ WiFi ប្រព័ន្ធដំណើរការជា Closed-Loop
-                        IoT–AI Architecture ដោយគ្មានការបាត់បង់ទិន្នន័យ ឬបរាជ័យក្នុងការបញ្ជាសកម្មភាពស្រោចស្រពទឹក
-                        និងជីទឹក។
+                        <strong>Test Result / លទ្ធផលតេស្ត៖</strong> These integration tests confirmed that the system
+                        operates as a closed-loop IoT–AI architecture without data loss, synchronization errors, or
+                        command execution failures.
                     </div>
                 </div>
             </div>
