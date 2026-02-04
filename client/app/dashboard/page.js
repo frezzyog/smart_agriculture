@@ -37,8 +37,16 @@ export default function DashboardPage() {
         if (!user) return
         const fetchData = async () => {
             try {
-                // Fetch expenses
-                const expData = await getExpenses()
+                // Fetch expenses (MOCKED DATA FOR PRESENTATION)
+                // const expData = await getExpenses()
+                const expData = [
+                    { id: 1, category: 'Income', amount: 3500, date: '2024-02-01', description: 'Lettuce Harvest Sale' },
+                    { id: 2, category: 'Supplies', amount: 450, date: '2024-02-02', description: 'Organic Fertilizer (20kg)' },
+                    { id: 3, category: 'Utility', amount: 120, date: '2024-02-03', description: 'Irrigation Pump Electricity' },
+                    { id: 4, category: 'Repairs', amount: 85, date: '2024-02-04', description: 'Sensor Maintenance' },
+                    { id: 5, category: 'Income', amount: 1200, date: '2024-02-05', description: 'Local Market Delivery' },
+                    { id: 6, category: 'Supplies', amount: 200, date: '2024-02-06', description: 'Seedlings' }
+                ]
                 setExpenses(expData)
 
                 // Fetch historical sensor data (limit to 20 for charts)
