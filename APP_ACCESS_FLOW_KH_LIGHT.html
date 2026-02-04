@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="km">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Ag AI - គំនូសបំព្រួញលំហូរអ្នកប្រើប្រាស់ (Light)</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;600;700&family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.344.0/dist/umd/lucide.min.js"></script>
+    <style>
+        :root {
+            --bg: #ffffff;
+            --surface: #ffffff;
+            --surface-hover: #f1f5f9;
+            --primary: #059669;
+            /* Slightly darker green for contrast */
+            --secondary: #2563eb;
+            --accent: #d97706;
+            --text: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --glow: rgba(5, 150, 105, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Kantumruy Pro', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 4rem 2rem;
+            overflow-x: hidden;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 5rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #059669, #2563eb);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .flow-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2.5rem;
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .flow-container::before {
+            content: '';
+            position: absolute;
+            top: 2rem;
+            bottom: 2rem;
+            left: 50%;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--primary), var(--secondary), var(--accent));
+            transform: translateX(-50%);
+            z-index: 0;
+            opacity: 0.2;
+        }
+
+        .step {
+            position: relative;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 1.5rem 2.5rem;
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            z-index: 10;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .step:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            background: var(--surface-hover);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .step-icon {
+            width: 54px;
+            height: 54px;
+            background: #f8fafc;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            flex-shrink: 0;
+            border: 1px solid var(--border);
+        }
+
+        .step-content {
+            flex-grow: 1;
+        }
+
+        .step-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .step-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        .decision {
+            background: #ffffff;
+            border: 2px solid var(--secondary);
+            transform: rotate(45deg);
+            width: 110px;
+            height: 110px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            margin: 1rem 0;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .decision-content {
+            transform: rotate(-45deg);
+            text-align: center;
+            font-weight: 700;
+            font-size: 0.8rem;
+            color: var(--secondary);
+        }
+
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            width: 100%;
+            max-width: 900px;
+            margin-top: 1rem;
+        }
+
+        .module-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+        }
+
+        .module-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-5px);
+            background: var(--surface-hover);
+        }
+
+        .module-icon {
+            width: 40px;
+            height: 40px;
+            color: var(--accent);
+        }
+
+        .module-title {
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .path-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            background: var(--bg);
+            padding: 0.2rem 0.8rem;
+            border-radius: 4px;
+        }
+
+        footer {
+            margin-top: 6rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <span
+            style="color: var(--primary); font-weight: 700; text-transform: uppercase; letter-spacing: 0.2em; font-size: 0.7rem;">គំនូសបំព្រួញលំហូរការងារ</span>
+        <h1>ដំណើរការនៃការប្រើប្រាស់កម្មវិធី</h1>
+        <p>របៀបដែលកសិករចូលប្រើប្រាស់ប្រព័ន្ធ Smart Agriculture និងអន្តរកម្មជាមួយមុខងារ AI។</p>
+    </div>
+
+    <div class="flow-container">
+        <!-- Step 1 -->
+        <div class="step">
+            <div class="step-icon"><i data-lucide="globe"></i></div>
+            <div class="step-content">
+                <div class="step-title">ចូលទៅកាន់វេបសាយ</div>
+                <div class="step-desc">កសិករវាយបញ្ចូលអាសយដ្ឋាន URL នៅលើទូរស័ព្ទ ឬកុំព្យូទ័រ។</div>
+            </div>
+        </div>
+
+        <div class="path-label">ការផ្ទៀងផ្ទាត់</div>
+
+        <!-- Decision 1 -->
+        <div class="decision">
+            <div class="decision-content">តើមាន<br>គណនីទេ?</div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="step" style="border-color: var(--secondary);">
+            <div class="step-icon" style="color: var(--secondary);"><i data-lucide="shield-check"></i></div>
+            <div class="step-content">
+                <div class="step-title">ការចូលគណនី (Authentication)</div>
+                <div class="step-desc">សុវត្ថិភាពខ្ពស់តាមរយៈ Supabase ដោយប្រើអ៊ីមែល និងលេខសម្ងាត់។</div>
+            </div>
+        </div>
+
+        <div class="path-label">ការកំណត់</div>
+
+        <!-- Step 3 -->
+        <div class="step">
+            <div class="step-icon"><i data-lucide="languages"></i></div>
+            <div class="step-content">
+                <div class="step-title">ជ្រើសរើសភាសា</div>
+                <div class="step-desc">ប្រព័ន្ធផ្តល់ជម្រើសរវាង ភាសាខ្មែរ ឬ ភាសាអង់គ្លេស។</div>
+            </div>
+        </div>
+
+        <div class="path-label">គោលដៅ</div>
+
+        <!-- Step 4 -->
+        <div class="step" style="background: linear-gradient(45deg, #ffffff, #f8fafc); border-color: var(--primary);">
+            <div class="step-icon"><i data-lucide="layout-dashboard"></i></div>
+            <div class="step-content">
+                <div class="step-title">ផ្ទាំងគ្រប់គ្រង (Dashboard Hub)</div>
+                <div class="step-desc">ចំណុចកណ្តាលសម្រាប់មើលទិន្នន័យសិនស័រ និងបញ្ជាប្រព័ន្ធទាំងអស់។</div>
+            </div>
+        </div>
+
+        <div class="path-label">សមត្ថភាពសំខាន់ៗ</div>
+    </div>
+
+    <div class="modules-grid">
+        <div class="module-card">
+            <i data-lucide="bot-message-square" class="module-icon"></i>
+            <div class="module-title">ពិគ្រោះជាមួយ AI Agronomist</div>
+            <p style="font-size: 0.8rem; color: var(--text-muted);">សួរ AI អំពីសុខភាពដំណាំ និងគុណភាពដីជាភាសាខ្មែរ។</p>
+        </div>
+        <div class="module-card">
+            <i data-lucide="settings-2" class="module-icon"></i>
+            <div class="module-title">ការបញ្ជាដោយស្វ័យប្រវត្តិ</div>
+            <p style="font-size: 0.8rem; color: var(--text-muted);">គ្រប់គ្រងម៉ាស៊ីនបូមដោយផ្ទាល់ ឬកំណត់កាលវិភាគតាម AI។
+            </p>
+        </div>
+        <div class="module-card">
+            <i data-lucide="line-chart" class="module-icon"></i>
+            <div class="module-title">ទិន្នន័យវិភាគ និងប្រវត្តិ</div>
+            <p style="font-size: 0.8rem; color: var(--text-muted);">ពិនិត្យមើលទិន្នន័យចាស់ៗ
+                និងតាមដានចំណាយដោយស្វ័យប្រវត្តិ។</p>
+        </div>
+        <div class="module-card">
+            <i data-lucide="bell-ring" class="module-icon"></i>
+            <div class="module-title">ការជូនដំណឹងឆ្លាតវៃ</div>
+            <p style="font-size: 0.8rem; color: var(--text-muted);">កំណត់ការផ្ញើសារអាសន្នទៅកាន់ Telegram និង SMS។</p>
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2026 Smart Agriculture 4.0 - ឯកសារបច្ចេកទេសលំហូរការងារ
+    </footer>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>

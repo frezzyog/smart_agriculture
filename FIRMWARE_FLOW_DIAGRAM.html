@@ -1,133 +1,286 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="km">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ESP32 Smart Agriculture Firmware Flow</title>
+    <title>Firmware Flow Diagram - Smart Agriculture 4.0</title>
     <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Kantumruy+Pro:wght@300;400;700&display=swap"
+        rel="stylesheet">
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f7f6;
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --accent-primary: #38bdf8;
+            --accent-secondary: #4ade80;
+            --accent-tertiary: #a78bfa;
+            --border-color: #334155;
+        }
+
+        * {
+            box-sizing: border-box;
             margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', 'Kantumruy Pro', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 2rem;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 40px;
         }
 
         .container {
-            background: white;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            max-width: 1000px;
+            max-width: 1100px;
             width: 100%;
+            background: var(--card-bg);
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border-color);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
         }
 
         h1 {
-            color: #2c3e50;
-            text-align: center;
-            margin-bottom: 30px;
+            font-size: 2.2rem;
+            font-weight: 700;
+            background: linear-gradient(to right, var(--accent-secondary), var(--accent-primary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
         }
 
-        p {
-            color: #7f8c8d;
-            text-align: center;
-            margin-bottom: 40px;
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
         }
 
-        .mermaid {
+        .mermaid-container {
+            background: rgba(15, 23, 42, 0.5);
+            padding: 2rem;
+            border-radius: 15px;
+            border: 1px solid var(--border-color);
+            overflow-x: auto;
+            margin-bottom: 2rem;
+        }
+
+        .legend {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .btn-container {
             display: flex;
             justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
         }
 
-        .instructions {
-            margin-top: 40px;
-            padding: 20px;
-            background: #eef2f3;
+        .btn {
+            padding: 0.8rem 1.5rem;
             border-radius: 8px;
-            font-size: 0.9em;
-            color: #34495e;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: var(--accent-primary);
+            color: var(--bg-color);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+        }
+
+        .tech-tags {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--accent-primary);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border: 1px solid rgba(56, 189, 248, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            padding: 1rem;
+
+            .container {
+                padding: 1.5rem;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+
+        /* Mermaid Overrides for Dark Mode */
+        .mermaid .node rect,
+        .mermaid .node circle,
+        .mermaid .node polygon {
+            stroke-width: 2px !important;
         }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <h1>ESP32 Smart Agriculture: AI-Driven Closed-Loop Workflow</h1>
-        <p>Technical Firmware Architecture for Project Submission</p>
+        <header>
+            <h1>Firmware Flow Logic</h1>
+            <p class="subtitle">ESP32 Edge Device & AI Closed-Loop Control System</p>
+        </header>
 
-        <div class="mermaid">
-            graph TD
-            %% Global Styling
-            classDef pink fill:#e91e63,stroke:#333,stroke-width:2px,color:#fff;
-            classDef green fill:#4caf50,stroke:#333,stroke-width:2px,color:#fff;
-            classDef yellowContainer fill:#fffde7,stroke:#fbc02d,stroke-width:2px;
-            classDef blueContainer fill:#e3f2fd,stroke:#1976d2,stroke-width:2px;
-            classDef orangeContainer fill:#fff3e0,stroke:#f57c00,stroke-width:2px;
-            classDef whiteBox fill:#fff,stroke:#333,stroke-width:1px;
-            classDef cloudBox fill:#1976d2,stroke:#0d47a1,stroke-width:3px,color:#fff;
-
-            Start([Power On / Reset]) --> Init[Initialize Hardware]:::green
-            class Start pink
-
-            subgraph Setup_Phase [Setup Phase]
-            IO[Set Pins: Relay Active HIGH<br />Serial & RS485 Modbus]:::whiteBox
-            WiFi{Connect to WiFi}:::whiteBox
-            MQTT[Configure MQTT Broker<br />Set Callback Function]:::whiteBox
-            IO --> WiFi --> MQTT
-            end
-            Init --> Setup_Phase
-
-            subgraph Main_Loop [Main Loop - Continuous]
-            Monitor{MQTT Connected?}:::whiteBox
-            Process[Process MQTT loop]:::whiteBox
-            Timer{5 Seconds Passed?}:::whiteBox
-            Read[Read NPK Sensor & Analog Pins]:::whiteBox
-            Publish[Publish Telemetry to MQTT]:::whiteBox
-
-            Monitor -- Yes --> Process --> Timer
-            Timer -- Yes --> Read --> Publish
-            Publish --> Monitor
-            end
-            Setup_Phase --> Main_Loop
-
-            %% AI Logic Block
-            AI((Cloud AI Analysis Engine)):::cloudBox
-            Publish -.->|Data Stream| AI
-            AI -.->|Logic: If Moisture
-            < 50%<br />OR Nutrients Low| Command
-
-            subgraph Callback [AI Automated Callback]
-            Command[Receive Automated Command]:::whiteBox
-            Decision{Command Type?}:::whiteBox
-            Water[Water Pump: ON]:::whiteBox
-            Fert[Fertilizer Pump: ON]:::whiteBox
-
-            Command --> Decision
-            Decision -- "IRRIGATION" --> Water
-            Decision -- "FERTIGATION" --> Fert
-            end
-
-            class Setup_Phase yellowContainer
-            class Main_Loop blueContainer
-            class Callback orangeContainer
+        <div class="tech-tags">
+            <span class="tag">ESP32 MCU</span>
+            <span class="tag">C++ / Arduino</span>
+            <span class="tag">MQTT Protocol</span>
+            <span class="tag">RS485 Modbus</span>
+            <span class="tag">AI Closed-Loop</span>
         </div>
 
-        <div class="instructions">
-            <strong>Documentation Note:</strong> This diagram illustrates the <em>closed-loop intelligence</em> of the
-            system.
-            Telemetry data is pushed from the ESP32 to the Cloud AI Engine. The AI performs high-level threshold
-            analysis
-            and pushes automated control commands back to the device's interrupt-style callback function to trigger
-            physical actuators (Pumps).
+        <div class="mermaid-container">
+            <div class="mermaid">
+                graph TD
+                %% Styles
+                classDef startNode fill:#e91e63,stroke:#fff,stroke-width:2px,color:#fff;
+                classDef setupNode fill:#1e293b,stroke:#38bdf8,stroke-width:2px,color:#fff;
+                classDef loopNode fill:#0f172a,stroke:#94a3b8,stroke-width:1px,color:#94a3b8;
+                classDef sensorNode fill:#1e293b,stroke:#4ade80,stroke-width:2px,color:#fff;
+                classDef cloudNode fill:#a78bfa,stroke:#fff,stroke-width:2px,color:#fff;
+                classDef actionNode fill:#f59e0b,stroke:#fff,stroke-width:2px,color:#fff;
+
+                Start([⚡ Power On / Reset]):::startNode --> Init[<b>System Init</b><br />Serial 115200 & RS485
+                9600]:::setupNode
+
+                subgraph Setup [Setup Phase]
+                Init --> Pins[Set Relay Pins:<br />RELAY_1, RELAY_2 HIGH]:::setupNode
+                Pins --> WiFiConnect{WiFi.begin<br />Connected?}:::setupNode
+                WiFiConnect -- No --> WiFiConnect
+                WiFiConnect -- Yes --> MQTTConfig[MQTT Server & Callback<br />PubSubClient]:::setupNode
+                end
+
+                Setup --> LoopReady[<b>Main Loop</b>]:::loopNode
+
+                subgraph Runtime [Telemetry Pipeline]
+                LoopReady --> MQTTCheck{MQTT<br />Connected?}:::loopNode
+                MQTTCheck -- No --> MQTTReconnect[mqtt.connect]:::loopNode
+                MQTTReconnect --> MQTTCheck
+                MQTTCheck -- Yes --> MQTTPoll[mqtt.loop]:::loopNode
+
+                MQTTPoll --> Timer{5s Passed?}:::loopNode
+                Timer -- No --> MQTTPoll
+
+                Timer -- Yes --> Read7in1[<b>RS485 Modbus</b><br />Read NPK, pH, EC, Temp]:::sensorNode
+                Read7in1 --> ReadAnalog[<b>ADC Reading</b><br />Moisture, Rain, Battery]:::sensorNode
+                ReadAnalog --> JSON[<b>Serialization</b><br />ArduinoJson: Create doc]:::sensorNode
+                JSON --> Publish[<b>MQTT Publish</b><br />smartag/ID/sensors]:::sensorNode
+                Publish --> MQTTPoll
+                end
+
+                %% External AI Interaction
+                Publish -.-> |JSON Over Internet| AI_Cloud(((<b>Cloud AI Analysis</b><br />Interpretation
+                Engine))):::cloudNode
+
+                subgraph Callback [Automation Logic]
+                AI_Cloud -.-> |MQTT Command| CallbackTrigger[<b>MQTT Callback</b><br />Receive Payload]:::actionNode
+                CallbackTrigger --> ParseCmd[JSON.parse Command]:::actionNode
+                ParseCmd --> SafetyCheck{Valid Action?}:::actionNode
+                SafetyCheck -- Yes --> Actuate[<b>Relay Control</b><br />DigitalWrite LOW/HIGH]:::actionNode
+                Actuate --> PumpStatus[Log Status to DB]:::actionNode
+                end
+
+                class AI_Cloud cloudNode;
+            </div>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="dot" style="background: #e91e63;"></div> Power / Entry Point
+            </div>
+            <div class="legend-item">
+                <div class="dot" style="background: #38bdf8;"></div> Initialization & Network
+            </div>
+            <div class="legend-item">
+                <div class="dot" style="background: #4ade80;"></div> Sensor Data Acquisition
+            </div>
+            <div class="legend-item">
+                <div class="dot" style="background: #a78bfa;"></div> Cloud AI Processing
+            </div>
+            <div class="legend-item">
+                <div class="dot" style="background: #f59e0b;"></div> Automated Actuation
+            </div>
+        </div>
+
+        <div class="btn-container">
+            <a href="SOFTWARE_SPECIFICATIONS.html" class="btn btn-primary">← Back to Specifications</a>
+            <button class="btn"
+                style="background: var(--card-bg); color: var(--text-primary); border: 1px solid var(--border-color);"
+                onclick="window.print()">Download as PDF</button>
         </div>
     </div>
 
     <script>
-        mermaid.initialize({ startOnLoad: true, theme: 'default' });
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'base',
+            themeVariables: {
+                primaryColor: '#1e293b',
+                primaryTextColor: '#f1f5f9',
+                primaryBorderColor: '#38bdf8',
+                lineColor: '#94a3b8',
+                secondaryColor: '#0f172a',
+                tertiaryColor: '#1e293b',
+                mainBkg: '#1e293b',
+                nodeBorder: '#334155',
+                clusterBkg: 'rgba(51, 65, 85, 0.3)',
+                clusterBorder: '#334155',
+                fontSize: '14px'
+            }
+        });
     </script>
 </body>
 

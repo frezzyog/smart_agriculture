@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Ag AI - App Access Flow Diagram</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.344.0/dist/umd/lucide.min.js"></script>
+    <style>
+        :root {
+            --bg: #020617;
+            --surface: #0f172a;
+            --surface-hover: #1e293b;
+            --primary: #10b981;
+            --secondary: #3b82f6;
+            --accent: #f59e0b;
+            --danger: #ef4444;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: rgba(255, 255, 255, 0.08);
+            --glow: rgba(16, 185, 129, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 4rem 2rem;
+            overflow-x: hidden;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 5rem;
+        }
+
+        .header h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 3rem;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            background: linear-gradient(to right, #10b981, #3b82f6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Flow Container */
+        .flow-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2.5rem;
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        /* Vertical Connector */
+        .flow-container::before {
+            content: '';
+            position: absolute;
+            top: 2rem;
+            bottom: 2rem;
+            left: 50%;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--primary), var(--secondary), var(--accent));
+            transform: translateX(-50%);
+            z-index: 0;
+            opacity: 0.3;
+        }
+
+        /* Steps */
+        .step {
+            position: relative;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 1.5rem 2.5rem;
+            width: 100%;
+            max-width: 450px;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            z-index: 10;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+        }
+
+        .step:hover {
+            transform: translateY(-5px) scale(1.02);
+            border-color: var(--primary);
+            background: var(--surface-hover);
+            box-shadow: 0 20px 40px -15px rgba(16, 185, 129, 0.2);
+        }
+
+        .step-icon {
+            width: 54px;
+            height: 54px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex-grow: 1;
+        }
+
+        .step-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .step-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        /* Decision Diamonds */
+        .decision {
+            background: #111827;
+            border: 2px solid var(--secondary);
+            transform: rotate(45deg);
+            width: 100px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            margin: 1rem 0;
+        }
+
+        .decision-content {
+            transform: rotate(-45deg);
+            text-align: center;
+            font-weight: 800;
+            font-size: 0.8rem;
+            color: var(--secondary);
+        }
+
+        /* Grid for final modules */
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            width: 100%;
+            max-width: 900px;
+            margin-top: 1rem;
+            position: relative;
+        }
+
+        .module-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .module-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-5px);
+            background: var(--surface-hover);
+        }
+
+        .module-icon {
+            width: 40px;
+            height: 40px;
+            color: var(--accent);
+        }
+
+        .module-title {
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        /* Label for paths */
+        .path-label {
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            background: var(--bg);
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            letter-spacing: 0.1em;
+        }
+
+        footer {
+            margin-top: 6rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <span
+            style="color: var(--primary); font-weight: 700; text-transform: uppercase; letter-spacing: 0.2em; font-size: 0.7rem;">Workflow
+            Visualization</span>
+        <h1>App Access Journey</h1>
+        <p>How a farmer accesses the Smart Agriculture platform and interacts with AI-driven features.</p>
+    </div>
+
+    <div class="flow-container">
+        <!-- Step 1 -->
+        <div class="step">
+            <div class="step-icon"><i data-lucide="globe"></i></div>
+            <div class="step-content">
+                <div class="step-title">Visit URL</div>
+                <div class="step-desc">Farmer enters project domain in mobile or desktop browser.</div>
+            </div>
+        </div>
+
+        <div class="path-label">Gatekeeper</div>
+
+        <!-- Decision 1 -->
+        <div class="decision">
+            <div class="decision-content">HAS<br>ACCOUNT?</div>
+        </div>
+
+        <!-- Step 2 (Auth) -->
+        <div class="step" style="border-color: var(--secondary);">
+            <div class="step-icon" style="color: var(--secondary);"><i data-lucide="shield-check"></i></div>
+            <div class="step-content">
+                <div class="step-title">Supabase Authentication</div>
+                <div class="step-desc">Secure sign-in or registration via email and encrypted password.</div>
+            </div>
+        </div>
+
+        <div class="path-label">Preference</div>
+
+        <!-- Step 3 (Language) -->
+        <div class="step">
+            <div class="step-icon"><i data-lucide="languages"></i></div>
+            <div class="step-content">
+                <div class="step-title">Localization</div>
+                <div class="step-desc">System detects preference: Khmer (ភាសាខ្មែរ) or English.</div>
+            </div>
+        </div>
+
+        <div class="path-label">Destination</div>
+
+        <!-- Step 4 (Dashboard) -->
+        <div class="step"
+            style="background: linear-gradient(45deg, var(--surface), #1e293b); border-color: var(--primary);">
+            <div class="step-icon"><i data-lucide="layout-dashboard"></i></div>
+            <div class="step-content">
+                <div class="step-title">Main Dashboard Hub</div>
+                <div class="step-desc">Central interface for all live sensor metrics and system controls.</div>
+            </div>
+        </div>
+
+        <div class="path-label">Key Capabilities</div>
+    </div>
+
+    <!-- Final Grid Level -->
+    <div class="modules-grid">
+        <div class="module-card">
+            <i data-lucide="bot-message-square" class="module-icon"></i>
+            <div class="module-title">AI Agronomist Chat</div>
+            <p style="font-size: 0.8rem; color: var(--text-muted);">Consult the AI about crop health and soil quality in
+                native language.</p>
+        </div>
+        <div class="module-card">
+            <i data-lucide="settings-2" class="module-icon"></i>
+            <div class="module-title">Autonomous Control</div>
+            <p style="font-size: 0.8rem; color: var(--text-muted);">Manage pumps manually or set AI-driven irrigation
+                schedules.</p>
+        </div>
+        <div class="module-card">
+            <i data-lucide="line-chart" class="module-icon"></i>
+            <div class="module-title">Analytics & Logs</div>
+            <p style="font-size: 0.8rem; color: var(--text-muted);">Review historical data and track expenses
+                automatically.</p>
+        </div>
+        <div class="module-card">
+            <i data-lucide="bell-ring" class="module-icon"></i>
+            <div class="module-title">Smart Notifications</div>
+            <p style="font-size: 0.8rem; color: var(--text-muted);">Configure Telegram and SMS alerts for critical field
+                alerts.</p>
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2026 Smart Agriculture 4.0 - User Flow Technical Documentation
+    </footer>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>

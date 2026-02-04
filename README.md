@@ -117,8 +117,22 @@ smart-ag-ai/
 
 ---
 
-## ⚖️ License
-Distributed under the ISC License. See `LICENSE` for more information.
+---
++
++## ⚠️ បញ្ហា និងកម្រិតកំណត់ (Known Issues)
++ព័ត៌មានលម្អិតអំពីកម្រិតកំណត់បច្ចេកទេស និងបញ្ហាដែលបានដឹង៖ [KNOWN_ISSUES_KH.md](file:///c:/Users/ASUS%20VIVOBOOK/Desktop/year3/smart-ag-ai/KNOWN_ISSUES_KH.md)
++
++---
++
+ ## ⚖️ License
+ distributed under the ISC License. See `LICENSE` for more information.
+
+---
+
+## 📚 Technical Documentation
+- **[API Documentation](API_DOCUMENTATION.md)**: Explore the REST API endpoints and data formats.
+- **[Prototype Specifications (Khmer)](PROTOTYPE_SPEC_KH.md)**: Detailed feature list and user flows.
+- **[Deployment Guide](DEPLOYMENT_GUIDE.md)**: Step-by-step instructions to deploy the system.
 
 ---
 

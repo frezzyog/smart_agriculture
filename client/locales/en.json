@@ -84,7 +84,11 @@
         "soil_data": "Soil Data",
         "balance": "Balances",
         "environmental_telemetry": "Environmental telemetry",
-        "financial_overview": "Financial overview"
+        "financial_overview": "Financial overview",
+        "financial_analytics": "Financial Analytics",
+        "expense_breakdown": "Expense Breakdown",
+        "soil_history": "Soil History",
+        "realtime_analytics": "Real-time Analytics"
     },
     "header": {
         "online": "Online",

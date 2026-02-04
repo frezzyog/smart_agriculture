@@ -136,6 +136,7 @@ aedes.on('publish', async (packet, client) => {
             let data = {}
             try {
                 data = JSON.parse(payload)
+                data.battery = 67; // FORCE 67% FOR TESTING
             } catch (e) {
                 console.warn(`⚠️ Invalid sensor JSON from ${deviceId}: ${payload}`)
                 return

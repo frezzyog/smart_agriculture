@@ -367,6 +367,23 @@
                         </li>
                     </ul>
 
+                    <h4>៧.៤ ព័ត៌មានលម្អិតនៃការបង្វឹក (Training Details)</h4>
+                    <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                        AI ប្រើប្រាស់វិធីសាស្ត្រ In-Context Learning ដោយបញ្ចូលទិន្នន័យ JSON Telemetry ទៅក្នុង Prompt
+                        សម្រាប់ការវិភាគ និងផ្ដល់អនុសាសន៍ក្នុងពេលជាក់ស្តែង (Real-Time Inference)។
+                    </p>
+                    <ul>
+                        <li><strong>វិធីសាស្ត្រ (Methodology)</strong>: In-Context Learning (Prompt Engineering)។
+                            ទិន្នន័យ JSON telemetry ត្រូវបានបញ្ចូលទៅក្នុង context window របស់ LLM សម្រាប់ការសម្រេចចិត្ត។
+                        </li>
+                        <li><strong>ប៉ារ៉ាម៉ែត្រ (Hyperparameters)</strong>: Temperature: 0.7, TopP: 0.9,
+                            MaxOutputTokens: 800។</li>
+                        <li><strong>ហេដ្ឋារចនាសម្ព័ន្ធ (Hardware)</strong>: ប្រើប្រាស់ Distributed Cloud Inference
+                            (Google Cloud TPU/GPU) តាមរយៈ Gemini API និង Local GPU Environment សម្រាប់ការធ្វើតេស្ត។</li>
+                    </ul>
+
+                    <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 1.5rem 0;">
+
                     <h4>7.4 Training Details</h4>
                     <ul>
                         <li><strong>Methodology</strong>: In-Context Learning (Prompt Engineering). Live JSON telemetry

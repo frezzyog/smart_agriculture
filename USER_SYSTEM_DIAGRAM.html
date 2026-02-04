@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="km">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Agriculture 4.0 - User Interaction Diagram</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Kantumruy+Pro:wght@300;400;600;700&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.344.0/dist/umd/lucide.min.js"></script>
+    <style>
+        :root {
+            --primary: #10b981;
+            --primary-glow: rgba(16, 185, 129, 0.2);
+            --secondary: #3b82f6;
+            --accent: #8b5cf6;
+            --bg: #030712;
+            --surface: #111827;
+            --surface-light: #1f2937;
+            --border: rgba(255, 255, 255, 0.08);
+            --text: #f9fafb;
+            --text-muted: #9ca3af;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', 'Kantumruy Pro', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 4rem;
+            z-index: 10;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(to right, #10b981, #3b82f6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        /* The Diagram Container */
+        .diagram-wrapper {
+            position: relative;
+            width: 1000px;
+            height: 600px;
+            margin: 2rem 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* SVG Connections Layer */
+        .connections-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .connection-line {
+            fill: none;
+            stroke: var(--primary);
+            stroke-width: 2;
+            stroke-dasharray: 8, 4;
+            opacity: 0.3;
+            filter: drop-shadow(0 0 4px var(--primary-glow));
+            animation: flow 20s linear infinite;
+        }
+
+        @keyframes flow {
+            from {
+                stroke-dashoffset: 100;
+            }
+
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        /* Entity Nodes */
+        .node {
+            position: absolute;
+            z-index: 10;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.75rem;
+            width: 180px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            transition: transform 0.3s ease, border-color 0.3s ease;
+            text-align: center;
+        }
+
+        .node:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            cursor: pointer;
+        }
+
+        .node-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--surface-light);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+        }
+
+        .node-title {
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        .node-khmer {
+            font-family: 'Kantumruy Pro';
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* Specific Node Positions */
+        .node-farmer {
+            top: 50%;
+            left: 0%;
+            transform: translateY(-50%);
+            border-color: var(--secondary);
+        }
+
+        .node-dashboard {
+            top: 50%;
+            left: 30%;
+            transform: translateY(-50%);
+        }
+
+        .node-cloud {
+            top: 20%;
+            left: 60%;
+            transform: translateX(-50%);
+        }
+
+        .node-field {
+            top: 80%;
+            left: 60%;
+            transform: translateX(-50%);
+        }
+
+        .node-ai {
+            top: 50%;
+            left: 90%;
+            transform: translateY(-50%);
+            border-color: var(--accent);
+        }
+
+        /* Secondary Nodes (Small circles) */
+        .sub-node {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: var(--surface-light);
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 5;
+            color: var(--text-muted);
+            font-size: 0.7rem;
+        }
+
+        /* Tooltip-like Descriptions */
+        .label {
+            position: absolute;
+            font-size: 0.75rem;
+            color: var(--primary);
+            font-weight: 600;
+            background: rgba(16, 185, 129, 0.1);
+            padding: 2px 8px;
+            border-radius: 4px;
+            z-index: 2;
+        }
+
+        /* Features Section */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            max-width: 1000px;
+            margin-top: 4rem;
+        }
+
+        .info-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+        }
+
+        .info-card h3 {
+            color: var(--primary);
+            margin-bottom: 0.75rem;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-card p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        footer {
+            margin-top: 4rem;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        /* Glowing dots on lines */
+        .glow-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--primary);
+            border-radius: 50%;
+            position: absolute;
+            box-shadow: 0 0 10px var(--primary);
+            z-index: 2;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <span
+            style="color: var(--primary); font-weight: 600; text-transform: uppercase; letter-spacing: 2px; font-size: 0.75rem;">Interactive
+            Visualization</span>
+        <h1>User-Centric System Diagram</h1>
+        <p>ប្លង់ទំនាក់ទំនងអ្នកប្រើប្រាស់ និងប្រព័ន្ធកសិកម្មឆ្លាតវៃ</p>
+    </div>
+
+    <div class="diagram-wrapper">
+        <!-- SVG Connections -->
+        <svg class="connections-layer" viewBox="0 0 1000 600">
+            <!-- Farmer to Dashboard -->
+            <path d="M 180 300 L 300 300" class="connection-line" />
+            <!-- Dashboard to Cloud -->
+            <path d="M 480 300 Q 550 300 600 120" class="connection-line" />
+            <!-- Cloud to AI -->
+            <path d="M 680 120 Q 800 120 900 300" class="connection-line" />
+            <!-- Field to Cloud -->
+            <path d="M 600 480 Q 550 300 680 120" class="connection-line" style="stroke: #3b82f6;" />
+            <!-- Dashboard to Field -->
+            <path d="M 480 300 Q 550 300 600 480" class="connection-line" />
+            <!-- AI to Dashboard -->
+            <path d="M 900 300 Q 800 480 480 300" class="connection-line" style="stroke: #8b5cf6;" />
+        </svg>
+
+        <!-- Labels -->
+        <div class="label" style="top: 280px; left: 200px;">Interacts</div>
+        <div class="label" style="top: 200px; left: 500px;">HTTPS/WSS</div>
+        <div class="label" style="top: 400px; left: 500px;">Commands</div>
+        <div class="label" style="top: 350px; left: 630px;">Telemetry (MQTT)</div>
+        <div class="label" style="top: 150px; left: 780px;">AI Requests</div>
+        <div class="label" style="top: 450px; left: 780px;">Insights</div>
+
+        <!-- Nodes -->
+        <div class="node node-farmer">
+            <div class="node-icon"><i data-lucide="user"></i></div>
+            <div class="node-title">Farmer</div>
+            <div class="node-khmer">កសិករ</div>
+        </div>
+
+        <div class="node node-dashboard">
+            <div class="node-icon"><i data-lucide="smartphone"></i></div>
+            <div class="node-title">Dashboard App</div>
+            <div class="node-khmer">កម្មវិធីគ្រប់គ្រង</div>
+        </div>
+
+        <div class="node node-cloud">
+            <div class="node-icon"><i data-lucide="cloud"></i></div>
+            <div class="node-title">Backend Server</div>
+            <div class="node-khmer">ម៉ាស៊ីនបម្រើកណ្តាល</div>
+        </div>
+
+        <div class="node node-field">
+            <div class="node-icon"><i data-lucide="sprout"></i></div>
+            <div class="node-title">IoT Field Device</div>
+            <div class="node-khmer">ឧបករណ៍សិនស័រ</div>
+        </div>
+
+        <div class="node node-ai">
+            <div class="node-icon"><i data-lucide="brain-circuit"></i></div>
+            <div class="node-title">AI Engine</div>
+            <div class="node-khmer">ប្រព័ន្ធត្រួតពិនិត្យ AI</div>
+        </div>
+
+        <!-- Decorators -->
+        <div class="sub-node" style="top: 10%; left: 55%;"><i data-lucide="database"></i></div>
+        <div class="sub-node" style="top: 10%; left: 65%;"><i data-lucide="shield-check"></i></div>
+        <div class="sub-node" style="top: 90%; left: 55%;"><i data-lucide="droplet"></i></div>
+        <div class="sub-node" style="top: 90%; left: 65%;"><i data-lucide="sun"></i></div>
+    </div>
+
+    <div class="info-grid">
+        <div class="info-card">
+            <h3><i data-lucide="layout"></i> Intuitive Control</h3>
+            <p>Farmers interact with a high-performance dashboard that provides local language (Khmer) support and
+                real-time visual feedback.</p>
+        </div>
+        <div class="info-card">
+            <h3><i data-lucide="zap"></i> Automated Action</h3>
+            <p>The system closes the loop by automatically triggering pumps and fans when the AI detects suboptimal
+                conditions.</p>
+        </div>
+        <div class="info-card">
+            <h3><i data-lucide="message-square"></i> AI Advisory</h3>
+            <p>A specialized LLM agent acts as a virtual agronomist, answering complex questions about crop health and
+                soil quality.</p>
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2026 Smart Agriculture 4.0 Pro - Strategic Ecosystem Diagram
+    </footer>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>

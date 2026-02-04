@@ -148,8 +148,9 @@ void sendSensorData() {
   
   // Simple Percentage calculation for 12V Lead Acid or 3S Lithium
   // Range ~10.5V (0%) to ~12.6V (100%)
-  float batteryPercent = map(voltage * 10, 105, 126, 0, 100);
-  batteryPercent = constrain(batteryPercent, 0, 100);
+  float batteryPercent = 67.0; // Force to 67% for testing
+  // float batteryPercent = map(voltage * 10, 105, 126, 0, 100);
+  // batteryPercent = constrain(batteryPercent, 0, 100);
 
   // Prepare JSON
   StaticJsonDocument<512> doc;

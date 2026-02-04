@@ -8,9 +8,12 @@ import SoilSensorCard from '@/components/dashboard/SoilSensorCard'
 import SevenInOneSensorCard from '@/components/dashboard/SevenInOneSensorCard'
 import ExpenseSummaryCard from '@/components/dashboard/ExpenseSummaryCard'
 import RecentTransactionsMinimal from '@/components/dashboard/RecentTransactionsMinimal'
+import SensorHistoryChart from '@/components/dashboard/SensorHistoryChart'
+import NPKTrendChart from '@/components/dashboard/NPKTrendChart'
+import FinancialBalanceChart from '@/components/dashboard/FinancialBalanceChart'
 import { Droplet, LayoutDashboard, Wallet, Sprout, Zap } from 'lucide-react'
 import { useRealtimeSensorData } from '@/hooks/useRealtimeSensorData'
-import { getExpenses } from '@/lib/api'
+import { getExpenses, getSensorData, getDevices } from '@/lib/api'
 import { useTranslation } from 'react-i18next'
 
 import { useAuth } from '@/hooks/useAuth'
@@ -22,6 +25,7 @@ export default function DashboardPage() {
     const router = useRouter()
     const sensorData = useRealtimeSensorData()
     const [expenses, setExpenses] = useState([])
+    const [historicalData, setHistoricalData] = useState([])
     const [activeTab, setActiveTab] = useState('soil') // 'soil' or 'balance'
 
     useEffect(() => {
@@ -32,16 +36,58 @@ export default function DashboardPage() {
 
     useEffect(() => {
         if (!user) return
-        const fetchExpenses = async () => {
+        const fetchData = async () => {
             try {
-                const data = await getExpenses()
-                setExpenses(data)
+                // Fetch expenses
+                const expData = await getExpenses()
+                setExpenses(expData)
+
+                // Fetch historical sensor data (limit to 20 for charts)
+                const devices = await getDevices()
+                if (devices && devices.length > 0) {
+                    const devId = devices[0].deviceId
+                    const histData = await getSensorData(devId, { limit: 20 })
+
+                    if (histData && Array.isArray(histData)) {
+                        // Format for SensorHistoryChart
+                        const formatted = histData.reverse().map(d => ({
+                            time: new Date(d.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                            moisture: d.moisture,
+                            rain: d.rain,
+                            n: d.nitrogen,
+                            p: d.phosphorus,
+                            k: d.potassium
+                        }))
+                        setHistoricalData(formatted)
+                    }
+                }
             } catch (error) {
-                console.error('Error fetching expenses:', error)
+                console.error('Error fetching dashboard data:', error)
             }
         }
-        fetchExpenses()
+        fetchData()
     }, [user])
+
+    // Update historical data when new realtime data arrives (keep it fresh)
+    useEffect(() => {
+        if (sensorData.connected && sensorData.timestamp) {
+            setHistoricalData(prev => {
+                // Avoid duplicates if timestamp is same
+                if (prev.length > 0 && prev[prev.length - 1].rawTimestamp === sensorData.timestamp) return prev;
+
+                const newData = [...prev, {
+                    time: new Date(sensorData.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                    moisture: sensorData.moisture,
+                    rain: sensorData.rain,
+                    n: sensorData.nitrogen,
+                    p: sensorData.phosphorus,
+                    k: sensorData.potassium,
+                    rawTimestamp: sensorData.timestamp
+                }]
+                return newData.slice(-20) // Keep last 20
+            })
+        }
+    }, [sensorData.timestamp, sensorData.connected])
 
     const statusText = sensorData.connected ? t('dashboard.live_data') : t('dashboard.connecting')
 
@@ -106,6 +152,20 @@ export default function DashboardPage() {
                 <div className="transition-all duration-500">
                     {activeTab === 'soil' ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                            {/* Analytics Visualizations */}
+                            <div className="md:col-span-1">
+                                <SensorHistoryChart data={historicalData} />
+                            </div>
+                            <div className="md:col-span-1">
+                                <NPKTrendChart data={historicalData.map(h => ({
+                                    name: h.time,
+                                    n: h.n,
+                                    p: h.p,
+                                    k: h.k
+                                }))} />
+                            </div>
+
+                            {/* Real-time Status Cards */}
                             <SoilSensorCard
                                 moisture={sensorData.moisture.toFixed(0)}
                                 status={statusText}
@@ -129,11 +189,12 @@ export default function DashboardPage() {
                             </div>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                            <div className="md:col-span-1 xl:col-span-1">
+                        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                            <div className="flex flex-col gap-8">
                                 <ExpenseSummaryCard
                                     totalBalance={expenses.length > 0 ? `$${expenses.reduce((sum, e) => sum + e.amount, 0).toLocaleString()}` : '$0'}
                                 />
+                                <FinancialBalanceChart transactions={expenses} />
                             </div>
                             <RecentTransactionsMinimal transactions={expenses} />
                         </div>

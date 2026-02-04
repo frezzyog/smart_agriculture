@@ -4,180 +4,295 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Agriculture 4.0 - User Flow Diagram</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <title>Smart Agriculture 4.0 - Premium User Flow</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
     <style>
         :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --text-primary: #f1f5f9;
-            --text-secondary: #94a3b8;
-            --accent-primary: #38bdf8;
-            --accent-secondary: #4ade80;
-            --accent-tertiary: #a78bfa;
-            --border-color: #334155;
+            --primary: #0ea5e9;
+            --secondary: #10b981;
+            --accent: #8b5cf6;
+            --warning: #f59e0b;
+            --background: #0f172a;
+            --surface: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-primary);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--background);
+            color: var(--text-main);
             line-height: 1.6;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            padding: 2rem;
+            overflow-x: hidden;
         }
 
-        .header {
+        .gradient-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 50%, rgba(14, 165, 233, 0.05) 0%, rgba(15, 23, 42, 1) 100%);
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        header {
             text-align: center;
-            margin-bottom: 3rem;
+            margin-bottom: 4rem;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(14, 165, 233, 0.1);
+            color: var(--primary);
+            padding: 0.5rem 1rem;
+            border-radius: 99px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(14, 165, 233, 0.2);
         }
 
         h1 {
-            font-size: 2.5rem;
-            background: linear-gradient(to right, var(--accent-secondary), var(--accent-primary));
+            font-size: 3rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: linear-gradient(to right, #f8fafc, #94a3b8);
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 0.5rem;
+            margin-bottom: 1rem;
         }
 
-        .subtitle {
-            color: var(--text-secondary);
+        .description {
+            color: var(--text-muted);
             font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
         }
 
-        .mermaid-container {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 2rem;
-            width: 100%;
-            max-width: 1000px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        .diagram-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 3rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            margin-bottom: 3rem;
+            overflow: hidden;
         }
 
-        .legend {
+        .mermaid {
+            display: flex;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.5s ease-in;
+        }
+
+        .mermaid.appearing {
+            opacity: 1;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+
+        .feature-item {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border);
+            padding: 1.5rem;
+            border-radius: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .feature-item h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .feature-item p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+            color: var(--text-muted);
+        }
+
+        .nav-links {
             display: flex;
             justify-content: center;
             gap: 2rem;
             margin-top: 2rem;
-            flex-wrap: wrap;
         }
 
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-        }
-
-        .color-box {
-            width: 15px;
-            height: 15px;
-            border-radius: 3px;
-        }
-
-        .nav-back {
-            margin-top: 3rem;
-            color: var(--accent-primary);
+        .nav-links a {
+            color: var(--text-muted);
             text-decoration: none;
-            font-weight: 600;
+            font-size: 0.9rem;
             transition: color 0.2s;
         }
 
-        .nav-back:hover {
-            color: var(--accent-secondary);
-            text-decoration: underline;
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        /* Mermaid Theme Customization */
+        :root {
+            --mermaid-node-bg: #1e293b;
+            --mermaid-node-border: #334155;
+            --mermaid-label-color: #f8fafc;
         }
     </style>
+</head>
+
+<body>
+    <div class="gradient-bg"></div>
+
+    <div class="container">
+        <header>
+            <span class="badge">UX Architecture</span>
+            <h1>Intelligence User Journey</h1>
+            <p class="description">Mapping the end-to-end interaction flow of the Smart Agriculture 4.0 IoT & AI
+                Ecosystem.</p>
+        </header>
+
+        <div class="diagram-card">
+            <div class="mermaid">
+                graph TD
+                %% Node Definitions
+                Start([User Access App]) --> Lang{Language Choice}
+                Lang -->|EN/KH| Auth[Secure Authentication]
+                Auth --> Dash[Main Intelligence Dashboard]
+
+                subgraph Monitoring ["Monitoring & Insights"]
+                Dash --> Sensors[Live NPK, pH, Moisture Cards]
+                Dash --> Weather[AI-Enhanced Weather Forecast]
+                Dash --> Energy[Solar & Battery Health Status]
+                end
+
+                subgraph Intelligence ["AI Interaction"]
+                Dash --> AIChat[AI Agronomist Chatbot]
+                AIChat --> DeepAnalyze[Deep Data Reasoning]
+                DeepAnalyze --> Advice[Contextual Treatment Advice]
+                end
+
+                subgraph Operations ["Smart Control Loop"]
+                Dash --> Mode{System Mode}
+                Mode -->|Manual| ManualToggle[Manual Pump Control]
+                Mode -->|AI-Auto| AutoIrrigation[AI-Triggered Irrigation]
+                ManualToggle --> Actuation[Pump Actuation: Water/Fert]
+                AutoIrrigation --> Actuation
+                Advice -.->|Actionable Suggestion| ManualToggle
+                end
+
+                subgraph Feedback ["System Response"]
+                Actuation --> Log[Activity Logging & Expense Track]
+                Log --> Notify[Telegram & SMS Notifications]
+                Log --> Financial[Financial Impact Analysis]
+                end
+
+                subgraph Performance ["Reporting"]
+                Dash --> Report[Generate Advanced PDF Report]
+                Log --> Dash
+                end
+
+                %% Styling
+                classDef default color:#f8fafc,fill:#1e293b,stroke:#334155,stroke-width:1px;
+                classDef primary color:#fff,fill:#0ea5e9,stroke:#0ea5e9,stroke-width:2px;
+                classDef secondary color:#fff,fill:#10b981,stroke:#10b981,stroke-width:2px;
+                classDef accent color:#fff,fill:#8b5cf6,stroke:#8b5cf6,stroke-width:2px;
+                classDef warning color:#fff,fill:#f59e0b,stroke:#f59e0b,stroke-width:2px;
+
+                class Start,Dash primary;
+                class AIChat,DeepAnalyze accent;
+                class Actuation,AutoIrrigation secondary;
+                class Log,Notify,Financial,Report warning;
+            </div>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-item">
+                <h3>Multi-language UX</h3>
+                <p>Native Khmer and English localization throughout the entire journey, ensuring accessibility for all
+                    farmers.</p>
+            </div>
+            <div class="feature-item">
+                <h3>AI-Human Collaboration</h3>
+                <p>The system provides AI-driven insights while maintaining manual overrides for expert judgment.</p>
+            </div>
+            <div class="feature-item">
+                <h3>Real-time Feedback</h3>
+                <p>Instant notifications via Telegram and SMS ensure no critical event goes unmonitored.</p>
+            </div>
+            <div class="feature-item">
+                <h3>Financial Transparency</h3>
+                <p>Every mechanical action is mapped to financial expenditure, providing a clear ROI for irrigation
+                    efforts.</p>
+            </div>
+        </div>
+
+        <footer>
+            <div class="nav-links">
+                <a href="SOFTWARE_SPECIFICATIONS.html">Technical Specifications</a>
+                <a href="MASTER_SYSTEM_GUIDE.html">System Guide</a>
+                <a href="FIRMWARE_FLOW_DIAGRAM.html">Firmware Architecture</a>
+            </div>
+            <p style="margin-top: 2rem;">&copy; 2026 Smart Agriculture 4.0 - Advanced IoT Solutions</p>
+        </footer>
+    </div>
+
     <script>
         mermaid.initialize({
             startOnLoad: true,
             theme: 'dark',
+            fontFamily: 'Plus Jakarta Sans',
             themeVariables: {
-                primaryColor: '#1e293b',
-                primaryTextColor: '#f1f5f9',
-                primaryBorderColor: '#38bdf8',
+                primaryColor: '#0ea5e9',
+                primaryTextColor: '#f8fafc',
+                primaryBorderColor: '#0ea5e9',
                 lineColor: '#94a3b8',
-                secondaryColor: '#334155',
-                tertiaryColor: '#0f172a'
+                secondaryColor: '#10b981',
+                tertiaryColor: '#1e293b'
             }
         });
+
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.querySelector('.mermaid').classList.add('appearing');
+            }, 500);
+        });
     </script>
-</head>
-
-<body>
-    <div class="header">
-        <h1>User Flow Diagram</h1>
-        <p class="subtitle">Smart Agriculture 4.0 Interaction Journey</p>
-    </div>
-
-    <div class="mermaid-container">
-        <div class="mermaid">
-            graph TD
-            Start((Start)) --> Auth{Authentication}
-            Auth -- New User --> Register[Sign Up / Profile Setup]
-            Auth -- Existing User --> Login[Sign In]
-            Register --> Login
-            Login --> Dashboard[Main Dashboard]
-
-            subgraph Monitoring ["Real-Time Monitoring"]
-            Dashboard --> LiveData[View Sensor Gauges]
-            LiveData --> SMS[Receive Critical SMS Alerts]
-            end
-
-            subgraph Intelligence ["AI Interaction"]
-            Dashboard --> AIChat[Open AI Assistant]
-            AIChat --> Analyze[Request Soil Health Analysis]
-            Analyze --> Recommend[Receive Actionable Treatment]
-            end
-
-            subgraph Operations ["Hardware Control"]
-            Dashboard --> Control[Manual Toggle Center]
-            Recommend --> AutoAction[AI Triggered Irrigation]
-            Control --> Pump[Water/Fertilizer Pump Action]
-            AutoAction --> Pump
-            end
-
-            subgraph Analytics ["Management & Reports"]
-            Dashboard --> Report[Generate Daily PDF Report]
-            Dashboard --> Expense[Update Fertilizer Costs]
-            end
-
-            Pump --> Log[Action Stored in DB & Notified]
-            Log --> Dashboard
-
-            style Start fill:#f1f5f9,stroke:#333,color:#0f172a
-            style Auth fill:#334155,stroke:#38bdf8
-            style Dashboard fill:#1e293b,stroke:#4ade80,stroke-width:3px
-            style Pump fill:#334155,stroke:#a78bfa
-            style AIChat fill:#334155,stroke:#a78bfa
-        </div>
-    </div>
-
-    <div class="legend">
-        <div class="legend-item">
-            <div class="color-box" style="background: #38bdf8;"></div> Decision Point
-        </div>
-        <div class="legend-item">
-            <div class="color-box" style="background: #4ade80;"></div> Primary Dashboard
-        </div>
-        <div class="legend-item">
-            <div class="color-box" style="background: #a78bfa;"></div> Action/AI Point
-        </div>
-    </div>
-
-    <a href="SOFTWARE_SPECIFICATIONS.html" class="nav-back">← Back to Specifications</a>
-
-    <footer style="margin-top: 4rem; color: var(--text-secondary); font-size: 0.8rem;">
-        &copy; 2026 Smart Agriculture 4.0 System Flow.
-    </footer>
 </body>
 
 </html>

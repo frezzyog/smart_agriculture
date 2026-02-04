@@ -16,8 +16,8 @@ export function useRealtimeSensorData() {
         humidity: 0,
         moistureRaw: 0,
         rainRaw: 0,
-        battery: 85,
-        voltage: 12.8,
+        battery: 67, // Updated to 67 for testing as requested
+        voltage: 11.9, // Adjusted to match 67% battery level
         deviceId: null,
         timestamp: null,
         connected: false
