@@ -152,19 +152,6 @@ export default function DashboardPage() {
                 <div className="transition-all duration-500">
                     {activeTab === 'soil' ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                            {/* Analytics Visualizations */}
-                            <div className="md:col-span-1">
-                                <SensorHistoryChart data={historicalData} />
-                            </div>
-                            <div className="md:col-span-1">
-                                <NPKTrendChart data={historicalData.map(h => ({
-                                    name: h.time,
-                                    n: h.n,
-                                    p: h.p,
-                                    k: h.k
-                                }))} />
-                            </div>
-
                             {/* Real-time Status Cards */}
                             <SoilSensorCard
                                 moisture={sensorData.moisture.toFixed(0)}
@@ -186,6 +173,19 @@ export default function DashboardPage() {
                                     humidity={sensorData.humidity.toFixed(1)}
                                     status={statusText}
                                 />
+                            </div>
+
+                            {/* Analytics Visualizations */}
+                            <div className="md:col-span-1">
+                                <SensorHistoryChart data={historicalData} />
+                            </div>
+                            <div className="md:col-span-1">
+                                <NPKTrendChart data={historicalData.map(h => ({
+                                    name: h.time,
+                                    n: h.n,
+                                    p: h.p,
+                                    k: h.k
+                                }))} />
                             </div>
                         </div>
                     ) : (
