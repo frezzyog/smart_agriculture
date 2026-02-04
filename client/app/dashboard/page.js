@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react'
 import CompactWeatherCard from '@/components/dashboard/CompactWeatherCard'
-import CompactPowerCard from '@/components/dashboard/CompactPowerCard'
 import RainSensorCard from '@/components/dashboard/RainSensorCard'
 import SoilSensorCard from '@/components/dashboard/SoilSensorCard'
 import SevenInOneSensorCard from '@/components/dashboard/SevenInOneSensorCard'
@@ -11,7 +10,7 @@ import RecentTransactionsMinimal from '@/components/dashboard/RecentTransactions
 import SensorHistoryChart from '@/components/dashboard/SensorHistoryChart'
 import NPKTrendChart from '@/components/dashboard/NPKTrendChart'
 import FinancialBalanceChart from '@/components/dashboard/FinancialBalanceChart'
-import { Droplet, LayoutDashboard, Wallet, Sprout, Zap } from 'lucide-react'
+import { Droplet, LayoutDashboard, Wallet, Sprout } from 'lucide-react'
 import { useRealtimeSensorData } from '@/hooks/useRealtimeSensorData'
 import { getExpenses, getSensorData, getDevices } from '@/lib/api'
 import { useTranslation } from 'react-i18next'
@@ -141,12 +140,8 @@ export default function DashboardPage() {
                 {/* MINI STATUS BAR: Pill style matching reference */}
                 <div className="flex items-center gap-3 mb-8 overflow-x-auto pb-2 scrollbar-hide">
                     <CompactWeatherCard />
-                    <CompactPowerCard
-                        percentage={Math.round(sensorData.battery ?? 85)}
-                        voltage={parseFloat(sensorData.voltage ?? 12.8).toFixed(1)}
-                        charging={(sensorData.voltage ?? 0) > 12.6}
-                    />
                 </div>
+
 
                 {/* MAIN DASHBOARD CONTENT */}
                 <div className="transition-all duration-500">
