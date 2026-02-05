@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next'
 export default function CompactWeatherCard() {
     const { t } = useTranslation()
     const [weather, setWeather] = useState(null)
+    const [forecastData, setForecastData] = useState([])
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
@@ -21,6 +22,9 @@ export default function CompactWeatherCard() {
             const response = await fetch(`${apiUrl}/api/weather`)
             const data = await response.json()
             setWeather(data.current)
+            if (data.forecast) {
+                setForecastData(formatForecast(data.forecast))
+            }
             setLoading(false)
         } catch (error) {
             console.error('Error fetching weather:', error)
@@ -28,16 +32,17 @@ export default function CompactWeatherCard() {
         }
     }
 
-    // Mock forecast generation or use real API if available
-    const forecast = [
-        { day: 'mon', temp: 30, condition: 'Sunny' },
-        { day: 'tue', temp: 28, condition: 'Rain' },
-        { day: 'wed', temp: 29, condition: 'Cloudy' },
-        { day: 'thu', temp: 31, condition: 'Sunny' },
-        { day: 'fri', temp: 27, condition: 'Rain' },
-        { day: 'sat', temp: 26, condition: 'Cloudy' },
-        { day: 'sun', temp: 30, condition: 'Sunny' }
-    ]
+    const formatForecast = (dailyData) => {
+        return dailyData.map(d => {
+            const date = new Date(d.date)
+            const dayName = date.toLocaleDateString('en-US', { weekday: 'short' }).toLowerCase()
+            return {
+                day: dayName,
+                temp: Math.round(d.tempMax),
+                condition: d.condition
+            }
+        })
+    }
 
     const getDayLabel = (dayKey) => t(`days.${dayKey}`)
 
@@ -71,7 +76,7 @@ export default function CompactWeatherCard() {
 
             {/* Forecast Data */}
             <div className="flex items-center gap-3 pr-2">
-                {forecast.map((day, idx) => (
+                {forecastData.map((day, idx) => (
                     <div key={idx} className="flex flex-col items-center gap-1 min-w-[50px]">
                         <span className="text-[10px] font-bold text-foreground/40 uppercase">{getDayLabel(day.day)}</span>
                         {getWeatherIcon(day.condition, 16)}

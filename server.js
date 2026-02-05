@@ -989,7 +989,7 @@ app.get('/api/weather', async (req, res) => {
             forecastData.list.forEach(item => {
                 const date = new Date(item.dt * 1000).toISOString().split('T')[0]
 
-                if (!processedDates.has(date) && dailyForecasts.length < 3) {
+                if (!processedDates.has(date) && dailyForecasts.length < 7) {
                     processedDates.add(date)
 
                     // Find all entries for this date to get min/max temps
@@ -1051,27 +1051,49 @@ app.get('/api/weather', async (req, res) => {
                     tempMax: 32,
                     tempMin: 22,
                     condition: 'partly cloudy',
-                    rainProbability: 20,
-                    humidity: 70,
-                    windSpeed: 10
+                    rainProbability: 20
                 },
                 {
                     date: new Date(Date.now() + 172800000).toISOString().split('T')[0],
                     tempMax: 31,
                     tempMin: 25,
                     condition: 'cloudy',
-                    rainProbability: 40,
-                    humidity: 78,
-                    windSpeed: 10
+                    rainProbability: 40
                 },
                 {
                     date: new Date(Date.now() + 259200000).toISOString().split('T')[0],
                     tempMax: 33,
                     tempMin: 27,
                     condition: 'sunny',
-                    rainProbability: 10,
-                    humidity: 70,
-                    windSpeed: 8
+                    rainProbability: 10
+                },
+                {
+                    date: new Date(Date.now() + 345600000).toISOString().split('T')[0],
+                    tempMax: 30,
+                    tempMin: 26,
+                    condition: 'rain',
+                    rainProbability: 60
+                },
+                {
+                    date: new Date(Date.now() + 432000000).toISOString().split('T')[0],
+                    tempMax: 29,
+                    tempMin: 24,
+                    condition: 'drizzle',
+                    rainProbability: 30
+                },
+                {
+                    date: new Date(Date.now() + 518400000).toISOString().split('T')[0],
+                    tempMax: 34,
+                    tempMin: 28,
+                    condition: 'sunny',
+                    rainProbability: 0
+                },
+                {
+                    date: new Date(Date.now() + 604800000).toISOString().split('T')[0],
+                    tempMax: 33,
+                    tempMin: 27,
+                    condition: 'cloudy',
+                    rainProbability: 15
                 }
             ]
         }
