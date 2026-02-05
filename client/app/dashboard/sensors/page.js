@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { Wifi, Plus, Signal, Battery, Activity } from 'lucide-react'
+import { Wifi, Plus, Signal, Battery, Activity, Edit, Trash2 } from 'lucide-react'
 import { useRealtimeSensorData } from '@/hooks/useRealtimeSensorData'
 import { useTranslation } from 'react-i18next'
 
@@ -74,6 +74,19 @@ export default function sensorsPage() {
         }
     }
 
+    const handleEdit = (id, currentName) => {
+        const newName = window.prompt('Rename Device:', currentName)
+        if (newName) {
+            setSensors(prev => prev.map(s => s.id === id ? { ...s, name: newName } : s))
+        }
+    }
+
+    const handleDelete = (id) => {
+        if (window.confirm('Are you sure you want to delete this device?')) {
+            setSensors(prev => prev.filter(s => s.id !== id))
+        }
+    }
+
     return (
         <div className="lg:ml-64 p-4 md:p-10 min-h-screen bg-background transition-all duration-500">
             <div className="max-w-[1600px] mx-auto">
@@ -98,11 +111,29 @@ export default function sensorsPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                     {sensors.map((sensor) => (
                         <div key={sensor.id} className="bg-card rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-8 border border-border relative group hover:bg-foreground/[0.02] transition-all">
+                            {/* Action Buttons Overlay - Top Right */}
+                            <div className="absolute top-6 right-6 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); handleEdit(sensor.id, sensor.name) }}
+                                    className="p-2 bg-foreground/10 text-foreground hover:bg-accent hover:text-background rounded-full transition-colors shadow-sm"
+                                    title="Edit Device"
+                                >
+                                    <Edit size={14} />
+                                </button>
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); handleDelete(sensor.id) }}
+                                    className="p-2 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-full transition-colors shadow-sm"
+                                    title="Delete Device"
+                                >
+                                    <Trash2 size={14} />
+                                </button>
+                            </div>
+
                             <div className="flex justify-between items-start mb-6 md:mb-8">
-                                <div className={`p-3 md:p-4 rounded-xl md:rounded-2xl ${sensor.status === t('sensors.online') ? 'bg-accent/10 text-accent' : 'bg-red-500/10 text-red-500'}`}>
+                                <div className={`p-3 md:p-4 rounded-xl md:rounded-2xl ${sensor.status === 'online' ? 'bg-accent/10 text-accent' : 'bg-red-500/10 text-red-500'}`}>
                                     <Wifi size={20} className="md:w-6 md:h-6" />
                                 </div>
-                                <div className="flex gap-2">
+                                <div className="flex gap-2 opacity-100 group-hover:opacity-0 transition-opacity duration-300">
                                     <div className="p-2 bg-foreground/5 rounded-lg text-foreground/40">
                                         <Signal size={14} />
                                     </div>
