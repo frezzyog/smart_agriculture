@@ -5,7 +5,13 @@ import { Card } from '@/components/ui/card'
 import { Map, Layers, Target, TreePine, Droplets, AlertTriangle } from 'lucide-react'
 
 const DigitalTwinViewer = ({ zoneId, data }) => {
-    const layout = data?.layout || []
+    const layout = data?.layout || [
+        { id: 1, x: 20, y: 30, type: 'CROP', health: 90 },
+        { id: 2, x: 50, y: 50, type: 'SENSOR', health: 100 },
+        { id: 3, x: 80, y: 30, type: 'CROP', health: 85 },
+        { id: 4, x: 20, y: 70, type: 'CROP', health: 45 }, // Stressed crop
+        { id: 5, x: 80, y: 70, type: 'DRY_ZONE', health: 20 }, // Critical zone
+    ]
 
     return (
         <Card className="p-6 bg-card border-border relative overflow-hidden group">

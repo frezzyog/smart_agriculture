@@ -48,13 +48,13 @@ const CustomTooltip = ({ active, payload, label }) => {
 const PredictionChart = ({ zoneId, data: chartData }) => {
     // Fallback data if none provided
     const displayData = chartData?.length > 0 ? chartData : [
-        { day: 'Mon', predicted: 0 },
-        { day: 'Tue', predicted: 0 },
-        { day: 'Wed', predicted: 0 },
-        { day: 'Thu', predicted: 0 },
-        { day: 'Fri', predicted: 0 },
-        { day: 'Sat', predicted: 0 },
-        { day: 'Sun', predicted: 0 },
+        { day: 'Mon', predicted: 68 },
+        { day: 'Tue', predicted: 62 },
+        { day: 'Wed', predicted: 55 },
+        { day: 'Thu', predicted: 48 },
+        { day: 'Fri', predicted: 75 }, // Rain/Irrigation event
+        { day: 'Sat', predicted: 72 },
+        { day: 'Sun', predicted: 68 },
     ]
 
     return (
