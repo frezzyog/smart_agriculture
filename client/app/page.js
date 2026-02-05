@@ -21,7 +21,7 @@ export default function HomePage() {
     return (
         <div className="min-h-screen flex items-center justify-center bg-background">
             <div className="animate-pulse flex flex-col items-center gap-4">
-                <img src="/logo.png" alt="Logo" className="w-48 h-48 object-contain" />
+                <img src="/logo.png" alt="Logo" className="w-64 h-64 object-contain" />
                 <p className="text-foreground/50 font-medium">Loading your farm...</p>
             </div>
         </div>
