@@ -1,7 +1,7 @@
 {
     "sidebar": {
         "dashboard": "Dashboard",
-        "iot_sensor": "IOT Sensor",
+        "iot_sensor": "IoT Sensor Devices",
         "expenses": "Expenses",
         "crop_management": "Crop Management",
         "crop_management_sub": "Yield & Tracking",
@@ -156,10 +156,10 @@
         "sun": "SUN"
     },
     "sensors": {
-        "title": "IOT Sensor Network",
-        "active_nodes": "Active Nodes",
+        "title": "IoT Sensor Devices",
+        "active_nodes": "Active Sensor Devices",
         "description": "Manage and monitor your precision agriculture sensor array.",
-        "register_node": "Register New Node",
+        "register_node": "Register New Sensor Device",
         "online": "online",
         "offline": "offline",
         "strong": "Strong",

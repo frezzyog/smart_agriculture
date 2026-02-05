@@ -1,7 +1,7 @@
 {
     "sidebar": {
         "dashboard": "ផ្ទាំងគ្រប់គ្រង",
-        "iot_sensor": "សិនស័រ IOT",
+        "iot_sensor": "ឧបករណ៍សិនស័រ IoT",
         "expenses": "ការចំណាយ",
         "crop_management": "ការគ្រប់គ្រងដំណាំ",
         "crop_management_sub": "ទិន្នផល និងការតាមដាន",
@@ -156,8 +156,8 @@
         "sun": "អាទិត្យ"
     },
     "sensors": {
-        "title": "បណ្តាញសិនស័រ IOT",
-        "active_nodes": "ឧបករណ៍សកម្ម",
+        "title": "ឧបករណ៍សិនស័រ IoT",
+        "active_nodes": "ឧបករណ៍សិនស័រសកម្ម",
         "description": "គ្រប់គ្រង និងត្រួតពិនិត្យឧបករណ៍សិនស័រកសិកម្មឆ្លាតវៃរបស់អ្នក។",
         "register_node": "ចុះឈ្មោះឧបករណ៍ថ្មី",
         "online": "អនឡាញ",
