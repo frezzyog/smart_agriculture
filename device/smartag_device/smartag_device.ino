@@ -267,10 +267,20 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
   if (type == "WATER") {
     digitalWrite(RELAY_1_PIN, turnOn ? LOW : HIGH); // Active Low Logic
     Serial.printf("  💧 Water Pump -> %s\n", turnOn ? "ON (LOW)" : "OFF (HIGH)");
+    
+    // Publish feedback to server
+    String feedbackTopic = "smartag/" + String(device_id) + "/pump/status";
+    String feedbackPayload = "{\"type\":\"WATER\",\"status\":\"" + status + "\",\"triggeredBy\":\"AI_SYSTEM\"}";
+    mqtt.publish(feedbackTopic.c_str(), feedbackPayload.c_str());
   } 
   else if (type == "FERTILIZER") {
     digitalWrite(RELAY_2_PIN, turnOn ? LOW : HIGH); // Active Low Logic
     Serial.printf("  🧪 Fertilizer Pump -> %s\n", turnOn ? "ON (LOW)" : "OFF (HIGH)");
+
+    // Publish feedback to server
+    String feedbackTopic = "smartag/" + String(device_id) + "/pump/status";
+    String feedbackPayload = "{\"type\":\"FERTILIZER\",\"status\":\"" + status + "\",\"triggeredBy\":\"AI_SYSTEM\"}";
+    mqtt.publish(feedbackTopic.c_str(), feedbackPayload.c_str());
   }
 }
 

@@ -58,7 +58,9 @@ class SensorDataProcessor:
             if self.optimal_ranges['potassium'][0] <= potassium <= self.optimal_ranges['potassium'][1]:
                 scores.append(100)
             else:
-                scores.append(max(0, (potassium / self.optimal_ranges['potassium'][0]) * 100))
+                # Capped at 100 to avoid one nutrient masking others but allow dropping for low values
+                score = (potassium / self.optimal_ranges['potassium'][0]) * 100
+                scores.append(min(100, max(0, score)))
         
         if not scores:
             return 'unknown'

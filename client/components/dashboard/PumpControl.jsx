@@ -35,6 +35,24 @@ const PumpControl = ({ deviceId = 'SMARTAG-001' }) => {
         }
     }
 
+    // Sync UI with Server events (for AI-triggered actions)
+    useEffect(() => {
+        const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://127.0.0.1:5000'
+        const { io } = require('socket.io-client')
+        const socket = io(socketUrl)
+
+        socket.on('pumpStatus', (data) => {
+            if (data.deviceId === deviceId) {
+                console.log(`🤖 AI Pump Update received: ${data.type} is ${data.status}`)
+                const isON = data.status === 'ON'
+                if (data.type === 'WATER') setWaterPump(isON)
+                if (data.type === 'FERTILIZER') setFertilizerPump(isON)
+            }
+        })
+
+        return () => socket.disconnect()
+    }, [deviceId])
+
     const ToggleRow = ({ label, type, enabled, setEnabled }) => (
         <div className="flex items-center justify-between p-4 rounded-2xl bg-foreground/5 border border-border transition-all hover:bg-foreground/10 group gap-2">
             <div className="flex items-center gap-3 md:gap-4 overflow-hidden">

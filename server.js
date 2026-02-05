@@ -145,10 +145,11 @@ aedes.on('publish', async (packet, client) => {
             // Store sensor data in database
             await saveSensorData(deviceId, data)
 
-            // Broadcast to connected dashboard clients
+            // Broadcast to connected dashboard clients (including AI interpretation)
             io.emit('sensorData', {
                 deviceId,
                 ...data,
+                ai: aiAnalysis, // Include AI insights in the main feed
                 timestamp: new Date().toISOString()
             })
         }
@@ -370,6 +371,15 @@ async function saveSensorData(deviceId, data) {
             await logPumpAction(deviceId, {
                 type: command.type || 'WATER',
                 action: command.status,
+                duration: command.duration,
+                triggeredBy: 'AI_SYSTEM'
+            })
+
+            // IMPORTANT: Notify the dashboard UI of the change immediately
+            io.emit('pumpStatus', {
+                deviceId,
+                type: command.type || 'WATER',
+                status: command.status,
                 duration: command.duration,
                 triggeredBy: 'AI_SYSTEM'
             })
