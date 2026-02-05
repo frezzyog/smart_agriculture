@@ -388,7 +388,7 @@ async def interpret_sensor_data(request: InterpretRequest):
              if moisture > 80:
                  alerts.append({
                     "severity": "INFO",
-                    "type": "MOISTURE_HIGH",
+                    "type": "SYSTEM_INFO",
                     "title": "⚠️ សំណើមដីខ្ពស់",
                     "message": "ប្រព័ន្ធបានបញ្ឈប់ម៉ូទ័របូមទឹក ដើម្បីជៀសវាងការស្រោចទឹកលើសកម្រិត។"
                 })
@@ -397,7 +397,7 @@ async def interpret_sensor_data(request: InterpretRequest):
         if tomorrow_rain_probability > 30 and not rain_detected:
             alerts.append({
                 "severity": "INFO",
-                "type": "WEATHER_INFO",
+                "type": "WEATHER_ALERT",
                 "title": f"🌧️ ការព្យាករណ៍ភ្លៀង៖ {tomorrow_rain_probability}%",
                 "message": f"រំពឹងថានឹងមានការស្រោចស្រពតាមធម្មជាតិនៅថ្ងៃស្អែក។ AI នឹងបង្កើនប្រសិទ្ធភាពការប្រើប្រាស់ទឹក។"
             })

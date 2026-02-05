@@ -443,6 +443,7 @@ void loop() {
         }
       }
 
+
     } else {
       checkOfflineRules();
     }
