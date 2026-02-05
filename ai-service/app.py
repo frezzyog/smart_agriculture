@@ -306,21 +306,25 @@ async def interpret_sensor_data(request: InterpretRequest):
         # MOISTURE THRESHOLDS WITH WEATHER INTELLIGENCE
         # ============================================
         moisture = sensor_data.get('moisture', 100)
+        rain_detected = sensor_data.get('rain', 0) > 20  # Current rain from sensor
         
-        # Check if we should skip irrigation due to rain forecast
-        skip_irrigation_due_to_rain = tomorrow_rain_probability > 50
+        # Check if we should skip irrigation due to rain forecast OR current rain
+        skip_irrigation_due_to_rain = tomorrow_rain_probability > 50 or rain_detected
         
         if moisture < 45 or stress_level > 80:
             # Critical situation - needs immediate action
             if skip_irrigation_due_to_rain:
-                # Rain expected - add info alert instead of triggering pump
+                # Rain detected or expected - add info alert instead of triggering pump
+                reason = "កំពុងមានភ្លៀងធ្លាក់" if rain_detected else f"មានលទ្ធភាពភ្លៀង {tomorrow_rain_probability}%"
                 alerts.append({
                     "severity": "INFO",
                     "type": "WEATHER_SKIP",
-                    "title": "🌧️ មានភ្លៀងធ្លាក់ - ពន្យារពេលស្រោចស្រព",
-                    "message": f"សំណើមដី {moisture}% ប៉ុន្តែមានលទ្ធភាពភ្លៀងធ្លាក់ {tomorrow_rain_probability}% នៅថ្ងៃស្អែក។ AI បានពន្យារពេលស្រោចស្រពដើម្បីសន្សំសំចៃទឹក។"
+                    "title": "🌧️ ការពន្យារពេលដោយសារអាកាសធាតុ",
+                    "message": f"សំណើមដី {moisture}% ប៉ុន្តែ {reason}។ AI បានបិទ/ពន្យារពេលស្រោចស្រពដើម្បីការពារការលើសទឹក។"
                 })
                 recommend_action = False
+                # If it was already pumping, send STOP command
+                action = {"type": "irrigation", "deviceId": device_id, "command": {"type": "WATER", "status": "OFF", "duration": 0, "reason": "RAIN_DETECTED"}}
             else:
                 # No rain expected - trigger irrigation
                 alerts.append({

@@ -120,6 +120,13 @@ void loop() {
     // B. Handle Data
     if (mqtt.connected()) {
       sendSensorData(); // Send to Cloud if connected
+      
+      // 🌧️ EMERGENCY RAIN KILL-SWITCH (Safety Override)
+      // If sensor detects rain (>20%), force pump OFF even if cloud said ON
+      if (currentRain > 20) {
+        digitalWrite(RELAY_1_PIN, HIGH); // Force OFF (Active Low)
+        Serial.println("🌧️ [SAFETY] Rain detected! Automated emergency pump shutdown.");
+      }
     } else {
       checkOfflineRules(); // ⚠️ SAFE MODE: Use local rules if disconnected
     }
