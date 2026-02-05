@@ -69,7 +69,7 @@
         "soil_moisture": "Soil Moisture",
         "moisture_level": "Surface Layer Moisture",
         "moisture_percentage": "Saturation Level",
-        "rain_sensor": "Rain Detection",
+        "rain_sensor": "Rain Status",
         "precipitation_monitor": "Real-time Rain Tracking",
         "raining": "Currently Raining",
         "no_rain": "Clear Conditions",
