@@ -69,7 +69,7 @@ export default function SignupForm() {
                             <img src="/logo.png" alt="SmartAg Logo" className="w-full h-full object-contain" />
                         </div>
                         <h2 className="text-3xl font-black text-foreground tracking-tight mb-2">
-                            Join SmartAg
+                            កសិកម្ម 4.0
                         </h2>
                         <p className="text-foreground/50 font-medium">
                             Start your journey to smarter, data-driven agriculture today.
