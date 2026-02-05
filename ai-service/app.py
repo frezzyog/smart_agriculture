@@ -36,13 +36,12 @@ def validate_api_key(key: str) -> bool:
 
 has_gemini = validate_api_key(GEMINI_API_KEY)
 
-# CORRECT MODEL NAMES - Using specific versions for stability
+# CORRECT MODEL NAMES - Based on actual API testing
 GEMINI_MODELS = [
-    "gemini-2.0-flash",
-    "gemini-1.5-flash-latest",
+    "gemini-2.5-flash",      # Working on v1beta (verified)
+    "gemini-2.0-flash",  
     "gemini-1.5-flash",
-    "gemini-1.5-pro-latest",
-    "gemini-2.0-flash-exp",
+    "gemini-1.5-pro",
     "gemini-pro",
 ]
 
@@ -78,8 +77,8 @@ async def call_gemini(prompt: str) -> Optional[str]:
     
     # Try each model
     for model in GEMINI_MODELS:
-        # We will try both v1 and v1beta for each model if needed
-        api_versions = ["v1", "v1beta"] if "exp" not in model else ["v1beta"]
+        # Try v1beta first (works for gemini-2.5-flash), then v1 as fallback
+        api_versions = ["v1beta", "v1"]
         
         for api_version in api_versions:
             url = f"https://generativelanguage.googleapis.com/{api_version}/models/{model}:generateContent"
@@ -619,73 +618,74 @@ YOUR RESPONSE:"""
 
 
 def rule_based_chat(message: str, sensor_data: dict, expenses: list) -> dict:
-    """Fallback rule-based responses using new standards"""
+    """Fallback rule-based responses in polite Khmer using MAFF standards"""
     msg = message.lower()
     reply = ""
     
-    if any(w in msg for w in ["moisture", "water", "irrigation", "dry", "wet"]):
+    # Common Khmer keywords too
+    if any(w in msg for w in ["moisture", "water", "irrigation", "dry", "wet", "ទឹក", "សំណើម", "ស្រោច"]):
         m = sensor_data.get('moisture')
         if m is not None:
             if m < 50:
-                reply = f"🔴 **Soil Moisture CRITICAL: {m}%**\n\nStandard is 65-75%. Irrigation triggered automatically to prevent wilt."
+                reply = f"🔴 **ស្ថានភាពសំណើមដី៖ ស្ងួតខ្លាំង ({m}%)**\n\nលោកកសិករ! កម្រិតសំណើមនេះទាបជាងស្តង់ដារ (៦៥-៧៥%)។ ប្រព័ន្ធបានបើកម៉ូទ័របូមទឹកជូនដោយស្វ័យប្រវត្តិដើម្បីការពារដំណាំក្រិន។"
             elif m > 80:
-                reply = f"🔵 **Soil Moisture HIGH: {m}%**\n\nReduce water. Excessive wetness leads to root rot in lettuce."
+                reply = f"🔵 **ស្ថានភាពសំណើមដី៖ ជោកខ្លាំង ({m}%)**\n\nលោកកសិករគួរកាត់បន្ថយការស្រោចទឹក ព្រោះសំណើមខ្ពស់ពេកអាចធ្វើឱ្យសាឡាត់រលួយឫសបាន។"
             else:
-                reply = f"🟢 **Soil Moisture OK: {m}%**\n\nYour soil is within the optimal Seed Co/MAFF range (60-80%)."
+                reply = f"🟢 **ស្ថានភាពសំណើមដី៖ ល្អប្រសើរ ({m}%)**\n\nសំណើមដីស្ថិតក្នុងកម្រិតត្រឹមត្រូវតាមបច្ចេកទេសរបស់ CARDI និង MAFF (៦០-៨០%)។"
         else:
-            reply = "💧 No moisture data available. Please check sensor connection."
+            reply = "💧 មិនទាន់មានទិន្នន័យសំណើមដីនៅឡើយទេ។ សូមលោកកសិករពិនិត្យការភ្ជាប់សិនស័រ។"
     
-    elif any(w in msg for w in ["temperature", "temp", "hot", "cold"]):
+    elif any(w in msg for w in ["temperature", "temp", "hot", "cold", "កម្ដៅ", "ក្តៅ", "សីតុណ្ហភាព"]):
         t = sensor_data.get('temperature')
         if t:
             if t > 27:
-                reply = f"🔥 **Temperature Danger: {t}°C**\n\nHeat danger detected (>27°C). MAFF recommends using Rice Straw Mulch to cool the roots."
+                reply = f"🔥 **កម្រិតកម្ដៅ៖ ខ្ពស់ពេក ({t}°C)**\n\nសីតុណ្ហភាពលើសពី ២៧°C អាចធ្វើឱ្យសាឡាត់ខូច។ MAFF ណែនាំឱ្យលោកកសិករប្រើចំបើងគ្របគល់ ឬបន្ថែមសំណាញ់បាំងថ្ងៃ។"
             elif 18 <= t <= 24:
-                reply = f"🌡️ **Temperature Optimal: {t}°C**\n\nPerfect range for lettuce growth (18-24°C)."
+                reply = f"🌡️ **កម្រិតកម្ដៅ៖ ល្អណាស់ ({t}°C)**\n\nសីតុណ្ហភាពនេះគឺល្អបំផុតសម្រាប់សាឡាត់លូតលាស់យ៉ាងឆាប់រហ័ស។"
             else:
-                reply = f"🌡️ **Temperature: {t}°C**\n\nSlightly outside optimal (18-24°C)."
+                reply = f"🌡️ **សីតុណ្ហភាពបច្ចុប្បន្ន៖ {t}°C**\n\nស្ថិតក្នុងកម្រិតមធ្យម មិនមានបញ្ហាចោទឡើយ។"
         else:
-            reply = "🌡️ No temperature data available."
+            reply = "🌡️ មិនទាន់មានទិន្នន័យសីតុណ្ហភាពនៅឡើយទេ។"
     
-    elif any(w in msg for w in ["npk", "nitrogen", "phosphorus", "potassium", "fertilizer"]):
+    elif any(w in msg for w in ["npk", "nitrogen", "phosphorus", "potassium", "fertilizer", "ជី", "អាសូត", "ប៉ូតាស្យូម"]):
         n = sensor_data.get('nitrogen', 'N/A')
         p = sensor_data.get('phosphorus', 'N/A')
         k = sensor_data.get('potassium', 'N/A')
         ec = sensor_data.get('ec', 'N/A')
-        reply = f"🌱 **Nutrient Status (ppm):**\n• N: {n} (Target: 150-200)\n• P: {p} (Target: 30-50)\n• K: {k} (Target: 150-250)\n• EC: {ec} µS/cm (Target: 1200-1600)"
+        reply = f"🌱 **ស្ថានភាពជីក្នុងដី (ppm):**\n• Nitrogen (N): {n} (ស្តង់ដារ: ១៥០-២០០)\n• Phosphorus (P): {p} (ស្តង់ដារ: ៣០-៥០)\n• Potassium (K): {k} (ស្តង់ដារ: ១៥០-២៥០)\n• កម្រិតចម្លង EC: {ec} µS/cm"
     
-    elif any(w in msg for w in ["ph", "acid", "alkaline"]):
+    elif any(w in msg for w in ["ph", "acid", "alkaline", "ដី"]):
         ph = sensor_data.get('pH')
         if ph:
-            status = "optimal ✅" if 6.0 <= ph <= 7.0 else ("too acidic ⚠️" if ph < 6.0 else "too alkaline ⚠️")
-            reply = f"⚗️ **Soil pH: {ph}** ({status})\n\nCARDI standard for lettuce: 6.0-7.0."
+            status = "ល្អ (Neutral) ✅" if 6.0 <= ph <= 7.0 else ("ដីអាស៊ីត ⚠️" if ph < 6.0 else "ដីបាស ⚠️")
+            reply = f"⚗️ **កម្រិត pH ដី៖ {ph}** ({status})\n\nតាមស្តង់ដារ CARDI កម្រិត pH ពី ៦.០ ដល់ ៧.០ គឺល្អបំផុតសម្រាប់សាឡាត់។"
         else:
-            reply = "⚗️ No pH data available."
+            reply = "⚗️ មិនមានទិន្នន័យកម្រិត pH ដីនៅឡើយទេ។"
     
-    elif any(w in msg for w in ["expense", "cost", "spend", "money"]):
+    elif any(w in msg for w in ["expense", "cost", "spend", "money", "ចំណាយ", "លុយ"]):
         total = sum(float(e.get('amount', 0)) for e in expenses)
-        reply = f"💰 **Total Expenses: ${total:.2f}**"
+        reply = f"💰 **ចំណាយសរុប៖ ${total:.2f}**\n\nសរុបលើការចំណាយទឹក ជី និងប្រតិបត្តិការផ្សេងៗ។"
     
-    elif any(w in msg for w in ["status", "overview", "summary"]):
-        reply = f"""📊 **Farm Status Overview:**
-• Moisture: {sensor_data.get('moisture', 'N/A')}% (Ideal 65-75%)
-• Soil Temp: {sensor_data.get('temperature', 'N/A')}°C (Ideal 18-24°C)
-• Soil pH: {sensor_data.get('pH', 'N/A')} (Ideal 6.0-7.0)
-• Health: {sensor_data.get('soilHealth', 'Unknown')}"""
+    elif any(w in msg for w in ["status", "overview", "summary", "ស្ថានភាព", "សរុប"]):
+        reply = f"""📊 **សេចក្ដីសរុបស្ថានភាពកសិដ្ឋាន៖**
+• សំណើមដី៖ {sensor_data.get('moisture', 'N/A')}% (ល្អ ៦៥-៧៥%)
+• សីតុណ្ហភាព៖ {sensor_data.get('temperature', 'N/A')}°C (ល្អ ១៨-២៤°C)
+• កម្រិត pH ដី៖ {sensor_data.get('pH', 'N/A')} (ល្អ ៦.០-៧.០)
+• សុខភាពដី៖ {sensor_data.get('soilHealth', 'មិនច្បាស់លាស់')}"""
     
-    elif any(w in msg for w in ["hello", "hi", "hey", "help"]):
-        reply = """👋 **Hello! I'm your Cambodian AgriSmart AI**
+    elif any(w in msg for w in ["hello", "hi", "hey", "help", "ជំរាបសួរ", "សួរ"]):
+        reply = """👋 **ជំរាបសួរ លោកកសិករ! ខ្ញុំគឺ AgriSmart AI**
         
-I monitor your crops using MAFF/CARDI standards. I can help with:
-• Soil health & nutrition
-• Irrigation automation
-• Heat stress management
-• Expense tracking
+ខ្ញុំជាជំនួយការឌីជីថលដែលតាមដានដំណាំរបស់លោកអ្នកតាមស្តង់ដារ MAFF/CARDI។ ខ្ញុំអាចជួយលោកអ្នកបានដូចជា៖
+• ពិនិត្យសុខភាពដី និងជី
+• គ្រប់គ្រងការស្រោចទឹកសន្សំសំចៃ
+• ផ្ដល់ដំបូន្មានពេលអាកាសធាតុក្តៅ
+• តាមដានការចំណាយប្រចាំថ្ងៃ
         
-What would you like to check today?"""
+តើលោកកសិករចង់ពិនិត្យមើលអ្វីដែរនៅថ្ងៃនេះ?"""
     
     else:
-        reply = "🤖 I can analyze your **moisture**, **temperature**, **NPK**, **pH**, or **expenses** based on Cambodian standards. What can I help with?"
+        reply = "🤖 ជំរាបសួរ! លោកកសិករអាចសួរខ្ញុំអំពី **សំណើម**, **សីតុណ្ហភាព**, **កម្រិតជី**, **កម្រិត pH** ឬ **ចំណាយ** ផ្សេងៗបាន។ តើខ្ញុំអាចជួយអ្វីបានដែរ?"
     
     return {
         "reply": reply,
