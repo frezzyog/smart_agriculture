@@ -8,6 +8,45 @@ import { useAuth } from '@/hooks/useAuth'
 import { useRouter } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 
+const Typewriter = ({ textArray, typingSpeed = 100, deletingSpeed = 50, pauseTime = 2000 }) => {
+    const [displayedText, setDisplayedText] = useState('')
+    const [isDeleting, setIsDeleting] = useState(false)
+    const [loopNum, setLoopNum] = useState(0)
+
+    useEffect(() => {
+        let timer
+        const i = loopNum % textArray.length
+        const fullText = textArray[i]
+
+        if (isDeleting) {
+            timer = setTimeout(() => {
+                setDisplayedText(fullText.substring(0, displayedText.length - 1))
+            }, deletingSpeed)
+        } else {
+            timer = setTimeout(() => {
+                setDisplayedText(fullText.substring(0, displayedText.length + 1))
+            }, typingSpeed)
+        }
+
+        if (!isDeleting && displayedText === fullText) {
+            clearTimeout(timer)
+            timer = setTimeout(() => setIsDeleting(true), pauseTime)
+        } else if (isDeleting && displayedText === '') {
+            setIsDeleting(false)
+            setLoopNum(loopNum + 1)
+        }
+
+        return () => clearTimeout(timer)
+    }, [displayedText, isDeleting, loopNum, textArray, typingSpeed, deletingSpeed, pauseTime])
+
+    return (
+        <span className="font-mono text-accent">
+            {displayedText}
+            <span className="animate-pulse ml-1 opacity-70">_</span>
+        </span>
+    )
+}
+
 const Header = () => {
     const [currentTime, setCurrentTime] = useState('')
     const [isProfileOpen, setIsProfileOpen] = useState(false)
@@ -100,9 +139,12 @@ const Header = () => {
             </div>
 
             <div className="flex items-center gap-3 md:gap-6">
-                <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-accent/10 border border-accent/20 rounded-xl text-accent">
-                    <Calendar size={18} />
-                    <span className="text-sm font-bold tracking-tight">{t('header.days_to_harvest')}: 14</span>
+                <div className="hidden md:flex items-center gap-3 px-5 py-2 bg-black/80 border border-accent/20 rounded-xl shadow-[inset_0_0_20px_rgba(21,255,113,0.1)] relative overflow-hidden group">
+                    <div className="absolute inset-0 bg-accent/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    <div className="w-2 h-2 rounded-full bg-accent animate-pulse shadow-[0_0_8px_rgba(21,255,113,0.8)]"></div>
+                    <div className="text-sm font-bold tracking-wide text-accent font-mono min-w-[240px]">
+                        <Typewriter textArray={["Welcome to Agriculture 4.0", "ស្វាគមន៏មកកាន់កសិកម្ម៤.០"]} />
+                    </div>
                 </div>
 
                 <ThemeToggle />
