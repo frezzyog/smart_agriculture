@@ -33,8 +33,6 @@ const Sidebar = () => {
         { label: t('sidebar.dashboard'), href: '/dashboard', icon: LayoutGrid },
         { label: t('sidebar.iot_sensor'), href: '/dashboard/sensors', icon: Wifi },
         { label: t('sidebar.expenses'), href: '/dashboard/expenses', icon: BarChart3 },
-        { label: t('sidebar.crop_management'), href: '/dashboard/crops', icon: Sprout, subtitle: t('sidebar.crop_management_sub') },
-        { label: t('sidebar.planning'), href: '/dashboard/planning', icon: Calendar },
         { label: t('sidebar.irrigation_logs'), href: '/dashboard/irrigation', icon: Droplets },
         { label: t('sidebar.ai_insights'), href: '/dashboard/ai-insights', icon: BarChart3, subtitle: t('sidebar.ai_insights_sub') },
         { label: t('sidebar.farmer_guide'), href: '/dashboard/guide', icon: BookOpen },
