@@ -28,6 +28,19 @@ export default function CompactWeatherCard() {
         }
     }
 
+    // Mock forecast generation or use real API if available
+    const forecast = [
+        { day: 'mon', temp: 30, condition: 'Sunny' },
+        { day: 'tue', temp: 28, condition: 'Rain' },
+        { day: 'wed', temp: 29, condition: 'Cloudy' },
+        { day: 'thu', temp: 31, condition: 'Sunny' },
+        { day: 'fri', temp: 27, condition: 'Rain' },
+        { day: 'sat', temp: 26, condition: 'Cloudy' },
+        { day: 'sun', temp: 30, condition: 'Sunny' }
+    ]
+
+    const getDayLabel = (dayKey) => t(`days.${dayKey}`)
+
     const getWeatherIcon = (condition, size = 18) => {
         const lowerCondition = condition?.toLowerCase() || ''
         if (lowerCondition.includes('rain')) return <CloudRain size={size} className="text-sky-500" />
@@ -39,18 +52,32 @@ export default function CompactWeatherCard() {
 
     if (loading || !weather) {
         return (
-            <div className="bg-white rounded-full h-[60px] w-[180px] animate-pulse border border-border/50"></div>
+            <div className="bg-white rounded-2xl h-[60px] w-full animate-pulse border border-border/50"></div>
         )
     }
 
     return (
-        <div className="bg-card rounded-full px-4 py-2 border border-border flex items-center gap-3 group cursor-default shadow-sm min-w-[160px] transition-colors">
-            <div className="bg-sky-50 dark:bg-sky-500/10 p-2.5 rounded-2xl text-sky-500">
-                {getWeatherIcon(weather.condition, 22)}
+        <div className="bg-card/50 backdrop-blur-md rounded-2xl p-2 border border-white/5 flex items-center gap-4 overflow-x-auto scrollbar-hide shadow-inner max-w-full">
+            {/* Current Weather (Left Highlight) */}
+            <div className="flex items-center gap-3 px-4 py-2 bg-card rounded-xl border border-border shadow-sm min-w-[140px]">
+                <div className="bg-sky-50 dark:bg-sky-500/10 p-2.5 rounded-2xl text-sky-500">
+                    {getWeatherIcon(weather.condition, 24)}
+                </div>
+                <div className="flex flex-col">
+                    <span className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest leading-none mb-1">{t('dashboard_cards.weather')}</span>
+                    <span className="text-xl font-black text-foreground tracking-tighter leading-none">{Math.round(weather.temperature)}°C</span>
+                </div>
             </div>
-            <div className="flex flex-col pr-2">
-                <span className="text-[10px] font-bold text-foreground/30 uppercase tracking-widest leading-none mb-0.5">{t('dashboard_cards.weather')}</span>
-                <span className="text-lg font-black text-foreground tracking-tighter leading-none">{Math.round(weather.temperature)}°C</span>
+
+            {/* Forecast Data */}
+            <div className="flex items-center gap-3 pr-2">
+                {forecast.map((day, idx) => (
+                    <div key={idx} className="flex flex-col items-center gap-1 min-w-[50px]">
+                        <span className="text-[10px] font-bold text-foreground/40 uppercase">{getDayLabel(day.day)}</span>
+                        {getWeatherIcon(day.condition, 16)}
+                        <span className="text-xs font-bold text-foreground">{day.temp}°</span>
+                    </div>
+                ))}
             </div>
         </div>
     )

@@ -126,29 +126,14 @@ export default function DashboardPage() {
                         </p>
                     </div>
 
-                    {/* Quick Toggle UI */}
-                    <div className="flex bg-white/5 p-1 rounded-2xl border border-white/5 backdrop-blur-md shadow-inner">
-                        <button
-                            onClick={() => setActiveTab('soil')}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-300 font-bold text-xs ${activeTab === 'soil' ? 'bg-accent text-white shadow-lg shadow-accent/20' : 'text-foreground/60 hover:text-foreground'}`}
-                        >
-                            <Sprout size={14} />
-                            {t('dashboard.soil_data')}
-                        </button>
-                        <button
-                            onClick={() => setActiveTab('balance')}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-300 font-bold text-xs ${activeTab === 'balance' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'text-foreground/60 hover:text-foreground'}`}
-                        >
-                            <Wallet size={14} />
-                            {t('dashboard.balance')}
-                        </button>
+                    {/* Compact Weather Forecast - Replaces Quick Toggle UI */}
+                    <div className="flex-1 flex justify-end max-w-full lg:max-w-2xl">
+                        <CompactWeatherCard />
                     </div>
                 </div>
 
-                {/* MINI STATUS BAR: Pill style matching reference */}
-                <div className="flex items-center gap-3 mb-8 overflow-x-auto pb-2 scrollbar-hide">
-                    <CompactWeatherCard />
-                </div>
+                {/* Removed Mini Status Bar as requested */}
+
 
 
                 {/* MAIN DASHBOARD CONTENT */}
