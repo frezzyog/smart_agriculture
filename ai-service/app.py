@@ -332,6 +332,15 @@ async def interpret_sensor_data(request: InterpretRequest):
         # Check if we should skip irrigation due to rain forecast OR current rain
         skip_irrigation_due_to_rain = tomorrow_rain_probability > 50 or rain_detected
         
+        # 🌧️ IMMEDIATE RAIN ALERT (New)
+        if rain_detected:
+            alerts.append({
+                "severity": "WARNING",
+                "type": "WEATHER_ALERT",
+                "title": "🌧️ រកឃើញទឹកភ្លៀង (Rain Detected)",
+                "message": f"ចាប់បានទឹកភ្លៀង {sensor_data.get('rain', 0)}%។ ម៉ាស៊ីនបូមត្រូវបានបិទដើម្បីសុវត្ថិភាព។"
+            })
+        
         if moisture < 45 or stress_level > 80:
             # Critical situation - needs immediate action
             if skip_irrigation_due_to_rain:
