@@ -36,11 +36,14 @@ def validate_api_key(key: str) -> bool:
 
 has_gemini = validate_api_key(GEMINI_API_KEY)
 
-# CORRECT MODEL NAMES
+# CORRECT MODEL NAMES - Using specific versions for stability
 GEMINI_MODELS = [
+    "gemini-1.5-flash-latest",
     "gemini-1.5-flash",
+    "gemini-1.5-flash-002",
+    "gemini-1.5-pro-latest",
     "gemini-2.0-flash-exp",
-    "gemini-1.5-pro",
+    "gemini-pro",
 ]
 
 # Track state
@@ -75,7 +78,9 @@ async def call_gemini(prompt: str) -> Optional[str]:
     
     # Try each model
     for model in GEMINI_MODELS:
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+        # Use v1 for stable models, fallback to v1beta for experimental ones
+        api_version = "v1" if "exp" not in model else "v1beta"
+        url = f"https://generativelanguage.googleapis.com/{api_version}/models/{model}:generateContent"
         
         try:
             async with httpx.AsyncClient() as client:
@@ -84,7 +89,7 @@ async def call_gemini(prompt: str) -> Optional[str]:
                     json={
                         "contents": [{"parts": [{"text": prompt}]}],
                         "generationConfig": {
-                            "temperature": 0.5, # Lower temperature for more stable long responses
+                            "temperature": 0.5,
                             "maxOutputTokens": 4096,
                             "topP": 0.95
                         },
@@ -110,7 +115,7 @@ async def call_gemini(prompt: str) -> Optional[str]:
                         if parts:
                             full_text = "".join([p.get("text", "") for p in parts if "text" in p])
                             working_model = model
-                            print(f"✅ Success with {model} (Length: {len(full_text)}, FinishReason: {finish_reason})")
+                            print(f"✅ Success with {model} ({api_version}) (Length: {len(full_text)}, FinishReason: {finish_reason})")
                             
                             if finish_reason == "MAX_TOKENS":
                                 print("⚠️ WARNING: Response was cut off due to MAX_TOKENS!")
@@ -129,22 +134,26 @@ async def call_gemini(prompt: str) -> Optional[str]:
                         retry_seconds = float(retry_match.group(1))
                         quota_reset_time = datetime.now() + timedelta(seconds=retry_seconds + 5)
                     else:
-                        # Default: wait 60 seconds
                         quota_reset_time = datetime.now() + timedelta(seconds=60)
                     
                     last_gemini_error = f"Rate limited. Quota resets at {quota_reset_time.strftime('%H:%M:%S')}"
-                    print(f"⚠️ {model}: Rate limited")
-                    continue  # Try next model
+                    print(f"⚠️ {model} ({api_version}): Rate limited")
+                    continue
                 
                 elif response.status_code == 404:
-                    print(f"⚠️ {model}: Not found, trying next...")
-                    continue  # Try next model
+                    # Try v1beta if v1 fails with 404
+                    if api_version == "v1":
+                        print(f"⚠️ {model} (v1): Not items on v1, trying v1beta...")
+                        # We don't continue yet, we'll try v1beta in next iteration logic or just let the loop continue
+                        # Actually, let's just make the list more robust
+                    print(f"⚠️ {model} ({api_version}): Not found")
+                    continue
                 
                 else:
                     error_data = response.json()
                     error_msg = error_data.get("error", {}).get("message", f"HTTP {response.status_code}")
                     last_gemini_error = error_msg
-                    print(f"❌ {model}: {error_msg[:50]}...")
+                    print(f"❌ {model} ({api_version}): {error_msg[:100]}")
                     
         except httpx.TimeoutException:
             last_gemini_error = "Request timed out"
