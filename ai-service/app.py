@@ -38,9 +38,9 @@ has_gemini = validate_api_key(GEMINI_API_KEY)
 
 # CORRECT MODEL NAMES - Using specific versions for stability
 GEMINI_MODELS = [
+    "gemini-2.0-flash",
     "gemini-1.5-flash-latest",
     "gemini-1.5-flash",
-    "gemini-1.5-flash-002",
     "gemini-1.5-pro-latest",
     "gemini-2.0-flash-exp",
     "gemini-pro",
@@ -78,90 +78,68 @@ async def call_gemini(prompt: str) -> Optional[str]:
     
     # Try each model
     for model in GEMINI_MODELS:
-        # Use v1 for stable models, fallback to v1beta for experimental ones
-        api_version = "v1" if "exp" not in model else "v1beta"
-        url = f"https://generativelanguage.googleapis.com/{api_version}/models/{model}:generateContent"
+        # We will try both v1 and v1beta for each model if needed
+        api_versions = ["v1", "v1beta"] if "exp" not in model else ["v1beta"]
         
-        try:
-            async with httpx.AsyncClient() as client:
-                response = await client.post(
-                    f"{url}?key={GEMINI_API_KEY}",
-                    json={
-                        "contents": [{"parts": [{"text": prompt}]}],
-                        "generationConfig": {
-                            "temperature": 0.5,
-                            "maxOutputTokens": 4096,
-                            "topP": 0.95
+        for api_version in api_versions:
+            url = f"https://generativelanguage.googleapis.com/{api_version}/models/{model}:generateContent"
+            
+            try:
+                async with httpx.AsyncClient() as client:
+                    response = await client.post(
+                        f"{url}?key={GEMINI_API_KEY}",
+                        json={
+                            "contents": [{"parts": [{"text": prompt}]}],
+                            "generationConfig": {
+                                "temperature": 0.5,
+                                "maxOutputTokens": 4096,
+                                "topP": 0.95
+                            },
+                            "safetySettings": [
+                                {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
+                                {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
+                                {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
+                                {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"}
+                            ]
                         },
-                        "safetySettings": [
-                            {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
-                            {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
-                            {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
-                            {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"}
-                        ]
-                    },
-                    timeout=30.0,
-                    headers={"Content-Type": "application/json"}
-                )
-                
-                if response.status_code == 200:
-                    data = response.json()
-                    candidates = data.get("candidates", [])
-                    if candidates:
-                        candidate = candidates[0]
-                        parts = candidate.get("content", {}).get("parts", [])
-                        finish_reason = candidate.get("finishReason")
-                        
-                        if parts:
-                            full_text = "".join([p.get("text", "") for p in parts if "text" in p])
-                            working_model = model
-                            print(f"✅ Success with {model} ({api_version}) (Length: {len(full_text)}, FinishReason: {finish_reason})")
+                        timeout=30.0,
+                        headers={"Content-Type": "application/json"}
+                    )
+                    
+                    if response.status_code == 200:
+                        data = response.json()
+                        candidates = data.get("candidates", [])
+                        if candidates:
+                            candidate = candidates[0]
+                            parts = candidate.get("content", {}).get("parts", [])
+                            finish_reason = candidate.get("finishReason")
                             
-                            if finish_reason == "MAX_TOKENS":
-                                print("⚠️ WARNING: Response was cut off due to MAX_TOKENS!")
-                                
-                            return full_text
-                
-                elif response.status_code == 429:
-                    # Rate limited - parse retry time
-                    error_data = response.json()
-                    error_msg = error_data.get("error", {}).get("message", "")
+                            if parts:
+                                full_text = "".join([p.get("text", "") for p in parts if "text" in p])
+                                working_model = model
+                                print(f"✅ Success with {model} ({api_version}) (Length: {len(full_text)}, FinishReason: {finish_reason})")
+                                return full_text
                     
-                    # Extract retry time if available
-                    import re
-                    retry_match = re.search(r'retry in (\d+\.?\d*)s', error_msg.lower())
-                    if retry_match:
-                        retry_seconds = float(retry_match.group(1))
-                        quota_reset_time = datetime.now() + timedelta(seconds=retry_seconds + 5)
+                    elif response.status_code == 429:
+                        # Rate limited
+                        print(f"⚠️ {model} ({api_version}): Rate limited")
+                        break # Try NEXT model if one version is rate limited
+                    
+                    elif response.status_code == 404:
+                        # Model not found on this version
+                        print(f"⚠️ {model} ({api_version}): Not found")
+                        continue # Try NEXT api_version for same model
+                    
                     else:
-                        quota_reset_time = datetime.now() + timedelta(seconds=60)
+                        error_data = response.json()
+                        error_msg = error_data.get("error", {}).get("message", f"HTTP {response.status_code}")
+                        print(f"❌ {model} ({api_version}): {error_msg[:100]}")
+                        break # Try NEXT model
+                        
+            except Exception as e:
+                print(f"💥 {model} ({api_version}) Error: {str(e)[:50]}")
+                break
                     
-                    last_gemini_error = f"Rate limited. Quota resets at {quota_reset_time.strftime('%H:%M:%S')}"
-                    print(f"⚠️ {model} ({api_version}): Rate limited")
-                    continue
-                
-                elif response.status_code == 404:
-                    # Try v1beta if v1 fails with 404
-                    if api_version == "v1":
-                        print(f"⚠️ {model} (v1): Not items on v1, trying v1beta...")
-                        # We don't continue yet, we'll try v1beta in next iteration logic or just let the loop continue
-                        # Actually, let's just make the list more robust
-                    print(f"⚠️ {model} ({api_version}): Not found")
-                    continue
-                
-                else:
-                    error_data = response.json()
-                    error_msg = error_data.get("error", {}).get("message", f"HTTP {response.status_code}")
-                    last_gemini_error = error_msg
-                    print(f"❌ {model} ({api_version}): {error_msg[:100]}")
-                    
-        except httpx.TimeoutException:
-            last_gemini_error = "Request timed out"
-            print(f"⏱️ {model}: Timeout")
-        except Exception as e:
-            last_gemini_error = str(e)
-            print(f"💥 {model}: {str(e)[:50]}")
-    
     return None
 
 
