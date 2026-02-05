@@ -20,6 +20,12 @@ const PumpControl = ({ deviceId = 'SMARTAG-001' }) => {
         const nextStatus = !currentStatus ? 'ON' : 'OFF'
 
         try {
+            // 🛡️ MUTUAL EXCLUSION: If turning ONE on, turn the OTHER off
+            if (nextStatus === 'ON') {
+                if (type === 'WATER' && fertilizerPump) setFertilizerPump(false)
+                if (type === 'FERTILIZER' && waterPump) setWaterPump(false)
+            }
+
             await controlPump(deviceId, {
                 status: nextStatus,
                 type: type, // WATER or FERTILIZER

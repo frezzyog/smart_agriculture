@@ -273,6 +273,7 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
   bool turnOn = (status == "ON");
   
   if (type == "WATER") {
+    if (turnOn) digitalWrite(RELAY_2_PIN, HIGH); // 🔒 Interlock: Shut Fert if Water starts
     digitalWrite(RELAY_1_PIN, turnOn ? LOW : HIGH); // Active Low Logic
     Serial.printf("  💦 [ACTION] Water Pump PIN %d -> %s (Logic: %s)\n", RELAY_1_PIN, turnOn ? "ON" : "OFF", turnOn ? "LOW" : "HIGH");
     
@@ -282,6 +283,7 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
     mqtt.publish(feedbackTopic.c_str(), feedbackPayload.c_str());
   } 
   else if (type == "FERTILIZER") {
+    if (turnOn) digitalWrite(RELAY_1_PIN, HIGH); // 🔒 Interlock: Shut Water if Fert starts
     digitalWrite(RELAY_2_PIN, turnOn ? LOW : HIGH); // Active Low Logic
     Serial.printf("  🧪 [ACTION] Fertilizer Pump PIN %d -> %s (Logic: %s)\n", RELAY_2_PIN, turnOn ? "ON" : "OFF", turnOn ? "LOW" : "HIGH");
 
