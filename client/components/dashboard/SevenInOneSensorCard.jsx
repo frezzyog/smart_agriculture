@@ -54,7 +54,6 @@ const SevenInOneSensorCard = ({ nitrogen, phosphorus, potassium, pH, ec, temp, h
         { label: t('dashboard.ph'), value: pH, unit: '', icon: FlaskConical, color: 'text-emerald-500', status: getPHStatus(Number(pH)) },
         { label: t('dashboard.ec'), value: ec, unit: 'µS/cm', icon: Zap, color: 'text-yellow-500', status: getECStatus(Number(ec)) }, // Changed mS/cm to µS/cm based on user ranges (400-2000 usually uS)
         { label: t('dashboard.temperature'), value: temp, unit: '°C', icon: Thermometer, color: 'text-red-500', status: null },
-        { label: t('dashboard.humidity'), value: humidity, unit: '%', icon: Droplets, color: 'text-sky-500', status: null },
     ]
 
     return (
