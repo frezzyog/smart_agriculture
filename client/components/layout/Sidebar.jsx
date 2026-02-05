@@ -39,7 +39,6 @@ const Sidebar = () => {
         { label: t('sidebar.ai_insights'), href: '/dashboard/ai-insights', icon: BarChart3, subtitle: t('sidebar.ai_insights_sub') },
         { label: t('sidebar.farmer_guide'), href: '/dashboard/guide', icon: BookOpen },
         { label: t('sidebar.report'), href: '/dashboard/report', icon: FileText },
-        { label: t('sidebar.ai_chatbot'), href: '/dashboard/chatbot', icon: MessageSquare },
     ]
 
     const toggleLanguage = () => {

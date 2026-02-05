@@ -5,6 +5,7 @@ import Header from '@/components/layout/Header'
 import Sidebar from '@/components/layout/Sidebar'
 import Providers from './providers'
 import { usePathname } from 'next/navigation'
+import AIChatFloatingButton from '@/components/ui/AIChatFloatingButton'
 
 export default function RootLayout({ children }) {
     const pathname = usePathname()
@@ -20,6 +21,7 @@ export default function RootLayout({ children }) {
                         <main className="flex-1">
                             {children}
                         </main>
+                        {!isAuthPage && <AIChatFloatingButton />}
                     </div>
                 </Providers>
             </body>
