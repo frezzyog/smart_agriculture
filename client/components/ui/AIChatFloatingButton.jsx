@@ -124,7 +124,7 @@ export default function AIChatFloatingButton() {
 
                     {/* Device Selector (Context) */}
                     {devices.length > 0 && (
-                        <div className="px-4 py-2 bg-white/5 border-b border-white/5 flex items-center justify-between gap-2">
+                        <div className="px-4 py-2 bg-zinc-50 dark:bg-white/5 border-b border-zinc-100 dark:border-white/5 flex items-center justify-between gap-2">
                             <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{t('iot.device_id')}</span>
                             <select
                                 value={selectedDeviceId}
@@ -146,12 +146,12 @@ export default function AIChatFloatingButton() {
                         {messages.map((msg) => (
                             <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                                 <div className={`flex gap-3 max-w-[85%] ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
-                                    <div className={`h-8 w-8 rounded-lg flex items-center justify-center shrink-0 ${msg.role === 'user' ? 'bg-accent text-background' : 'bg-white/5 text-accent border border-white/10'}`}>
+                                    <div className={`h-8 w-8 rounded-lg flex items-center justify-center shrink-0 ${msg.role === 'user' ? 'bg-accent text-background' : 'bg-zinc-100 dark:bg-white/5 text-accent border border-zinc-200 dark:border-white/10'}`}>
                                         {msg.role === 'user' ? <User size={14} /> : <Bot size={14} />}
                                     </div>
-                                    <div className={`p-3 rounded-2xl text-xs font-medium leading-relaxed ${msg.role === 'user' ? 'bg-accent text-background rounded-tr-none' : 'bg-white/5 text-gray-200 border border-white/10 rounded-tl-none'}`}>
+                                    <div className={`p-3 rounded-2xl text-xs font-medium leading-relaxed ${msg.role === 'user' ? 'bg-accent text-background rounded-tr-none' : 'bg-zinc-100 dark:bg-white/5 text-zinc-800 dark:text-gray-200 border border-zinc-200 dark:border-white/10 rounded-tl-none'}`}>
                                         {msg.role === 'bot' ? (
-                                            <div className="prose prose-invert prose-xs max-w-none">
+                                            <div className="prose dark:prose-invert prose-xs max-w-none prose-p:text-inherit">
                                                 <ReactMarkdown>{msg.text}</ReactMarkdown>
                                             </div>
                                         ) : (
@@ -164,10 +164,10 @@ export default function AIChatFloatingButton() {
                         {isTyping && (
                             <div className="flex justify-start">
                                 <div className="flex gap-3">
-                                    <div className="h-8 w-8 rounded-lg bg-white/5 text-accent border border-white/10 flex items-center justify-center">
+                                    <div className="h-8 w-8 rounded-lg bg-zinc-100 dark:bg-white/5 text-accent border border-zinc-200 dark:border-white/10 flex items-center justify-center">
                                         <Bot size={14} className="animate-pulse" />
                                     </div>
-                                    <div className="bg-white/5 text-gray-500 border border-white/10 p-3 rounded-2xl rounded-tl-none flex items-center gap-2">
+                                    <div className="bg-zinc-100 dark:bg-white/5 text-zinc-500 dark:text-gray-500 border border-zinc-200 dark:border-white/10 p-3 rounded-2xl rounded-tl-none flex items-center gap-2">
                                         <Loader2 size={12} className="animate-spin" />
                                         <span className="text-[10px] font-bold tracking-widest uppercase italic">{t('chatbot.analyzing')}</span>
                                     </div>
@@ -184,7 +184,7 @@ export default function AIChatFloatingButton() {
                             onChange={(e) => setInput(e.target.value)}
                             onKeyPress={(e) => e.key === 'Enter' && handleSend()}
                             placeholder={t('chatbot.input_placeholder')}
-                            className="w-full h-12 pl-4 pr-12 bg-white/5 border border-white/10 rounded-xl text-xs text-white placeholder-gray-500 focus:outline-none focus:border-accent/40 transition-all"
+                            className="w-full h-12 pl-4 pr-12 bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/10 rounded-xl text-xs text-zinc-900 dark:text-white placeholder-zinc-500 focus:outline-none focus:border-accent/40 transition-all"
                         />
                         <button
                             onClick={handleSend}
