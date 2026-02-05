@@ -11,14 +11,14 @@
         "ai_insights_sub": "Predictions & Analysis",
         "farmer_guide": "Farmer Guide",
         "report": "Report",
-        "ai_chatbot": "AI Chatbot",
+        "ai_chatbot": "AI Advisor",
         "system_load": "System Load",
         "settings": "Settings",
         "language": "Language",
         "title": "Agri 4.0"
     },
     "chatbot": {
-        "title": "AI Chatbot",
+        "title": "AI Advisor",
         "subtitle": "Instant agricultural advice and system troubleshooting.",
         "welcome": "Hello! I am your AI Agronomist. How can I help you today?",
         "input_placeholder": "Ask about soil health, irrigation levels...",
