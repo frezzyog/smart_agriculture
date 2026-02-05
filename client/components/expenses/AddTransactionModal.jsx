@@ -6,9 +6,11 @@ import { X, DollarSign, Tag, Calendar, FileText, Loader2 } from 'lucide-react'
 import { createExpense } from '@/lib/api'
 import { toast } from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
+import { useAuth } from '@/hooks/useAuth'
 
 const AddTransactionModal = ({ isOpen, onClose, onSuccess }) => {
     const { t } = useTranslation()
+    const { user } = useAuth()
     const [loading, setLoading] = useState(false)
     const [formData, setFormData] = useState({
         title: '',
@@ -32,6 +34,7 @@ const AddTransactionModal = ({ isOpen, onClose, onSuccess }) => {
 
             await createExpense({
                 ...formData,
+                userId: user?.id,
                 amount: finalAmount,
                 date: new Date(formData.date).toISOString()
             })
