@@ -356,62 +356,62 @@ async function saveSensorData(deviceId, data) {
             });
         }
 
-        // Execute automated action if AI recommends it
-        if (aiAnalysis && aiAnalysis.recommendAction && aiAnalysis.action) {
-            console.log(`🤖 AI RECOMMENDATION: Triggering ${aiAnalysis.action.type}...`)
+        // Execute automated actions if AI recommends them (Support for multiple actions)
+        const actionsToExecute = aiAnalysis?.actions || (aiAnalysis?.action ? [aiAnalysis.action] : []);
 
-            const { command } = aiAnalysis.action
-            const topic = `smartag/${deviceId}/pump/command`
+        if (actionsToExecute.length > 0) {
+            console.log(`🤖 AI RECOMMENDATION: Triggering ${actionsToExecute.length} actions...`)
 
-            // Publish pump control command
-            aedes.publish({
-                topic,
-                payload: Buffer.from(JSON.stringify(command)),
-                qos: 0, // Changed to 0 for better ESP32 compatibility
-                retain: false
-            }, (err) => {
-                if (err) console.error(`❌ MQTT Publish Error for ${deviceId}:`, err);
-                else console.log(`📡 MQTT Command Sent to ${deviceId}: ${JSON.stringify(command)}`);
-            })
+            for (const action of actionsToExecute) {
+                const { command } = action
+                const topic = `smartag/${deviceId}/pump/command`
 
-            // Log the automated action
-            await logPumpAction(deviceId, {
-                type: command.type || 'WATER',
-                action: command.status,
-                duration: command.duration,
-                triggeredBy: 'AI_SYSTEM'
-            })
+                // Publish MQTT command to device
+                aedes.publish({
+                    topic,
+                    payload: Buffer.from(JSON.stringify(command)),
+                    qos: 0,
+                    retain: false
+                }, (err) => {
+                    if (err) console.error(`❌ MQTT Publish Error for ${deviceId}:`, err);
+                    else console.log(`📡 MQTT Command Sent to ${deviceId}: ${JSON.stringify(command)}`);
+                })
 
-            // IMPORTANT: Notify the dashboard UI of the change immediately
-            io.emit('pumpStatus', {
-                deviceId,
-                type: command.type || 'WATER',
-                status: command.status,
-                duration: command.duration,
-                triggeredBy: 'AI_SYSTEM'
-            })
+                // Log the automated action
+                await logPumpAction(deviceId, {
+                    type: command.type || 'WATER',
+                    action: command.status,
+                    duration: command.duration,
+                    triggeredBy: 'AI_SYSTEM'
+                })
 
-            if (hasTelegram) {
-                const isWater = command.type === 'WATER';
-                const actionType = isWater ? 'ទឹក' : 'ជី';
-                const durationMinutes = Math.round((command.duration || 0) / 60);
+                // Notify dashboard
+                io.emit('pumpStatus', {
+                    deviceId,
+                    type: command.type || 'WATER',
+                    status: command.status,
+                    duration: command.duration,
+                    triggeredBy: 'AI_SYSTEM'
+                })
+            }
 
-                // Fix: Custom message based on action type
-                let reason = isWater
-                    ? `ដីស្ងួតពេកហើយ (<b>${data.moisture}%</b>)`
-                    : `កម្រិតសារធាតុចិញ្ចឹមទាប (EC: <b>${data.ec || 'N/A'}</b>)`;
-
-                const telegramMsg = `<b>🌾 ដំណឹងពី SmartAg</b>\n\n${reason}។ AI បានបើកម៉ាស៊ីនបូម<b>${actionType}</b> ក្នុងរយៈពេល <b>${durationMinutes}</b> នាទី។`;
-
-                // Alert the specific user
-                if (device.user?.telegramChatId) {
-                    await sendTelegramAlert(device.user.telegramChatId, telegramMsg)
+            // Combined Telegram Notification for multiple actions
+            if (hasTelegram && device.user?.telegramChatId) {
+                let alertDetails = [];
+                for (const action of actionsToExecute) {
+                    const isWater = action.command.type === 'WATER';
+                    const actionType = isWater ? 'បូមទឹក' : 'បូមជី';
+                    const duration = Math.round((action.command.duration || 0) / 60);
+                    alertDetails.push(`• <b>${actionType}</b> ក្នុងរយៈពេល <b>${duration}</b> នាទី`);
                 }
+
+                const telegramMsg = `<b>🌾 ដំណឹងពី AI - សកម្មភាពស្វ័យប្រវត្តិ</b>\n\n${alertDetails.join('\n')}\n\nសូមពិនិត្យមើលផ្ទាំងគ្រប់គ្រងសម្រាប់ព័ត៌មានលម្អិត។`;
+                await sendTelegramAlert(device.user.telegramChatId, telegramMsg);
 
                 // Alert Admin
                 const ADMIN_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
                 if (ADMIN_CHAT_ID && ADMIN_CHAT_ID !== device.user?.telegramChatId) {
-                    await sendTelegramAlert(ADMIN_CHAT_ID, `<b>[ADMIN] Action for ${device.name}:</b>\n${telegramMsg}`)
+                    await sendTelegramAlert(ADMIN_CHAT_ID, telegramMsg);
                 }
             }
         }

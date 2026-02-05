@@ -215,7 +215,8 @@ class InterpretResponse(BaseModel):
     recommendation: str
     alerts: List[Dict[str, Any]]
     recommendAction: bool
-    action: Optional[Dict[str, Any]] = None
+    action: Optional[Dict[str, Any]] = None # Deprecated: use actions instead
+    actions: List[Dict[str, Any]] = [] # Support for simultaneous actions
 
 class IrrigationPredictionRequest(BaseModel):
     zoneId: str
@@ -321,7 +322,7 @@ async def interpret_sensor_data(request: InterpretRequest):
         
         alerts = []
         recommend_action = False
-        action = None
+        actions = []
         
         # ============================================
         # MOISTURE THRESHOLDS WITH WEATHER INTELLIGENCE
@@ -366,7 +367,7 @@ async def interpret_sensor_data(request: InterpretRequest):
                     "message": "ប្រព័ន្ធបានបើកម៉ូទ័របូមទឹកដោយស្វ័យប្រវត្តិ ដើម្បីផ្គត់ផ្គង់ទឹកឲ្យដំណាំ។"
                 })
                 recommend_action = True
-                action = {"type": "irrigation", "deviceId": device_id, "command": {"type": "WATER", "status": "ON", "duration": 420}}
+                actions.append({"type": "irrigation", "deviceId": device_id, "command": {"type": "WATER", "status": "ON", "duration": 420}})
                 
         elif moisture < 50:
             if skip_irrigation_due_to_rain:
@@ -406,7 +407,7 @@ async def interpret_sensor_data(request: InterpretRequest):
         # NUTRIENT THRESHOLDS
         # ============================================
         # Prototype Mode: Allow fertilizer even if moisture is low -> Simultaneous Pumping
-        can_fertilize = not recommend_action 
+        can_fertilize = True # Enable "Combo Mode" for demo
         # Note: In real parallel mode, we can send multiple commands, but here we prioritize telling user about both.
         
         if sensor_data.get('nitrogen', 200) < 130:
@@ -440,7 +441,7 @@ async def interpret_sensor_data(request: InterpretRequest):
                              "message": "ប៉ុន្តែភ្លៀងកំពុងធ្លាក់។ ការដាក់ជីត្រូវបានផ្អាក។"
                         })
                         # Send STOP command if it was active
-                        action = {"type": "fertilizer", "deviceId": device_id, "command": {"type": "FERTILIZER", "status": "OFF", "duration": 0}}
+                        actions.append({"type": "fertilizer", "deviceId": device_id, "command": {"type": "FERTILIZER", "status": "OFF", "duration": 0}})
                         recommend_action = False
                     elif tomorrow_rain_probability >= 70:
                         alerts.append({
@@ -457,7 +458,7 @@ async def interpret_sensor_data(request: InterpretRequest):
                             "message": "ប្រព័ន្ធបានបើកម៉ូទ័របូមជី ដើម្បីផ្គត់ផ្គង់សារធាតុចិញ្ចឹមឲ្យដំណាំ។"
                         })
                         recommend_action = True
-                        action = {"type": "fertilizer", "deviceId": device_id, "command": {"type": "FERTILIZER", "status": "ON", "duration": 180}}
+                        actions.append({"type": "fertilizer", "deviceId": device_id, "command": {"type": "FERTILIZER", "status": "ON", "duration": 180}})
                 else:
                     # If dry, add warning alert but don't trigger pump (water takes priority)
                     alerts.append({
@@ -491,7 +492,8 @@ async def interpret_sensor_data(request: InterpretRequest):
             recommendation=recommendation,
             alerts=alerts,
             recommendAction=recommend_action,
-            action=action
+            action=actions[0] if actions else None, # Backwards compatibility
+            actions=actions
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

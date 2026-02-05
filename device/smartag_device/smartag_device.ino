@@ -18,6 +18,10 @@
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
 #include <ModbusMaster.h>
+#include <esp_task_wdt.h> // Task Watchdog for reliability
+
+// Watchdog timeout (seconds)
+#define WDT_TIMEOUT 8
 
 // ============================================
 // 1. WIFI & CLOUD CONFIGURATION
@@ -391,12 +395,18 @@ void setup() {
 
   mqtt.setServer(mqtt_server, mqtt_port);
   mqtt.setCallback(mqttCallback);
+
+  // 🚀 HARDWARE WATCHDOG INITIALIZATION
+  Serial.println("🛡️ Initializing Hardware Watchdog (8s)...");
+  esp_task_wdt_init(WDT_TIMEOUT, true); // Enable panic so ESP32 reboots on timeout
+  esp_task_wdt_add(NULL);               // Add current thread (loop) to WDT
 }
 
 // ============================================
 // 13. MAIN LOOP
 // ============================================
 void loop() {
+  esp_task_wdt_reset(); // 🦴 Reset Watchdog - "Feed the Dog"
 
   if (!mqtt.connected()) {
     unsigned long now = millis();
@@ -409,43 +419,47 @@ void loop() {
   }
 
   if (millis() - lastPublish > 5000) {
-
     readSevenInOneSensor();
     updateLocalSensors();
+
+    // 🌧️ TIER 1: INSTANT LOCAL RAIN SAFETY (The "Emergency Brake")
+    // This runs every 5s regardless of Online/Offline status
+    bool isRainingNow = (currentRain > 20);
+    
+    if (isRainingNow) {
+        digitalWrite(RELAY_1_PIN, HIGH); // Force OFF
+        digitalWrite(RELAY_2_PIN, HIGH); // Force OFF
+        Serial.println("🌧️ [TIER 1 SAFETY] Rain detected! Emergency shutdown ALL pumps.");
+    }
 
     if (mqtt.connected()) {
       sendSensorData();
 
-      // RAIN SAFETY - Always takes priority
-      if (currentRain > 20) {
-        digitalWrite(RELAY_1_PIN, HIGH);
-        digitalWrite(RELAY_2_PIN, HIGH);
-        Serial.println("🌧 [SAFETY] Rain detected! Emergency shutdown ALL pumps.");
-      } 
-      // HYBRID MODE: Auto-control pumps even when online (Prototype Version - Simultaneous)
-      else {
-        // 1. Water Pump Control (Independent)
+      // HYBRID MODE: Parallel control (if not raining)
+      if (!isRainingNow) {
+        // 1. Water Pump Control (Auto-fallback when Online)
         if (val_moisture < 40) {
           digitalWrite(RELAY_1_PIN, LOW); // ON
-          Serial.printf("💦 [AUTO] Water Pump ON (Moisture: %.1f%% < 40%%)\n", val_moisture);
+          Serial.printf("💦 [AUTO-ONLINE] Water Pump ON (%.1f%%)\n", val_moisture);
         } else if (val_moisture > 55) {
           digitalWrite(RELAY_1_PIN, HIGH); // OFF
-          Serial.printf("✅ [AUTO] Water Pump OFF (Moisture: %.1f%% > 55%%)\n", val_moisture);
+          Serial.printf("✅ [AUTO-ONLINE] Water Pump OFF (%.1f%%)\n", val_moisture);
         }
 
-        // 2. Fertilizer Pump Control (Independent - Can run with Water Pump)
+        // 2. Fertilizer Pump Control (Independent - SIMULTANEOUS)
         if (val_ec > 0 && val_ec < 800) {
           digitalWrite(RELAY_2_PIN, LOW); // ON
-          Serial.printf("🧪 [AUTO] Fertilizer Pump ON (EC: %.0f < 800)\n", val_ec);
+          Serial.printf("🧪 [AUTO-ONLINE] Fertilizer Pump ON (EC: %.0f)\n", val_ec);
         } else if (val_ec > 1200) {
           digitalWrite(RELAY_2_PIN, HIGH); // OFF
-          Serial.println("✅ [AUTO] Fertilizer Pump OFF (EC balanced)");
+          Serial.println("✅ [AUTO-ONLINE] Fertilizer Pump OFF (EC Balanced)");
         }
       }
-
-
     } else {
-      checkOfflineRules();
+      // Offline Rules also respect Tier 1 Safety check above
+      if (!isRainingNow) {
+          checkOfflineRules();
+      }
     }
 
     lastPublish = millis();
