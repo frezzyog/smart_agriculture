@@ -6,6 +6,7 @@ import RainSensorCard from '@/components/dashboard/RainSensorCard'
 import SoilSensorCard from '@/components/dashboard/SoilSensorCard'
 import SevenInOneSensorCard from '@/components/dashboard/SevenInOneSensorCard'
 import ExpenseSummaryCard from '@/components/dashboard/ExpenseSummaryCard'
+import FertilizerMonitor from '@/components/dashboard/FertilizerMonitor'
 import RecentTransactionsMinimal from '@/components/dashboard/RecentTransactionsMinimal'
 import SensorHistoryChart from '@/components/dashboard/SensorHistoryChart'
 import NPKTrendChart from '@/components/dashboard/NPKTrendChart'
@@ -150,6 +151,17 @@ export default function DashboardPage() {
                                 rainValue={sensorData.rain.toFixed(0)}
                                 status={statusText}
                             />
+
+                            {/* New Big Screen EC/Fertilizer Monitor */}
+                            <div className="md:col-span-2">
+                                <FertilizerMonitor
+                                    nitrogen={sensorData.nitrogen}
+                                    phosphorus={sensorData.phosphorus}
+                                    potassium={sensorData.potassium}
+                                    ec={sensorData.ec.toFixed(1)}
+                                />
+                            </div>
+
                             <div className="md:col-span-2">
                                 <SevenInOneSensorCard
                                     nitrogen={sensorData.nitrogen}
