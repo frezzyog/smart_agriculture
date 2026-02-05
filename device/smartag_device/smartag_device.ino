@@ -122,10 +122,11 @@ void loop() {
       sendSensorData(); // Send to Cloud if connected
       
       // 🌧️ EMERGENCY RAIN KILL-SWITCH (Safety Override)
-      // If sensor detects rain (>20%), force pump OFF even if cloud said ON
+      // If sensor detects rain (>20%), force BOTH pumps OFF even if cloud said ON
       if (currentRain > 20) {
-        digitalWrite(RELAY_1_PIN, HIGH); // Force OFF (Active Low)
-        Serial.println("🌧️ [SAFETY] Rain detected! Automated emergency pump shutdown.");
+        digitalWrite(RELAY_1_PIN, HIGH); // Force Water OFF
+        digitalWrite(RELAY_2_PIN, HIGH); // Force Fertilizer OFF
+        Serial.println("🌧️ [SAFETY] Rain detected! Emergency shutdown for ALL pumps (Water + Fert).");
       }
     } else {
       checkOfflineRules(); // ⚠️ SAFE MODE: Use local rules if disconnected

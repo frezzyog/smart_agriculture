@@ -389,8 +389,25 @@ async def interpret_sensor_data(request: InterpretRequest):
         if sensor_data.get('ec'):
             if sensor_data['ec'] < 1000:
                 if can_fertilize:
-                    # Only recommend fertilizer if not expecting heavy rain (which could wash it away)
-                    if tomorrow_rain_probability < 70:
+                    # Check for current rain OR heavy rain forecast
+                    if rain_detected:
+                        alerts.append({
+                            "severity": "INFO",
+                            "type": "WEATHER_SKIP",
+                            "title": "ពន្យារពេលដាក់ជី - កំពុងមានភ្លៀង",
+                            "message": f"កម្រិត EC ទាប ({sensor_data['ec']}) ប៉ុន្តែ AI បានបិទការដាក់ជីដោយសាររកឃើញភ្លៀងធ្លាក់ ដើម្បីការពារការលាងជម្រះសារធាតុចិញ្ចឹម។"
+                        })
+                        # Send STOP command if it was active
+                        action = {"type": "fertilizer", "deviceId": device_id, "command": {"type": "FERTILIZER", "status": "OFF", "duration": 0}}
+                        recommend_action = False
+                    elif tomorrow_rain_probability >= 70:
+                        alerts.append({
+                            "severity": "INFO",
+                            "type": "WEATHER_SKIP",
+                            "title": "ពន្យារពេលដាក់ជី - រំពឹងថាមានភ្លៀងខ្លាំង",
+                            "message": f"EC ទាបត្រឹម {sensor_data['ec']} µS/cm ប៉ុន្តែភ្លៀងខ្លាំង ({tomorrow_rain_probability}%) នឹងលាងជម្រះសារធាតុចិញ្ចឹមអស់។"
+                        })
+                    else:
                         alerts.append({
                             "severity": "WARNING",
                             "type": "NPK_LOW",
@@ -399,13 +416,6 @@ async def interpret_sensor_data(request: InterpretRequest):
                         })
                         recommend_action = True
                         action = {"type": "fertilizer", "deviceId": device_id, "command": {"type": "FERTILIZER", "status": "ON", "duration": 180}}
-                    else:
-                        alerts.append({
-                            "severity": "INFO",
-                            "type": "WEATHER_SKIP",
-                            "title": "ពន្យារពេលដាក់ជី - រំពឹងថាមានភ្លៀងខ្លាំង",
-                            "message": f"EC ទាបត្រឹម {sensor_data['ec']} µS/cm ប៉ុន្តែភ្លៀងខ្លាំង ({tomorrow_rain_probability}%) នឹងលាងជម្រះសារធាតុចិញ្ចឹមអស់។"
-                        })
                 else:
                     # If dry, add warning alert but don't trigger pump (water takes priority)
                     alerts.append({
