@@ -334,23 +334,25 @@ async def interpret_sensor_data(request: InterpretRequest):
         
         # 🌧️ IMMEDIATE RAIN ALERT (New)
         if rain_detected:
+            # Check intensity (simple logic: > 80% is heavy rain)
+            is_heavy_rain = sensor_data.get('rain', 0) > 80
+            
             alerts.append({
                 "severity": "WARNING",
                 "type": "WEATHER_ALERT",
-                "title": "🌧️ រកឃើញទឹកភ្លៀង (Rain Detected)",
-                "message": f"ចាប់បានទឹកភ្លៀង {sensor_data.get('rain', 0)}%។ ម៉ាស៊ីនបូមត្រូវបានបិទដើម្បីសុវត្ថិភាព។"
+                "title": "⛈ ភ្លៀងកម្រិតខ្លាំង" if is_heavy_rain else "🌧 មេឃកំពុងភ្លៀងហើយ ម៉ូទ័រត្រូវបានបិទ",
+                "message": "ការស្រោចទឹក និងការផ្គត់ផ្គង់ជីត្រូវបានផ្អាកជាបណ្តោះអាសន្ន ដើម្បីការពារសុខភាពដំណាំ។" if is_heavy_rain else "ប្រព័ន្ធបានបញ្ឈប់ម៉ូទ័របូមទឹក និងម៉ូទ័របូមជី ដើម្បីជៀសវាងការស្រោចទឹកលើសកម្រិត។"
             })
         
         if moisture < 45 or stress_level > 80:
             # Critical situation - needs immediate action
             if skip_irrigation_due_to_rain:
                 # Rain detected or expected - add info alert instead of triggering pump
-                reason = "កំពុងមានភ្លៀងធ្លាក់" if rain_detected else f"មានលទ្ធភាពភ្លៀង {tomorrow_rain_probability}%"
                 alerts.append({
                     "severity": "INFO",
                     "type": "WEATHER_ALERT",
-                    "title": "🌧️ ការពន្យារពេលដោយសារអាកាសធាតុ",
-                    "message": f"សំណើមដី {moisture}% ប៉ុន្តែ {reason}។ AI បានបិទ/ពន្យារពេលស្រោចស្រពដើម្បីការពារការលើសទឹក។"
+                    "title": "⚠️ សំណើមដីខ្ពស់ (ដោយសារភ្លៀង)",
+                    "message": "ប្រព័ន្ធបានបញ្ឈប់ម៉ូទ័របូមទឹក ដើម្បីជៀសវាងការស្រោចទឹកលើសកម្រិត។"
                 })
                 recommend_action = False
                 # If it was already pumping, send STOP command
@@ -359,9 +361,9 @@ async def interpret_sensor_data(request: InterpretRequest):
                 # No rain expected - trigger irrigation
                 alerts.append({
                     "severity": "CRITICAL",
-                    "type": "MOISTURE_CRITICAL" if moisture < 45 else "STRESS_CRITICAL",
-                    "title": "រុក្ខជាតិមានបញ្ហាខ្លាំង" if stress_level > 80 else "កម្រិតសំណើមដីទាបខ្លាំង",
-                    "message": f"រកឃើញបញ្ហាខ្លាំងកម្រិត {stress_level}%" if stress_level > 80 else f"សំណើមដីធ្លាក់ចុះទាបខ្លាំងត្រឹម {moisture}%"
+                    "type": "MOISTURE_CRITICAL",
+                    "title": "💧 សំណើមដីទាប",
+                    "message": "ប្រព័ន្ធបានបើកម៉ូទ័របូមទឹកដោយស្វ័យប្រវត្តិ ដើម្បីផ្គត់ផ្គង់ទឹកឲ្យដំណាំ។"
                 })
                 recommend_action = True
                 action = {"type": "irrigation", "deviceId": device_id, "command": {"type": "WATER", "status": "ON", "duration": 420}}
@@ -371,19 +373,28 @@ async def interpret_sensor_data(request: InterpretRequest):
                 alerts.append({
                     "severity": "INFO",
                     "type": "WEATHER_ALERT",
-                    "title": "🌦️ ពន្យារពេលស្រោចស្រព - មានការព្យាករណ៍ភ្លៀង",
-                    "message": f"សំណើមដីគឺ {moisture}%។ ការស្រោចស្រពត្រូវបានពន្យារពេលដោយសារមានលទ្ធភាពភ្លៀង {tomorrow_rain_probability}% នៅថ្ងៃស្អែក។"
+                    "title": "⚠️ សំណើមដីខ្ពស់ (ដោយសារភ្លៀង)",
+                    "message": "ប្រព័ន្ធបានបញ្ឈប់ម៉ូទ័របូមទឹក ដើម្បីជៀសវាងការស្រោចទឹកលើសកម្រិត។"
                 })
             else:
                 alerts.append({
                     "severity": "WARNING",
                     "type": "MOISTURE_LOW",
-                    "title": "គ្រោះថ្នាក់៖ សំណើមដីទាប",
-                    "message": f"សំណើមដីបានធ្លាក់ចុះមកត្រឹម {moisture}%។ គួរស្រោចស្រពមុនពេលវាធ្លាក់ដល់ ៤៥%។"
+                    "title": "💧 សំណើមដីទាប",
+                    "message": "សំណើមដីបានធ្លាក់ចុះ។ ប្រព័ន្ធនឹងបូមទឹកឆាប់ៗនេះ។"
+                })
+        else:
+             # Moisture OK or High
+             if moisture > 80:
+                 alerts.append({
+                    "severity": "INFO",
+                    "type": "MOISTURE_HIGH",
+                    "title": "⚠️ សំណើមដីខ្ពស់",
+                    "message": "ប្រព័ន្ធបានបញ្ឈប់ម៉ូទ័របូមទឹក ដើម្បីជៀសវាងការស្រោចទឹកលើសកម្រិត។"
                 })
         
         # Add weather info to alerts if rain is expected
-        if tomorrow_rain_probability > 30:
+        if tomorrow_rain_probability > 30 and not rain_detected:
             alerts.append({
                 "severity": "INFO",
                 "type": "WEATHER_INFO",
@@ -401,8 +412,8 @@ async def interpret_sensor_data(request: InterpretRequest):
             alerts.append({
                 "severity": "WARNING",
                 "type": "NPK_LOW",
-                "title": "កម្រិតអាសូតទាប",
-                "message": f"អាសូតគឺ {sensor_data.get('nitrogen', 0)} ppm។ កម្រិតស្តង់ដារគឺ ១៥០-២ ۲۰۰ ppm។"
+                "title": "🌱 រកឃើញកម្រិតជីទាប (N)",
+                "message": f"អាសូតគឺ {sensor_data.get('nitrogen', 0)} ppm។ ប្រព័ន្ធអាចនឹងបើកម៉ូទ័របូមជី។"
             })
         
         # pH THRESHOLDS: 6.0 - 7.0
@@ -411,8 +422,8 @@ async def interpret_sensor_data(request: InterpretRequest):
                 alerts.append({
                     "severity": "WARNING",
                     "type": "PH_WARNING",
-                    "title": "ការព្រមានអំពី pH ដី",
-                    "message": f"pH ដីគឺ {sensor_data['pH']}។ ស្ពៃក្តោបត្រូវការ pH ៦.០-៧.០ ដើម្បីជៀសវាងការស្ទះសារធាតុចិញ្ចឹម។"
+                    "title": "⚠️ បញ្ហា pH ដី",
+                    "message": f"pH ដីគឺ {sensor_data['pH']}។ ស្ពៃក្តោបត្រូវការ pH ៦.០-៧.០។"
                 })
         
         # EC THRESHOLDS: 1.2 - 1.6 dS/m (1200-1600 µS/cm)
@@ -422,27 +433,27 @@ async def interpret_sensor_data(request: InterpretRequest):
                     # Check for current rain OR heavy rain forecast
                     if rain_detected:
                         alerts.append({
-                            "severity": "INFO",
-                            "type": "WEATHER_ALERT",
-                            "title": "ពន្យារពេលដាក់ជី - កំពុងមានភ្លៀង",
-                            "message": f"កម្រិត EC ទាប ({sensor_data['ec']}) ប៉ុន្តែ AI បានបិទការដាក់ជីដោយសាររកឃើញភ្លៀងធ្លាក់ ដើម្បីការពារការលាងជម្រះសារធាតុចិញ្ចឹម។"
+                             "severity": "INFO", # Reduced severity cause rain handled it
+                             "type": "NPK_LOW",
+                             "title": "🌱 រកឃើញកម្រិតជីទាប",
+                             "message": "ប៉ុន្តែភ្លៀងកំពុងធ្លាក់។ ការដាក់ជីត្រូវបានផ្អាក។"
                         })
                         # Send STOP command if it was active
                         action = {"type": "fertilizer", "deviceId": device_id, "command": {"type": "FERTILIZER", "status": "OFF", "duration": 0}}
                         recommend_action = False
                     elif tomorrow_rain_probability >= 70:
                         alerts.append({
-                            "severity": "INFO",
-                            "type": "WEATHER_ALERT",
-                            "title": "ពន្យារពេលដាក់ជី - រំពឹងថាមានភ្លៀងខ្លាំង",
-                            "message": f"EC ទាបត្រឹម {sensor_data['ec']} µS/cm ប៉ុន្តែភ្លៀងខ្លាំង ({tomorrow_rain_probability}%) នឹងលាងជម្រះសារធាតុចិញ្ចឹមអស់។"
+                             "severity": "INFO",
+                             "type": "NPK_LOW",
+                             "title": "🌱 រកឃើញកម្រិតជីទាប",
+                             "message": f"ប៉ុន្តែមានភ្លៀងខ្លាំងនៅថ្ងៃស្អែក ({tomorrow_rain_probability}%)។ ការដាក់ជីត្រូវបានពន្យារពេល។"
                         })
                     else:
                         alerts.append({
                             "severity": "WARNING",
                             "type": "NPK_LOW",
-                            "title": "កម្រិតសារធាតុចិញ្ចឹមទាប (EC)",
-                            "message": f"EC គឺ {sensor_data['ec']} µS/cm។ គោលដៅគឺ ១២០០-១៦០០។ ណែនាំឱ្យដាក់ជី។"
+                            "title": "🌱 រកឃើញកម្រិតជីទាប",
+                            "message": "ប្រព័ន្ធបានបើកម៉ូទ័របូមជី ដើម្បីផ្គត់ផ្គង់សារធាតុចិញ្ចឹមឲ្យដំណាំ។"
                         })
                         recommend_action = True
                         action = {"type": "fertilizer", "deviceId": device_id, "command": {"type": "FERTILIZER", "status": "ON", "duration": 180}}
@@ -451,15 +462,15 @@ async def interpret_sensor_data(request: InterpretRequest):
                     alerts.append({
                         "severity": "INFO",
                         "type": "NPK_LOW",
-                        "title": "កម្រិតសារធាតុចិញ្ចឹមទាប (EC)",
-                        "message": f"EC ទាបត្រឹម {sensor_data['ec']} µS/cm។ ប៉ុន្តែត្រូវស្រោចទឹកជាមុនសិនដើម្បីជៀសវាងការខូចឫស។"
+                        "title": "🌱 រកឃើញកម្រិតជីទាប",
+                        "message": "ត្រូវការស្រោចទឹកជាមុនសិន។"
                     })
             elif sensor_data['ec'] > 2000:
                  alerts.append({
                     "severity": "CRITICAL",
                     "type": "PH_WARNING",
-                    "title": "កម្រិតជាតិប្រៃក្នុងដីខ្ពស់",
-                    "message": f"EC គឺ {sensor_data['ec']} µS/cm។ កម្រិតជាតិអំបិលខ្ពស់! ត្រូវលាងសម្អាតដោយទឹកស្អាត។"
+                    "title": "⚠️ កម្រិតជាតិប្រៃក្នុងដីខ្ពស់",
+                    "message": f"EC គឺ {sensor_data['ec']} µS/cm។ ត្រូវលាងសម្អាតដោយទឹកស្អាត។"
                 })
         
         recommendation = data_processor.generate_recommendation(
