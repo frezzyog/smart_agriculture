@@ -143,15 +143,19 @@ aedes.on('publish', async (packet, client) => {
             }
 
             // Store sensor data in database and get AI analysis
-            const aiResult = await saveSensorData(deviceId, data)
+            const saveResult = await saveSensorData(deviceId, data)
 
-            // Broadcast to connected dashboard clients (including AI interpretation)
-            io.emit('sensorData', {
-                deviceId,
-                ...data,
-                ai: aiResult, // Include AI insights in the main feed
-                timestamp: new Date().toISOString()
-            })
+            if (saveResult) {
+                const { aiAnalysis, sensorPayload } = saveResult;
+
+                // Broadcast to connected dashboard clients (including AI interpretation and clean fallbacks)
+                io.emit('sensorData', {
+                    ...sensorPayload, // Use the cleaned payload with fallbacks (no 0 humidity)
+                    ai: aiAnalysis,   // Include AI insights in the main feed
+                    deviceId: deviceId, // Ensure string ID
+                    timestamp: new Date().toISOString()
+                })
+            }
         }
 
         // Handle pump commands: smartag/{deviceId}/pump/status
@@ -419,7 +423,7 @@ async function saveSensorData(deviceId, data) {
         })
 
         console.log(`✅ Sensor data saved for device: ${deviceId}`)
-        return aiAnalysis
+        return { aiAnalysis, sensorPayload }
     } catch (error) {
         console.error('❌ Error saving sensor data:', error)
         return null

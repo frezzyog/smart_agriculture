@@ -7,7 +7,7 @@ You can use the content below as a "context prompt" when asking other AI models 
 ## 🟢 Project Context (Copy this part)
 
 **Project Name**: Smart Agriculture 4.0 Ecosystem
-**Project Goal**: To empower farmers with real-time AI-driven insights and automated control systems using IoT technology.
+**Project Goal**: To empower farmers with a **Zero-Interaction Autonomous Ecosystem** using real-time AI-driven insights and automated control systems.
 
 **Core Components**:
 1.  **Hardware**: ESP32 microcontroller, 7-in-1 Soil Sensor (NPK, pH, Moisture, Temp, EC), Rain & Light sensors, and a Solar Power system.
@@ -19,7 +19,8 @@ You can use the content below as a "context prompt" when asking other AI models 
 3.  **AI Implementation**: 
     *   **Model**: Google Gemini 1.5 Flash.
     *   **Features**: "AI Agronomist" Chatbot, In-Context Learning using JSON telemetry, and Hybrid Intelligence (combining AI reasoning with MAFF/CARDI agricultural standards).
-    *   **Function**: Real-time stress detection, automated irrigation commands, and Khmer-language advisory.
+    *   **Function**: Real-time stress detection, **Zero-Touch automated irrigation**, and Khmer-language advisory.
+4.  **Autonomous Logic**: The system is designed to run 24/7 without human intervention. The AI monitors, decides, and executes pump actions based on live telemetry, crop stage, and local weather forecasts.
 
 **Target Audience**: Year 3 Project Judges and Agricultural Stakeholders.
 **Design Aesthetic**: High-tech, premium, clean "Glassmorphism" UI, and professional agricultural visuals.

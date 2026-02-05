@@ -101,7 +101,7 @@ void loop() {
   // 1. Connectivity Management (Non-Blocking)
   if (!mqtt.connected()) {
     unsigned long now = millis();
-    if (now - lastReconnectAttempt > 5000) {
+    if (now - lastReconnectAttempt > 30000) {
       lastReconnectAttempt = now;
       if (reconnect()) {
         lastReconnectAttempt = 0;
@@ -112,7 +112,7 @@ void loop() {
   }
 
   // 2. Sensor Reading & Logic (Runs regardless of WiFi)
-  if (millis() - lastPublish > 5000) {
+  if (millis() - lastPublish > 30000) {
     // A. Read All Sensors
     readSevenInOneSensor(); // Reads RS485
     updateLocalSensors();   // Reads Analog (Moisture, Rain, Bat)
@@ -137,33 +137,116 @@ void loop() {
 }
 
 // ============================================
-// 6. SENSOR READING (RS485 MODBUS)
+// CAMBODIA BASED STATUS FUNCTIONS
 // ============================================
-void readSevenInOneSensor() {
-  Serial.println("\n📡 Reading 7-in-1 Sensor (10 Registers)...");
-  
-  uint8_t result = node.readHoldingRegisters(0x0000, 10);
-  
-  if (result == node.ku8MBSuccess) {
-    // Print Raw Values to Serial for final verification
-    for (int i = 0; i < 10; i++) {
-        Serial.printf("  Reg[%d]: %d\n", i, node.getResponseBuffer(i));
-    }
 
-    // FINAL MAPPING BASED ON LIVE DASHBOARD FEEDBACK:
-    val_moisture = node.getResponseBuffer(0) * 0.1; // Pro Moisture (usually Reg 0)
-    val_temp     = node.getResponseBuffer(3) * 0.1; // Temp is confirmed at Reg 3
-    val_ec       = node.getResponseBuffer(2);       // EC is confirmed at Reg 2
-    val_ph       = node.getResponseBuffer(4) * 0.1; // pH is confirmed at Reg 4
-    
-    val_n        = node.getResponseBuffer(5); // Nitrogen
-    val_p        = node.getResponseBuffer(6); // Phosphorus
-    val_k        = node.getResponseBuffer(7); // Potassium (This was the 1160/2698 value)
+// ---- pH Status (General for Cambodia farming) ----
+String getPHStatus(float ph) {
+  if (ph < 5.5) return "ACIDIC (LOW)";
+  if (ph <= 7.0) return "OPTIMAL";
+  if (ph <= 8.0) return "ALKALINE (HIGH)";
+  return "VERY HIGH";
+}
+
+// ---- Nitrogen Status (Cambodia guideline) ----
+String getNStatus(float n) {
+  if (n < 40) return "VERY LOW";
+  if (n < 90) return "LOW";
+  if (n < 150) return "OPTIMAL";
+  if (n < 220) return "HIGH";
+  return "EXCESS";
+}
+
+// ---- Phosphorus Status (Cambodia guideline) ----
+String getPStatus(float p) {
+  if (p < 15) return "VERY LOW";
+  if (p < 35) return "LOW";
+  if (p < 70) return "OPTIMAL";
+  if (p < 120) return "HIGH";
+  return "EXCESS";
+}
+
+// ---- Potassium Status (Cambodia guideline) ----
+String getKStatus(float k) {
+  if (k < 80) return "VERY LOW";
+  if (k < 150) return "LOW";
+  if (k < 280) return "OPTIMAL";
+  if (k < 400) return "HIGH";
+  return "EXCESS";
+}
+
+// ---- EC Status (Prototype guideline) ----
+String getECStatus(float ec) {
+  if (ec < 400) return "LOW (Need Fertilizer)";
+  if (ec < 1200) return "OPTIMAL";
+  if (ec < 2000) return "HIGH";
+  return "EXCESS (Too Salty)";
+}
+
+// ============================================
+// FIXED READ FUNCTION FOR JXBS-3001
+// ============================================
+
+void readSevenInOneSensor() {
+  Serial.println("\n=======================================");
+  Serial.println("📡 Reading JXBS-3001 7-in-1 Soil Sensor");
+  Serial.println("=======================================");
+
+  // ------------------------------
+  // BLOCK 1: Moisture, Temp, EC, pH
+  // Register start: 0x0000
+  // ------------------------------
+  uint8_t result1 = node.readHoldingRegisters(0x0000, 5);
+
+  if (result1 == node.ku8MBSuccess) {
+
+    float raw_moist = node.getResponseBuffer(0);
+    float raw_temp  = node.getResponseBuffer(3); // Log confirmed: 268 = 26.8°C
+    float raw_ec    = node.getResponseBuffer(2); // Log confirmed: 655
+    float raw_ph    = node.getResponseBuffer(4); // pH usually at Reg 4
+
+    // Convert values
+    val_temp = raw_temp * 0.1;            
+    val_ec   = raw_ec;                    
+    val_ph   = raw_ph * 0.1;              
+
+    Serial.printf("💧 Soil Moisture: %.1f %% (Analog)\n", currentMoisture);
+    Serial.printf("🌡 Temperature  : %.1f °C\n", val_temp);
+    Serial.printf("⚡️ EC           : %.0f us/cm  [%s]\n", val_ec, getECStatus(val_ec).c_str());
+    Serial.printf("🧪 pH           : %.1f       [%s]\n", val_ph, getPHStatus(val_ph).c_str());
+
   } else {
-    Serial.print("⚠️ RS485 Read Failed! Error: ");
-    Serial.println(result, HEX);
+    Serial.print("⚠️ ERROR reading block 0x0000. Code: ");
+    Serial.println(result1, HEX);
+    return;
+  }
+
+  delay(250); // IMPORTANT delay for stable sensor response
+
+  // ------------------------------
+  // BLOCK 2: NPK
+  // Register start: 30 (0x001E)
+  // ------------------------------
+  uint8_t result2 = node.readHoldingRegisters(30, 3);
+
+  if (result2 == node.ku8MBSuccess) {
+
+    val_n = node.getResponseBuffer(0); // ppm
+    val_p = node.getResponseBuffer(1); // ppm
+    val_k = node.getResponseBuffer(2); // ppm
+
+    Serial.println("---------------------------------------");
+    Serial.printf("🌱 Nitrogen (N) : %.0f ppm  [%s]\n", val_n, getNStatus(val_n).c_str());
+    Serial.printf("🌱 Phosphorus(P): %.0f ppm  [%s]\n", val_p, getPStatus(val_p).c_str());
+    Serial.printf("🌱 Potassium (K): %.0f ppm  [%s]\n", val_k, getKStatus(val_k).c_str());
+    Serial.println("=======================================\n");
+
+  } else {
+    Serial.print("⚠️ ERROR reading NPK block (0x001E). Code: ");
+    Serial.println(result2, HEX);
   }
 }
+
 
 // ============================================
 // 7. PUBLISH TO MQTT
@@ -221,25 +304,24 @@ void sendSensorData() {
 void checkOfflineRules() {
   Serial.println("🌐 [OFFLINE MODE] Checking Local Rules...");
 
-  // RULE A: EMERGENCY WATERING
-  // If moisture < 40%, Turn ON. If > 55%, Turn OFF (Hysteresis)
+  // 1. WATER PUMP (Demonstration Mode: Can run with Fert)
   if (currentMoisture < 40) {
      digitalWrite(RELAY_1_PIN, LOW); // ON
-     Serial.printf("  💦 Emergency Water ON (Moisture: %.1f%%)\n", currentMoisture);
+     Serial.printf("  💦 Water Pump ON (Moisture: %.1f%%)\n", currentMoisture);
   } 
   else if (currentMoisture > 55) {
      digitalWrite(RELAY_1_PIN, HIGH); // OFF
-     Serial.printf("  ✅ Emergency Water OFF (Moisture: %.1f%%)\n", currentMoisture);
+     Serial.printf("  ✅ Soil wet (%.1f%%). Water OFF.\n", currentMoisture);
   }
 
-  // RULE B: FERTILIZER CHECK
-  // If EC < 800 and Moisture is DECENT (>40, to avoid burn), add nutrients
+  // 2. FERTILIZER PUMP (Demonstration Mode: Can run with Water)
   if (val_ec > 0 && val_ec < 800 && currentMoisture > 40) {
      digitalWrite(RELAY_2_PIN, LOW); // ON
-     Serial.printf("  🧪 Emergency Fertilizer ON (EC: %.1f)\n", val_ec);
+     Serial.printf("  🧪 Fertilizer Pump ON (EC: %.1f)\n", val_ec);
   }
   else if (val_ec > 1200) {
      digitalWrite(RELAY_2_PIN, HIGH); // OFF
+     Serial.println("  ✅ Nutrients balanced. Fertilizer OFF.");
   }
 }
 
@@ -273,7 +355,6 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
   bool turnOn = (status == "ON");
   
   if (type == "WATER") {
-    if (turnOn) digitalWrite(RELAY_2_PIN, HIGH); // 🔒 Interlock: Shut Fert if Water starts
     digitalWrite(RELAY_1_PIN, turnOn ? LOW : HIGH); // Active Low Logic
     Serial.printf("  💦 [ACTION] Water Pump PIN %d -> %s (Logic: %s)\n", RELAY_1_PIN, turnOn ? "ON" : "OFF", turnOn ? "LOW" : "HIGH");
     
@@ -283,7 +364,6 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
     mqtt.publish(feedbackTopic.c_str(), feedbackPayload.c_str());
   } 
   else if (type == "FERTILIZER") {
-    if (turnOn) digitalWrite(RELAY_1_PIN, HIGH); // 🔒 Interlock: Shut Water if Fert starts
     digitalWrite(RELAY_2_PIN, turnOn ? LOW : HIGH); // Active Low Logic
     Serial.printf("  🧪 [ACTION] Fertilizer Pump PIN %d -> %s (Logic: %s)\n", RELAY_2_PIN, turnOn ? "ON" : "OFF", turnOn ? "LOW" : "HIGH");
 

@@ -318,7 +318,7 @@ async def interpret_sensor_data(request: InterpretRequest):
                 reason = "កំពុងមានភ្លៀងធ្លាក់" if rain_detected else f"មានលទ្ធភាពភ្លៀង {tomorrow_rain_probability}%"
                 alerts.append({
                     "severity": "INFO",
-                    "type": "WEATHER_SKIP",
+                    "type": "WEATHER_ALERT",
                     "title": "🌧️ ការពន្យារពេលដោយសារអាកាសធាតុ",
                     "message": f"សំណើមដី {moisture}% ប៉ុន្តែ {reason}។ AI បានបិទ/ពន្យារពេលស្រោចស្រពដើម្បីការពារការលើសទឹក។"
                 })
@@ -340,7 +340,7 @@ async def interpret_sensor_data(request: InterpretRequest):
             if skip_irrigation_due_to_rain:
                 alerts.append({
                     "severity": "INFO",
-                    "type": "WEATHER_SKIP",
+                    "type": "WEATHER_ALERT",
                     "title": "🌦️ ពន្យារពេលស្រោចស្រព - មានការព្យាករណ៍ភ្លៀង",
                     "message": f"សំណើមដីគឺ {moisture}%។ ការស្រោចស្រពត្រូវបានពន្យារពេលដោយសារមានលទ្ធភាពភ្លៀង {tomorrow_rain_probability}% នៅថ្ងៃស្អែក។"
                 })
@@ -372,7 +372,7 @@ async def interpret_sensor_data(request: InterpretRequest):
                 "severity": "WARNING",
                 "type": "NPK_LOW",
                 "title": "កម្រិតអាសូតទាប",
-                "message": f"អាសូតគឺ {sensor_data.get('nitrogen', 0)} ppm។ កម្រិតស្តង់ដារគឺ ១៥០-២០០ ppm។"
+                "message": f"អាសូតគឺ {sensor_data.get('nitrogen', 0)} ppm។ កម្រិតស្តង់ដារគឺ ១៥០-២ ۲۰۰ ppm។"
             })
         
         # pH THRESHOLDS: 6.0 - 7.0
@@ -393,7 +393,7 @@ async def interpret_sensor_data(request: InterpretRequest):
                     if rain_detected:
                         alerts.append({
                             "severity": "INFO",
-                            "type": "WEATHER_SKIP",
+                            "type": "WEATHER_ALERT",
                             "title": "ពន្យារពេលដាក់ជី - កំពុងមានភ្លៀង",
                             "message": f"កម្រិត EC ទាប ({sensor_data['ec']}) ប៉ុន្តែ AI បានបិទការដាក់ជីដោយសាររកឃើញភ្លៀងធ្លាក់ ដើម្បីការពារការលាងជម្រះសារធាតុចិញ្ចឹម។"
                         })
@@ -403,7 +403,7 @@ async def interpret_sensor_data(request: InterpretRequest):
                     elif tomorrow_rain_probability >= 70:
                         alerts.append({
                             "severity": "INFO",
-                            "type": "WEATHER_SKIP",
+                            "type": "WEATHER_ALERT",
                             "title": "ពន្យារពេលដាក់ជី - រំពឹងថាមានភ្លៀងខ្លាំង",
                             "message": f"EC ទាបត្រឹម {sensor_data['ec']} µS/cm ប៉ុន្តែភ្លៀងខ្លាំង ({tomorrow_rain_probability}%) នឹងលាងជម្រះសារធាតុចិញ្ចឹមអស់។"
                         })
