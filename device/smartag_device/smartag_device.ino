@@ -266,7 +266,7 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
   
   if (type == "WATER") {
     digitalWrite(RELAY_1_PIN, turnOn ? LOW : HIGH); // Active Low Logic
-    Serial.printf("  💧 Water Pump -> %s\n", turnOn ? "ON (LOW)" : "OFF (HIGH)");
+    Serial.printf("  💦 [ACTION] Water Pump PIN %d -> %s (Logic: %s)\n", RELAY_1_PIN, turnOn ? "ON" : "OFF", turnOn ? "LOW" : "HIGH");
     
     // Publish feedback to server
     String feedbackTopic = "smartag/" + String(device_id) + "/pump/status";
@@ -275,7 +275,7 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
   } 
   else if (type == "FERTILIZER") {
     digitalWrite(RELAY_2_PIN, turnOn ? LOW : HIGH); // Active Low Logic
-    Serial.printf("  🧪 Fertilizer Pump -> %s\n", turnOn ? "ON (LOW)" : "OFF (HIGH)");
+    Serial.printf("  🧪 [ACTION] Fertilizer Pump PIN %d -> %s (Logic: %s)\n", RELAY_2_PIN, turnOn ? "ON" : "OFF", turnOn ? "LOW" : "HIGH");
 
     // Publish feedback to server
     String feedbackTopic = "smartag/" + String(device_id) + "/pump/status";

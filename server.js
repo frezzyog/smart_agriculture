@@ -363,8 +363,11 @@ async function saveSensorData(deviceId, data) {
             aedes.publish({
                 topic,
                 payload: Buffer.from(JSON.stringify(command)),
-                qos: 1,
+                qos: 0, // Changed to 0 for better ESP32 compatibility
                 retain: false
+            }, (err) => {
+                if (err) console.error(`❌ MQTT Publish Error for ${deviceId}:`, err);
+                else console.log(`📡 MQTT Command Sent to ${deviceId}: ${JSON.stringify(command)}`);
             })
 
             // Log the automated action
@@ -544,8 +547,11 @@ app.post('/api/devices/:deviceId/pump', async (req, res) => {
         aedes.publish({
             topic,
             payload: Buffer.from(message),
-            qos: 1,
+            qos: 0, // Changed to 0
             retain: false
+        }, (err) => {
+            if (err) console.error("❌ Dashboard MQTT error:", err);
+            else console.log(`📡 Dashboard Command Sent: ${message}`);
         })
 
         // Log pump action
