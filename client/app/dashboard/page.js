@@ -108,19 +108,19 @@ export default function DashboardPage() {
                         <h1 className="text-4xl md:text-5xl font-black text-foreground tracking-tight drop-shadow-sm flex items-center gap-3">
                             <button
                                 onClick={() => setActiveTab('soil')}
-                                className={`transition-all duration-300 ${activeTab === 'soil' ? 'text-accent underline decoration-4 decoration-accent/30 underline-offset-8' : 'text-foreground/40 hover:text-foreground/60'}`}
+                                className={`transition-all duration-300 ${activeTab === 'soil' ? 'text-accent underline decoration-4 decoration-accent/30 underline-offset-8' : 'text-foreground/60 hover:text-foreground'}`}
                             >
                                 {t('dashboard.soil_data')}
                             </button>
-                            <span className="text-foreground/10 font-thin">/</span>
+                            <span className="text-foreground/20 font-thin">/</span>
                             <button
                                 onClick={() => setActiveTab('balance')}
-                                className={`transition-all duration-300 ${activeTab === 'balance' ? 'text-emerald-500 underline decoration-4 decoration-emerald-500/30 underline-offset-8' : 'text-foreground/40 hover:text-foreground/60'}`}
+                                className={`transition-all duration-300 ${activeTab === 'balance' ? 'text-emerald-500 underline decoration-4 decoration-emerald-500/30 underline-offset-8' : 'text-foreground/60 hover:text-foreground'}`}
                             >
                                 {t('dashboard.balance')}
                             </button>
                         </h1>
-                        <p className="text-foreground/40 font-medium mt-3 flex items-center gap-2">
+                        <p className="text-foreground/60 font-medium mt-3 flex items-center gap-2">
                             <LayoutDashboard size={16} />
                             {activeTab === 'soil' ? t('dashboard.environmental_telemetry') : t('dashboard.financial_overview')}
                         </p>
@@ -130,14 +130,14 @@ export default function DashboardPage() {
                     <div className="flex bg-white/5 p-1 rounded-2xl border border-white/5 backdrop-blur-md shadow-inner">
                         <button
                             onClick={() => setActiveTab('soil')}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-300 font-bold text-xs ${activeTab === 'soil' ? 'bg-accent text-white shadow-lg shadow-accent/20' : 'text-foreground/40 hover:text-foreground/60'}`}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-300 font-bold text-xs ${activeTab === 'soil' ? 'bg-accent text-white shadow-lg shadow-accent/20' : 'text-foreground/60 hover:text-foreground'}`}
                         >
                             <Sprout size={14} />
                             {t('dashboard.soil_data')}
                         </button>
                         <button
                             onClick={() => setActiveTab('balance')}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-300 font-bold text-xs ${activeTab === 'balance' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'text-foreground/40 hover:text-foreground/60'}`}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-300 font-bold text-xs ${activeTab === 'balance' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'text-foreground/60 hover:text-foreground'}`}
                         >
                             <Wallet size={14} />
                             {t('dashboard.balance')}
