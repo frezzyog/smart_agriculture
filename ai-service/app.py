@@ -405,8 +405,9 @@ async def interpret_sensor_data(request: InterpretRequest):
         # ============================================
         # NUTRIENT THRESHOLDS
         # ============================================
-        # Only recommend fertilizer if moisture is sufficient (to avoid fertilizer burn)
-        can_fertilize = moisture >= 50 and not recommend_action
+        # Prototype Mode: Allow fertilizer even if moisture is low -> Simultaneous Pumping
+        can_fertilize = not recommend_action 
+        # Note: In real parallel mode, we can send multiple commands, but here we prioritize telling user about both.
         
         if sensor_data.get('nitrogen', 200) < 130:
             alerts.append({

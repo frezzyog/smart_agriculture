@@ -422,23 +422,23 @@ void loop() {
         digitalWrite(RELAY_2_PIN, HIGH);
         Serial.println("🌧 [SAFETY] Rain detected! Emergency shutdown ALL pumps.");
       } 
-      // HYBRID MODE: Auto-control pumps even when online
+      // HYBRID MODE: Auto-control pumps even when online (Prototype Version - Simultaneous)
       else {
-        // Water pump auto-control based on moisture
+        // 1. Water Pump Control (Independent)
         if (val_moisture < 40) {
-          digitalWrite(RELAY_1_PIN, LOW);
+          digitalWrite(RELAY_1_PIN, LOW); // ON
           Serial.printf("💦 [AUTO] Water Pump ON (Moisture: %.1f%% < 40%%)\n", val_moisture);
         } else if (val_moisture > 55) {
-          digitalWrite(RELAY_1_PIN, HIGH);
+          digitalWrite(RELAY_1_PIN, HIGH); // OFF
           Serial.printf("✅ [AUTO] Water Pump OFF (Moisture: %.1f%% > 55%%)\n", val_moisture);
         }
 
-        // Fertilizer pump auto-control based on EC
-        if (val_ec > 0 && val_ec < 800 && val_moisture > 40) {
-          digitalWrite(RELAY_2_PIN, LOW);
+        // 2. Fertilizer Pump Control (Independent - Can run with Water Pump)
+        if (val_ec > 0 && val_ec < 800) {
+          digitalWrite(RELAY_2_PIN, LOW); // ON
           Serial.printf("🧪 [AUTO] Fertilizer Pump ON (EC: %.0f < 800)\n", val_ec);
         } else if (val_ec > 1200) {
-          digitalWrite(RELAY_2_PIN, HIGH);
+          digitalWrite(RELAY_2_PIN, HIGH); // OFF
           Serial.println("✅ [AUTO] Fertilizer Pump OFF (EC balanced)");
         }
       }
