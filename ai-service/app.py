@@ -605,11 +605,14 @@ CURRENT FARM DATA:
 • EC: {sensor_data.get('ec', 'N/A')} µS/cm
 • Expenses: ${total_expenses:.2f}
 
+
 INSTRUCTIONS:
-- Reference specific Cambodian standards if relevant (MAFF, Seed Co, CARDI)
-- Suggest strategies like Rice Straw Mulch for heat or Husk Ash for pH
-- Be professional and bulleted.
-- RESPOND IN KHMER LANGUAGE IF THE QUESTION IS IN KHMER OR IF IT'S ABOUT CAMBODIAN FARMING.
+- If CURRENT FARM DATA is 'N/A', provide comprehensive general agricultural guidance based on Cambodian MAFF standards. 
+- Reference specific Cambodian standards if relevant (MAFF, Seed Co, CARDI).
+- Suggest strategies like Rice Straw Mulch for heat or Husk Ash for pH.
+- Be professional, descriptive, and use bullet points for clarity.
+- NEVER say you are waiting for data; instead, provide the best advice possible with what you have.
+- RESPOND IN KHMER LANGUAGE.
 - Use polite Khmer terms (e.g., លោកកសិករ).
 
 FARMER'S QUESTION: {message}
