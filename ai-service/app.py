@@ -1,5 +1,5 @@
 """
-Smart Agriculture AI Service - FIXED FOR QUOTA ISSUES
+Smart Agriculture AI Service - Version 1.0.1 (Stable)
 """
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
