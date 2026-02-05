@@ -1,63 +1,51 @@
-const mqtt = require('mqtt');
+// Simulate realistic sensor data with some issues to test AI advice (HTTP Mode)
+const axios = require('axios');
 
-// Connect to the local MQTT broker we started in server-ai.js
-const client = mqtt.connect('mqtt://localhost:1883');
+const DEVICE_ID = "SMARTAG-001"; // Matched from smartag_device.ino
+const SERVER_URL = "http://localhost:5000/api/sensors/data";
 
-const DEVICED_ID = 'device-001';
-const ZONE_ID = 'zone-a';
+async function simulateData() {
+    const data = {
+        deviceId: DEVICE_ID,
 
-console.log('🚜 IoT Simulator Starting...');
-console.log('📍 Simulating Device: ' + DEVICED_ID);
+        // 🔴 PROBLEM: Very Dry Soil (Trigger for AI)
+        moisture: 35.0,
 
-let moisture = 75.0; // Starting moisture
-let temperature = 25.0;
+        // 🔥 PROBLEM: Hot Temperature (Trigger for AI)
+        temp: 29.5,
 
-client.on('connect', () => {
-    console.log('✅ Connected to MQTT Broker');
+        // ✅ GOOD: pH is optimal
+        pH: 6.5,
 
-    // Start sending data every 5 seconds
-    setInterval(() => {
-        // Simulate things drying out
-        moisture -= (Math.random() * 0.5);
-        if (moisture < 10) moisture = 80; // Reset if completely dry
+        // Nutrient data
+        nitrogen: 160,
+        phosphorus: 40,
+        potassium: 200,
+        ec: 1400,
 
-        // Random temperature fluctuation
-        temperature += (Math.random() - 0.5);
+        humidity: 60,
 
-        const payload = {
-            temperature: parseFloat(temperature.toFixed(1)),
-            humidity: 60 + (Math.random() * 10),
-            moisture: parseFloat(moisture.toFixed(1)),
-            nitrogen: 45 + Math.random(),
-            phosphorus: 30 + Math.random(),
-            potassium: 20 + Math.random(),
-            pH: 6.5 + (Math.random() * 0.2)
-        };
+        // Rain status
+        isRaining: false
+    };
 
-        const topic = `smartag/${DEVICED_ID}/sensors`;
-
-        client.publish(topic, JSON.stringify(payload), { qos: 1 }, () => {
-            console.log(`📡 Data Published [${new Date().toLocaleTimeString()}]: Moisture=${payload.moisture}% Temp=${payload.temperature}°C`);
-
-            if (moisture < 30) {
-                console.log('⚠️  MOISTURE CRITICAL: Triggering AI logical alert...');
-            }
-        });
-    }, 5000);
-});
-
-// Listen for the AI's "PUMP ON" commands
-client.subscribe(`smartag/${DEVICED_ID}/pump/command`);
-
-client.on('message', (topic, message) => {
-    if (topic.includes('pump/command')) {
-        const cmd = JSON.parse(message.toString());
-        console.log(`\n💧 [RECEIVED COMMAND]: PUMP is now ${cmd.status} for ${cmd.duration}s`);
-        console.log(`🤖 Triggered by: ${cmd.triggeredBy}`);
-
-        if (cmd.status === 'ON') {
-            console.log('➕ Refilling soil moisture...');
-            moisture += 15; // Simulate the pump actually helping
+    try {
+        await axios.post(SERVER_URL, data);
+        console.log(`✅ [${new Date().toLocaleTimeString()}] Sent Data for ${DEVICE_ID}: Moisture=${data.moisture}% Temp=${data.temp}°C`);
+    } catch (error) {
+        console.error('❌ Error sending data:', error.message);
+        if (error.response) {
+            console.error('Backend Response:', error.response.data);
         }
     }
-});
+}
+
+// Run simulation loop
+console.log(`🚜 Starting Simulator for ${DEVICE_ID}...`);
+console.log(`📡 Sending critical data to ${SERVER_URL}`);
+
+// Send immediately
+simulateData();
+
+// Then every 5 seconds
+setInterval(simulateData, 5000);
