@@ -149,13 +149,13 @@ export default function AIChatFloatingButton() {
                                     <div className={`h-8 w-8 rounded-lg flex items-center justify-center shrink-0 ${msg.role === 'user' ? 'bg-accent text-background' : 'bg-zinc-100 dark:bg-white/5 text-accent border border-zinc-200 dark:border-white/10'}`}>
                                         {msg.role === 'user' ? <User size={14} /> : <Bot size={14} />}
                                     </div>
-                                    <div className={`p-3 rounded-2xl text-xs font-medium leading-relaxed ${msg.role === 'user' ? 'bg-accent text-background rounded-tr-none' : 'bg-zinc-100 dark:bg-white/5 text-zinc-800 dark:text-gray-200 border border-zinc-200 dark:border-white/10 rounded-tl-none'}`}>
+                                    <div className={`p-4 rounded-2xl text-[13px] md:text-sm font-medium leading-relaxed shadow-sm w-full ${msg.role === 'user' ? 'bg-accent text-background rounded-tr-none' : 'bg-zinc-100 dark:bg-white/5 text-zinc-900 dark:text-gray-100 border border-zinc-200 dark:border-white/10 rounded-tl-none'}`}>
                                         {msg.role === 'bot' ? (
-                                            <div className="prose dark:prose-invert prose-xs max-w-none prose-p:text-inherit">
+                                            <div className="prose dark:prose-invert prose-xs md:prose-sm max-w-none prose-p:text-inherit prose-p:leading-relaxed prose-li:my-1 break-words">
                                                 <ReactMarkdown>{msg.text}</ReactMarkdown>
                                             </div>
                                         ) : (
-                                            msg.text
+                                            <span className="break-words">{msg.text}</span>
                                         )}
                                     </div>
                                 </div>

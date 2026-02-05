@@ -100,10 +100,11 @@ async def call_gemini(prompt: str) -> Optional[str]:
                     candidates = data.get("candidates", [])
                     if candidates:
                         parts = candidates[0].get("content", {}).get("parts", [])
-                        if parts and "text" in parts[0]:
+                        if parts:
+                            full_text = "".join([p.get("text", "") for p in parts if "text" in p])
                             working_model = model
                             print(f"✅ Success with {model}")
-                            return parts[0]["text"]
+                            return full_text
                 
                 elif response.status_code == 429:
                     # Rate limited - parse retry time
