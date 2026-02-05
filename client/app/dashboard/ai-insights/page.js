@@ -180,15 +180,15 @@ const AIInsightsPage = () => {
                         </div>
                     </Card>
 
-                    <Card className="p-6 bg-accent border-none relative overflow-hidden group shadow-2xl shadow-accent/10 hover:scale-[1.02] transition-all">
-                        <div className="absolute top-0 right-0 p-4 opacity-10">
-                            <Droplets size={60} className="text-background" />
+                    <Card className="p-6 bg-emerald-600 border-none relative overflow-hidden group shadow-2xl shadow-emerald-600/20 hover:scale-[1.02] transition-all">
+                        <div className="absolute top-0 right-0 p-4 opacity-20">
+                            <Droplets size={60} className="text-white" />
                         </div>
-                        <p className="text-xs font-bold text-background/60 uppercase tracking-widest mb-4 font-black">{t('ai_insights_page.ai_recommendation')}</p>
+                        <p className="text-xs font-bold text-white/80 uppercase tracking-widest mb-4 font-black">{t('ai_insights_page.ai_recommendation')}</p>
                         <div className="flex items-end justify-between">
                             <div>
-                                <h3 className="text-2xl font-black text-background leading-tight">{t('ai_insights_page.next_cycle')} {stats.nextIrrigation}</h3>
-                                <p className="text-[10px] text-background/60 mt-2 flex items-center gap-1 font-black uppercase">
+                                <h3 className="text-2xl font-black text-white leading-tight">{t('ai_insights_page.next_cycle')} {stats.nextIrrigation}</h3>
+                                <p className="text-[10px] text-white/80 mt-2 flex items-center gap-1 font-black uppercase">
                                     <CheckCircle2 size={10} /> {t('ai_insights_page.model_optimized')}
                                 </p>
                             </div>
