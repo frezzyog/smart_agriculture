@@ -142,14 +142,14 @@ aedes.on('publish', async (packet, client) => {
                 return
             }
 
-            // Store sensor data in database
-            await saveSensorData(deviceId, data)
+            // Store sensor data in database and get AI analysis
+            const aiResult = await saveSensorData(deviceId, data)
 
             // Broadcast to connected dashboard clients (including AI interpretation)
             io.emit('sensorData', {
                 deviceId,
                 ...data,
-                ai: aiAnalysis, // Include AI insights in the main feed
+                ai: aiResult, // Include AI insights in the main feed
                 timestamp: new Date().toISOString()
             })
         }
@@ -416,8 +416,10 @@ async function saveSensorData(deviceId, data) {
         })
 
         console.log(`✅ Sensor data saved for device: ${deviceId}`)
+        return aiAnalysis
     } catch (error) {
         console.error('❌ Error saving sensor data:', error)
+        return null
     }
 }
 
