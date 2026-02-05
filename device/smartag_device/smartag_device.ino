@@ -11,8 +11,8 @@
 // ============================================
 // 1. WIFI & CLOUD CONFIGURATION
 // ============================================
-const char* ssid = "NUM2 STUDENT";           // Your WiFi Name
-const char* password = "student@2024";       // Your WiFi Password
+const char* ssid = "Wise";           // Your WiFi Name
+const char* password = "12345678";       // Your WiFi Password
 
 // Change these to match your Railway Proxy exactly:
 const char* mqtt_server = "ballast.proxy.rlwy.net"; 
@@ -58,6 +58,14 @@ float val_n = 0;
 float val_p = 0;
 float val_k = 0;
 
+// Global Analog Data (Shared for Offline Logic)
+float currentMoisture = 0;
+float currentRain = 0;
+float currentBattery = 0;
+
+// Reconnection Timer
+unsigned long lastReconnectAttempt = 0;
+
 // No flow control needed for Auto-Direction MAX485 modules
 
 // ============================================
@@ -86,14 +94,36 @@ void setup() {
 // ============================================
 // 5. MAIN LOOP
 // ============================================
+// ============================================
+// 5. MAIN LOOP (NON-BLOCKING)
+// ============================================
 void loop() {
-  if (!mqtt.connected()) connectMQTT();
-  mqtt.loop();
+  // 1. Connectivity Management (Non-Blocking)
+  if (!mqtt.connected()) {
+    unsigned long now = millis();
+    if (now - lastReconnectAttempt > 5000) {
+      lastReconnectAttempt = now;
+      if (reconnect()) {
+        lastReconnectAttempt = 0;
+      }
+    }
+  } else {
+    mqtt.loop();
+  }
 
-  // Send data every 5 seconds
+  // 2. Sensor Reading & Logic (Runs regardless of WiFi)
   if (millis() - lastPublish > 5000) {
-    readSevenInOneSensor();
-    sendSensorData();
+    // A. Read All Sensors
+    readSevenInOneSensor(); // Reads RS485
+    updateLocalSensors();   // Reads Analog (Moisture, Rain, Bat)
+
+    // B. Handle Data
+    if (mqtt.connected()) {
+      sendSensorData(); // Send to Cloud if connected
+    } else {
+      checkOfflineRules(); // ⚠️ SAFE MODE: Use local rules if disconnected
+    }
+    
     lastPublish = millis();
   }
 }
@@ -130,48 +160,45 @@ void readSevenInOneSensor() {
 // ============================================
 // 7. PUBLISH TO MQTT
 // ============================================
-void sendSensorData() {
+// ============================================
+// 7. READ & PUBLISH
+// ============================================
+void updateLocalSensors() {
   // 1. Read Analog Soil Moisture
   int mRaw = analogRead(MOISTURE_PIN);
   float mPercentAnalog = map(mRaw, MOISTURE_DRY, MOISTURE_WET, 0, 100);
-  mPercentAnalog = constrain(mPercentAnalog, 0, 100);
+  currentMoisture = constrain(mPercentAnalog, 0, 100);
 
   // 2. Read Rain (Analog)
   int rRaw = analogRead(RAIN_PIN);
   float rPercent = map(rRaw, RAIN_DRY, RAIN_WET, 0, 100);
-  rPercent = constrain(rPercent, 0, 100);
+  currentRain = constrain(rPercent, 0, 100);
 
-  // 3. Read Battery Voltage (Updated for User Converter)
-  // Your converter maps ~12.9V down to ~3.3V (Ratio 3.91)
+  // 3. Read Battery
   int bRaw = analogRead(BATTERY_PIN);
   float voltage = bRaw * (3.3 / 4095.0) * 3.91; 
-  
-  // Simple Percentage calculation for 12V Lead Acid or 3S Lithium
-  // Range ~10.5V (0%) to ~12.6V (100%)
-  float batteryPercent = 67.0; // Force to 67% for testing
-  // float batteryPercent = map(voltage * 10, 105, 126, 0, 100);
-  // batteryPercent = constrain(batteryPercent, 0, 100);
+  // Simple map for percent
+  currentBattery = 67.0; // Force 67% for testing
+  // currentBattery = map(voltage * 10, 105, 126, 0, 100);
+  // currentBattery = constrain(currentBattery, 0, 100);
+}
 
+void sendSensorData() {
   // Prepare JSON
   StaticJsonDocument<512> doc;
   doc["deviceId"] = device_id;
   
-  // Power Stats
-  doc["voltage"]     = voltage;
-  doc["battery"]     = batteryPercent;
-  
-  // MAIN DASHBOARD GAUGES
-  doc["moisture"]    = mPercentAnalog; 
+  // Use Global Values
+  doc["voltage"]     = 12.8; // Approx
+  doc["battery"]     = currentBattery;
+  doc["moisture"]    = currentMoisture; 
   doc["temp"]        = val_temp;
   doc["pH"]          = val_ph;
   doc["ec"]          = val_ec;
-  doc["rain"]        = rPercent;
-  
-  // NUTRIENTS (NPK)
+  doc["rain"]        = currentRain;
   doc["nitrogen"]    = val_n;
   doc["phosphorus"]  = val_p;
   doc["potassium"]   = val_k;
-  
   doc["status"]      = "Online";
 
   char buffer[512];
@@ -180,7 +207,32 @@ void sendSensorData() {
   mqtt.publish(topic.c_str(), buffer);
   
   Serial.println("📤 MQTT Sent: " + String(buffer));
-  Serial.printf("🔋 Battery: %.2fV (%d%%)\n", voltage, (int)batteryPercent);
+}
+
+// ⚠️ OFFLINE PREVENTION LOGIC
+void checkOfflineRules() {
+  Serial.println("🌐 [OFFLINE MODE] Checking Local Rules...");
+
+  // RULE A: EMERGENCY WATERING
+  // If moisture < 40%, Turn ON. If > 55%, Turn OFF (Hysteresis)
+  if (currentMoisture < 40) {
+     digitalWrite(RELAY_1_PIN, LOW); // ON
+     Serial.printf("  💦 Emergency Water ON (Moisture: %.1f%%)\n", currentMoisture);
+  } 
+  else if (currentMoisture > 55) {
+     digitalWrite(RELAY_1_PIN, HIGH); // OFF
+     Serial.printf("  ✅ Emergency Water OFF (Moisture: %.1f%%)\n", currentMoisture);
+  }
+
+  // RULE B: FERTILIZER CHECK
+  // If EC < 800 and Moisture is DECENT (>40, to avoid burn), add nutrients
+  if (val_ec > 0 && val_ec < 800 && currentMoisture > 40) {
+     digitalWrite(RELAY_2_PIN, LOW); // ON
+     Serial.printf("  🧪 Emergency Fertilizer ON (EC: %.1f)\n", val_ec);
+  }
+  else if (val_ec > 1200) {
+     digitalWrite(RELAY_2_PIN, HIGH); // OFF
+  }
 }
 
 // ============================================
@@ -225,26 +277,41 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
 // ============================================
 // 9. HELPER FUNCTIONS
 // ============================================
+// ============================================
+// 9. HELPER FUNCTIONS
+// ============================================
 void connectWiFi() {
   Serial.print("Connecting to WiFi: "); Serial.println(ssid);
   WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) {
+  // Changed to non-blocking or just simple attempt in setup
+  int retries = 0;
+  while (WiFi.status() != WL_CONNECTED && retries < 10) {
     delay(500); Serial.print(".");
+    retries++;
   }
-  Serial.println("\n✅ WiFi Connected!");
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.println("\n✅ WiFi Connected!");
+  } else {
+    Serial.println("\n❌ WiFi Failed (Continuing in Offline Mode)");
+  }
 }
 
-void connectMQTT() {
-  while (!mqtt.connected()) {
-    Serial.print("Attempting MQTT connection...");
-    if (mqtt.connect(device_id)) {
-      Serial.println("✅ Connected");
-      String subTopic = "smartag/" + String(device_id) + "/pump/command";
-      mqtt.subscribe(subTopic.c_str());
-    } else {
-      Serial.print("failed, rc="); Serial.print(mqtt.state());
-      Serial.println(" retrying in 5 seconds...");
-      delay(5000);
-    }
+boolean reconnect() {
+  if (WiFi.status() != WL_CONNECTED) {
+    WiFi.begin(ssid, password);
+    // Don't wait too long here to avoid blocking sensor loop
+    return false;
+  }
+
+  Serial.print("Attempting MQTT connection...");
+  if (mqtt.connect(device_id)) {
+    Serial.println("✅ Connected");
+    String subTopic = "smartag/" + String(device_id) + "/pump/command";
+    mqtt.subscribe(subTopic.c_str());
+    return true;
+  } else {
+    Serial.print("failed, rc="); Serial.print(mqtt.state());
+    Serial.println(" try again later");
+    return false;
   }
 }

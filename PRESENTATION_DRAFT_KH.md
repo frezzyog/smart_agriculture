@@ -60,8 +60,10 @@
 *   **AI Agronomist Functional**:
     *   **In-Context Learning**: AI វិភាគទិន្នន័យពីសិនស័រដែលបញ្ជូនមក (JSON Telemetry) ដើម្បីផ្តល់យោបល់ភ្លាមៗ។
     *   **Smart Advice**: ផ្តល់ដំបូន្មានស្របតាមស្តង់ដារ MAFF/CARDI (ឧទាហរណ៍៖ ការប្រើជីតាមកម្រិត NPK ជាក់ស្តែង)។
-*   **Hybrid Intelligence**:
-    *   រួមបញ្ចូលគ្នារវាងការគិតបែប AI (LLM Reasoning) និងច្បាប់បច្ចេកទេសជាក់លាក់ (Deterministic Rules) ដើម្បីធានាបាននូវភាពត្រឹមត្រូវបំផុត។
+*   **Hybrid Intelligence (AI + Rules)**:
+    *   **Cloud Inference**: ប្រើប្រាស់ Gemini AI សម្រាប់វិភាគទិន្នន័យស្មុគស្មាញ (ត្រូវការ Internet)។
+    *   **Offline Edge Logic**: នៅពេលដាច់សេវា (No-Internet) ប្រព័ន្ធនឹងប្ដូរទៅប្រើ "Fallback Rules" ដោយស្វ័យប្រវត្តិ (ឧ. សំណើម < 40% បូមទឹកភ្លាម) ដើម្បីធានាសុវត្ថិភាពដំណាំ ១០០%។
+    *   រួមបញ្ចូលគ្នារវាងការគិតបែប AI (LLM Reasoning) និងច្បាប់បច្ចេកទេសជាក់លាក់ (Deterministic Rules)។
 
 ---
 

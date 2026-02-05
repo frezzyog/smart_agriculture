@@ -6,18 +6,41 @@ import { useTranslation } from 'react-i18next'
 
 const SoilSensorCard = ({ moisture, status }) => {
     const { t } = useTranslation()
-    const isLow = Number(moisture) < 60
+    const moistureNum = Number(moisture)
+    const isCritical = moistureNum < 30
+    const isWarning = moistureNum >= 30 && moistureNum < 60
+
+    let colorClass, bgColorClass, borderColorClass, shadowColorClass, glowColorClass
+    if (isCritical) {
+        colorClass = 'text-red-500'
+        bgColorClass = 'bg-red-500/10'
+        borderColorClass = 'border-red-500/50'
+        shadowColorClass = 'shadow-red-500/10'
+        glowColorClass = 'bg-red-500/20'
+    } else if (isWarning) {
+        colorClass = 'text-yellow-500'
+        bgColorClass = 'bg-yellow-500/10'
+        borderColorClass = 'border-yellow-500/50'
+        shadowColorClass = 'shadow-yellow-500/10'
+        glowColorClass = 'bg-yellow-500/20'
+    } else {
+        colorClass = 'text-emerald-500'
+        bgColorClass = 'bg-emerald-500/10'
+        borderColorClass = 'hover:border-emerald-500/40 border-border'
+        shadowColorClass = ''
+        glowColorClass = 'bg-emerald-500/10 group-hover:bg-emerald-500/20'
+    }
 
     return (
-        <div className={`bg-card rounded-[2.5rem] p-6 md:p-8 border transition-all duration-500 shadow-xl shadow-black/20 relative overflow-hidden group ${isLow ? 'border-red-500/50 shadow-red-500/10' : 'border-border hover:border-emerald-500/40'}`}>
-            <div className={`absolute -top-20 -right-20 w-40 h-40 rounded-full blur-[80px] transition-all duration-700 ${isLow ? 'bg-red-500/20' : 'bg-emerald-500/10 group-hover:bg-emerald-500/20'}`}></div>
+        <div className={`bg-card rounded-[2.5rem] p-6 md:p-8 border transition-all duration-500 shadow-xl shadow-black/20 relative overflow-hidden group ${isCritical || isWarning ? borderColorClass + ' ' + shadowColorClass : borderColorClass}`}>
+            <div className={`absolute -top-20 -right-20 w-40 h-40 rounded-full blur-[80px] transition-all duration-700 ${glowColorClass}`}></div>
 
             <div className="flex justify-between items-start mb-8 relative z-10">
                 <div>
                     <h3 className="text-xl md:text-2xl font-bold text-foreground tracking-tight leading-none">{t('dashboard.soil_moisture')}</h3>
                     <p className="text-foreground/40 text-xs md:text-sm font-medium mt-2">{t('dashboard.moisture_level')}</p>
                 </div>
-                <div className={`flex items-center justify-center p-3 rounded-2xl border shadow-inner group-hover:scale-110 transition-transform duration-500 ${isLow ? 'text-red-500 bg-red-500/10 border-red-500/20' : 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20'}`}>
+                <div className={`flex items-center justify-center p-3 rounded-2xl border shadow-inner group-hover:scale-110 transition-transform duration-500 ${colorClass} ${bgColorClass} ${isCritical || isWarning ? borderColorClass.replace('hover:', '') : 'border-' + colorClass.replace('text-', '') + '/20'}`}>
                     <Droplet size={24} strokeWidth={2.5} />
                 </div>
             </div>
@@ -28,10 +51,10 @@ const SoilSensorCard = ({ moisture, status }) => {
                         <span className="text-xs font-bold text-foreground/60 uppercase tracking-[0.2em]">{t('dashboard.moisture_percentage')}</span>
                     </div>
                     <div className="flex items-baseline gap-1">
-                        <span className={`text-4xl md:text-5xl font-black tracking-tighter drop-shadow-sm ${Number(moisture) < 60 ? 'text-red-500' : 'text-emerald-500'}`}>
+                        <span className={`text-4xl md:text-5xl font-black tracking-tighter drop-shadow-sm ${colorClass}`}>
                             {moisture}
                         </span>
-                        <span className={`text-xl font-bold ${Number(moisture) < 60 ? 'text-red-500/60' : 'text-emerald-500/60'}`}>%</span>
+                        <span className={`text-xl font-bold ${colorClass.replace('text-', 'text-')}/60`}>%</span>
                     </div>
                 </div>
             </div>
