@@ -369,5 +369,32 @@
             "ec": "EC (Nutrient) Variance",
             "maintenance": "System Maintenance"
         }
+    },
+    "status": {
+        "excellent": "Excellent",
+        "good": "Good",
+        "fair": "Fair",
+        "poor": "Poor",
+        "wet": "Wet",
+        "unknown": "Unknown",
+        "checking": "Checking...",
+        "immediate": "Immediate",
+        "hours_4": "4 hours",
+        "main_field": "Main Field",
+        "digital_twin": "Digital Twin Viewer",
+        "spatial_analysis": "Spatial analysis",
+        "select_zone": "Select Zone",
+        "forecast_desc": "Deep learning forecast tailored to",
+        "irrigation_required": "Irrigation Required",
+        "forecast": "Forecast"
+    },
+    "days": {
+        "mon": "Mon",
+        "tue": "Tue",
+        "wed": "Wed",
+        "thu": "Thu",
+        "fri": "Fri",
+        "sat": "Sat",
+        "sun": "Sun"
     }
 }

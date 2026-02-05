@@ -29,18 +29,18 @@ const AIInsightsPage = () => {
         moistureLoss: 0,
         ec: 1.2,
         moisture: 0,
-        nextIrrigation: 'Checking...'
+        nextIrrigation: 'checking'
     })
 
     // Helper function to calculate soil health based on moisture if AI doesn't provide it
     const calculateSoilHealth = (moisture) => {
-        if (moisture === null || moisture === undefined) return 'Unknown'
-        if (moisture >= 40 && moisture <= 70) return 'Excellent'
-        if (moisture >= 30 && moisture < 40) return 'Good'
-        if (moisture >= 20 && moisture < 30) return 'Fair'
-        if (moisture < 20) return 'Poor'
-        if (moisture > 70) return 'Wet'
-        return 'Unknown'
+        if (moisture === null || moisture === undefined) return 'unknown'
+        if (moisture >= 40 && moisture <= 70) return 'excellent'
+        if (moisture >= 30 && moisture < 40) return 'good'
+        if (moisture >= 20 && moisture < 30) return 'fair'
+        if (moisture < 20) return 'poor'
+        if (moisture > 70) return 'wet'
+        return 'unknown'
     }
 
     useEffect(() => {
@@ -57,7 +57,7 @@ const AIInsightsPage = () => {
                 moistureLoss: data.moisture_loss_rate || 0,
                 ec: data.ec || (data.nitrogen ? (data.nitrogen / 50).toFixed(1) : '1.2'),
                 moisture: data.moisture || 0,
-                nextIrrigation: data.moisture < 30 ? 'Immediate' : '4 hours'
+                nextIrrigation: data.moisture < 30 ? 'immediate' : 'hours_4'
             })
         }
     }, [latestSensor.data])
@@ -94,7 +94,7 @@ const AIInsightsPage = () => {
                     <div className="flex items-center gap-4 bg-foreground/5 p-4 rounded-2xl border border-border">
                         <div className="flex flex-col">
                             <span className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest">{t('ai_insights_page.active_monitoring')}</span>
-                            <span className="text-sm font-bold text-foreground">{selectedZone?.name || 'Main Field'}</span>
+                            <span className="text-sm font-bold text-foreground">{selectedZone?.name || t('status.main_field')}</span>
                         </div>
                         <div className="h-8 w-[1px] bg-border"></div>
                         <div className="flex items-center gap-2">
@@ -113,8 +113,8 @@ const AIInsightsPage = () => {
                         <p className="text-xs font-bold text-foreground/40 uppercase tracking-widest mb-4">{t('ai_insights_page.soil_health_ai')}</p>
                         <div className="flex items-end justify-between">
                             <div>
-                                <h3 className={`text-3xl font-bold ${stats.moisture < 20 ? 'text-red-500' : stats.soilHealth === 'Excellent' ? 'text-accent' : 'text-foreground'}`}>
-                                    {stats.moisture < 20 ? 'Poor' : stats.soilHealth}
+                                <h3 className={`text-3xl font-bold ${stats.moisture < 20 ? 'text-red-500' : stats.soilHealth === 'excellent' ? 'text-accent' : 'text-foreground'}`}>
+                                    {t(`status.${stats.soilHealth.toLowerCase()}`)}
                                 </h3>
                                 <p className="text-[10px] text-foreground/50 mt-1 flex items-center gap-1">
                                     {stats.moisture < 20 ? (
@@ -187,7 +187,7 @@ const AIInsightsPage = () => {
                         <p className="text-xs font-bold text-white/80 uppercase tracking-widest mb-4 font-black">{t('ai_insights_page.ai_recommendation')}</p>
                         <div className="flex items-end justify-between">
                             <div>
-                                <h3 className="text-2xl font-black text-white leading-tight">{t('ai_insights_page.next_cycle')} {stats.nextIrrigation}</h3>
+                                <h3 className="text-2xl font-black text-white leading-tight">{t('ai_insights_page.next_cycle')} {t(`status.${stats.nextIrrigation}`)}</h3>
                                 <p className="text-[10px] text-white/80 mt-2 flex items-center gap-1 font-black uppercase">
                                     <CheckCircle2 size={10} /> {t('ai_insights_page.model_optimized')}
                                 </p>
@@ -206,7 +206,7 @@ const AIInsightsPage = () => {
                                     <h2 className="text-xl font-bold text-foreground">{t('ai_insights_page.moisture_prediction')}</h2>
                                     <span className="px-2 py-0.5 bg-accent/10 text-accent text-[9px] font-black uppercase rounded-md border border-accent/20">{t('ai_insights_page.proactive')}</span>
                                 </div>
-                                <p className="text-xs text-foreground/50 mt-1">Deep learning forecast tailored to {selectedZone?.name || 'Active Zone'}</p>
+                                <p className="text-xs text-foreground/50 mt-1">{t('status.forecast_desc')} {selectedZone?.name || t('status.main_field')}</p>
                             </div>
                             <div className="flex gap-2">
                                 <div className="flex items-center gap-2 px-3 py-1.5 bg-foreground/5 rounded-lg border border-border">

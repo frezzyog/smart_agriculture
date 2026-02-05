@@ -10,6 +10,7 @@ import {
     Tooltip,
     ResponsiveContainer
 } from 'recharts'
+import { useTranslation } from 'react-i18next'
 
 const data = [
     { day: 'Mon', current: 65, predicted: 65 },
@@ -22,10 +23,11 @@ const data = [
 ]
 
 const CustomTooltip = ({ active, payload, label }) => {
+    const { t } = useTranslation()
     if (active && payload && payload.length) {
         return (
             <div className="bg-card border border-border p-4 rounded-xl shadow-2xl backdrop-blur-md">
-                <p className="text-foreground/40 text-[10px] font-bold uppercase mb-2">{label} Forecast</p>
+                <p className="text-foreground/40 text-[10px] font-bold uppercase mb-2">{label} {t('status.forecast')}</p>
                 {payload.map((entry, index) => (
                     <div key={index} className="flex items-center gap-2 mb-1">
                         <div className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }}></div>
@@ -34,9 +36,14 @@ const CustomTooltip = ({ active, payload, label }) => {
                         </p>
                     </div>
                 ))}
+                {payload[0].value > 70 && ( // Logic changed: High value means high moisture
+                    <p className="text-accent text-[9px] font-bold mt-2 animate-pulse uppercase">
+                        💧 {t('status.wet')}
+                    </p>
+                )}
                 {payload[0].value < 30 && (
                     <p className="text-red-500 text-[9px] font-bold mt-2 animate-pulse uppercase">
-                        ⚠️ Irrigation Required
+                        ⚠️ {t('status.irrigation_required')}
                     </p>
                 )}
             </div>
@@ -46,15 +53,16 @@ const CustomTooltip = ({ active, payload, label }) => {
 }
 
 const PredictionChart = ({ zoneId, data: chartData }) => {
+    const { t } = useTranslation()
     // Fallback data if none provided
     const displayData = chartData?.length > 0 ? chartData : [
-        { day: 'Mon', predicted: 68 },
-        { day: 'Tue', predicted: 62 },
-        { day: 'Wed', predicted: 55 },
-        { day: 'Thu', predicted: 48 },
-        { day: 'Fri', predicted: 75 }, // Rain/Irrigation event
-        { day: 'Sat', predicted: 72 },
-        { day: 'Sun', predicted: 68 },
+        { day: t('days.mon'), predicted: 68 },
+        { day: t('days.tue'), predicted: 62 },
+        { day: t('days.wed'), predicted: 55 },
+        { day: t('days.thu'), predicted: 48 },
+        { day: t('days.fri'), predicted: 75 }, // Rain/Irrigation event
+        { day: t('days.sat'), predicted: 72 },
+        { day: t('days.sun'), predicted: 68 },
     ]
 
     return (
@@ -87,7 +95,7 @@ const PredictionChart = ({ zoneId, data: chartData }) => {
                 />
                 <Tooltip content={<CustomTooltip />} />
                 <Area
-                    name="AI Forecast"
+                    name={t('ai_insights_page.ai_predicted')}
                     type="monotone"
                     dataKey="predicted"
                     stroke="#15ff71"

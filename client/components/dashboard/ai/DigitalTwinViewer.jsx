@@ -4,7 +4,10 @@ import React from 'react'
 import { Card } from '@/components/ui/card'
 import { Map, Layers, Target, TreePine, Droplets, AlertTriangle } from 'lucide-react'
 
+import { useTranslation } from 'react-i18next'
+
 const DigitalTwinViewer = ({ zoneId, data }) => {
+    const { t } = useTranslation()
     const layout = data?.layout || [
         { id: 1, x: 20, y: 30, type: 'CROP', health: 90 },
         { id: 2, x: 50, y: 50, type: 'SENSOR', health: 100 },
@@ -17,8 +20,8 @@ const DigitalTwinViewer = ({ zoneId, data }) => {
         <Card className="p-6 bg-card border-border relative overflow-hidden group">
             <div className="flex items-center justify-between mb-6">
                 <div>
-                    <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">Digital Twin Viewer</h3>
-                    <p className="text-[10px] text-foreground/40">Spatial analysis: {zoneId || 'Select Zone'}</p>
+                    <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">{t('status.digital_twin')}</h3>
+                    <p className="text-[10px] text-foreground/40">{t('status.spatial_analysis')}: {zoneId || t('status.select_zone')}</p>
                 </div>
             </div>
 
@@ -60,13 +63,13 @@ const DigitalTwinViewer = ({ zoneId, data }) => {
             <div className="mt-4 flex items-center justify-between px-2">
                 <div className="flex gap-4">
                     <span className="text-[9px] text-foreground/40 font-bold uppercase flex items-center gap-1">
-                        <div className="w-1.5 h-1.5 rounded-full bg-accent"></div> Optimal
+                        <div className="w-1.5 h-1.5 rounded-full bg-accent"></div> {t('status.excellent')}
                     </span>
                     <span className="text-[9px] text-foreground/40 font-bold uppercase flex items-center gap-1">
-                        <div className="w-1.5 h-1.5 rounded-full bg-yellow-500"></div> Monitoring
+                        <div className="w-1.5 h-1.5 rounded-full bg-yellow-500"></div> {t('ai_insights_page.active_monitoring')}
                     </span>
                     <span className="text-[9px] text-foreground/40 font-bold uppercase flex items-center gap-1">
-                        <div className="w-1.5 h-1.5 rounded-full bg-red-500"></div> Critical
+                        <div className="w-1.5 h-1.5 rounded-full bg-red-500"></div> {t('dashboard.critical')}
                     </span>
                 </div>
             </div>
