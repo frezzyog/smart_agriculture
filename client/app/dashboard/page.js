@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react'
 import CompactWeatherCard from '@/components/dashboard/CompactWeatherCard'
 import RainSensorCard from '@/components/dashboard/RainSensorCard'
 import SoilSensorCard from '@/components/dashboard/SoilSensorCard'
-import SevenInOneSensorCard from '@/components/dashboard/SevenInOneSensorCard'
 import ExpenseSummaryCard from '@/components/dashboard/ExpenseSummaryCard'
 import FertilizerMonitor from '@/components/dashboard/FertilizerMonitor'
 import RecentTransactionsMinimal from '@/components/dashboard/RecentTransactionsMinimal'
@@ -159,19 +158,8 @@ export default function DashboardPage() {
                                     phosphorus={sensorData.phosphorus}
                                     potassium={sensorData.potassium}
                                     ec={sensorData.ec.toFixed(1)}
-                                />
-                            </div>
-
-                            <div className="md:col-span-2">
-                                <SevenInOneSensorCard
-                                    nitrogen={sensorData.nitrogen}
-                                    phosphorus={sensorData.phosphorus}
-                                    potassium={sensorData.potassium}
-                                    pH={sensorData.pH.toFixed(1)}
-                                    ec={sensorData.ec.toFixed(1)}
+                                    ph={sensorData.pH.toFixed(1)}
                                     temp={sensorData.temp.toFixed(1)}
-                                    humidity={sensorData.humidity.toFixed(1)}
-                                    status={statusText}
                                 />
                             </div>
 

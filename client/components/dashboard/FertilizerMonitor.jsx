@@ -1,10 +1,10 @@
 'use client'
 
 import React from 'react'
-import { Activity, Zap, TrendingUp, AlertCircle, CheckCircle2 } from 'lucide-react'
+import { Activity, Zap, TrendingUp, AlertCircle, CheckCircle2, FlaskConical, Thermometer } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-const FertilizerMonitor = ({ nitrogen, phosphorus, potassium, ec }) => {
+const FertilizerMonitor = ({ nitrogen, phosphorus, potassium, ec, ph, temp }) => {
     const { t } = useTranslation()
 
     // Status Helpers
@@ -41,10 +41,25 @@ const FertilizerMonitor = ({ nitrogen, phosphorus, potassium, ec }) => {
         return { label: 'HIGH ALKALINITY', color: 'text-red-500' }
     }
 
+    const getPHStatus = (val) => {
+        if (val < 5.5) return { label: 'ACIDIC', color: 'text-red-500', gradient: 'from-red-500/20 to-transparent' }
+        if (val <= 7.0) return { label: 'OPTIMAL', color: 'text-emerald-500', gradient: 'from-emerald-500/20 to-transparent' }
+        if (val <= 8.0) return { label: 'ALKALINE', color: 'text-yellow-500', gradient: 'from-yellow-500/20 to-transparent' }
+        return { label: 'VERY HIGH', color: 'text-red-500', gradient: 'from-red-500/20 to-transparent' }
+    }
+
+    const getTempStatus = (val) => {
+        if (val < 15) return { label: 'COLD', color: 'text-blue-500', gradient: 'from-blue-500/20 to-transparent' }
+        if (val > 35) return { label: 'HOT', color: 'text-red-500', gradient: 'from-red-500/20 to-transparent' }
+        return { label: 'OPTIMAL', color: 'text-emerald-500', gradient: 'from-emerald-500/20 to-transparent' }
+    }
+
     const nStatus = getNStatus(Number(nitrogen));
     const pStatus = getPStatus(Number(phosphorus));
     const kStatus = getKStatus(Number(potassium));
     const ecStatus = getECStatus(Number(ec));
+    const phStatus = getPHStatus(Number(ph));
+    const tempStatus = getTempStatus(Number(temp));
 
     return (
         <div className="bg-card/50 backdrop-blur-xl rounded-[2.5rem] p-8 border border-white/5 shadow-2xl relative overflow-hidden">
@@ -57,7 +72,7 @@ const FertilizerMonitor = ({ nitrogen, phosphorus, potassium, ec }) => {
                 <div>
                     <h2 className="text-3xl font-black text-foreground tracking-tight flex items-center gap-3">
                         <Zap className="text-yellow-400 fill-yellow-400/20" size={32} />
-                        {t('dashboard.ec_tracking') || "Fertilizer Tracker"}
+                        {t('dashboard.soil_integrated_sensor') || "Soil Integrated Sensor"}
                     </h2>
                     <p className="text-foreground/40 mt-2 font-medium">Real-time Nutrient Analysis & Conductivity</p>
                 </div>
@@ -79,8 +94,8 @@ const FertilizerMonitor = ({ nitrogen, phosphorus, potassium, ec }) => {
                 </div>
             </div>
 
-            {/* The 3 Big Boxes for N, P, K */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
+            {/* The 5 Big Boxes for N, P, K, pH, Temp */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative z-10">
                 {/* Nitrogen Box */}
                 <div className="group relative bg-gradient-to-br from-blue-500/5 to-transparent rounded-[2rem] p-6 border border-blue-500/10 hover:border-blue-500/30 transition-all duration-500 hover:shadow-[0_0_30px_rgba(59,130,246,0.1)]">
                     <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 to-blue-500/0 group-hover:from-blue-500/5 group-hover:to-transparent rounded-[2rem] transition-all duration-500"></div>
@@ -165,6 +180,64 @@ const FertilizerMonitor = ({ nitrogen, phosphorus, potassium, ec }) => {
                             <div
                                 className="h-full bg-purple-500 rounded-full transition-all duration-1000 ease-out"
                                 style={{ width: `${Math.min((potassium / 400) * 100, 100)}%` }}
+                            ></div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* pH Box */}
+                <div className="group relative bg-gradient-to-br from-emerald-500/5 to-transparent rounded-[2rem] p-6 border border-emerald-500/10 hover:border-emerald-500/30 transition-all duration-500 hover:shadow-[0_0_30px_rgba(16,185,129,0.1)]">
+                    <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/0 to-emerald-500/0 group-hover:from-emerald-500/5 group-hover:to-transparent rounded-[2rem] transition-all duration-500"></div>
+
+                    <div className="flex justify-between items-start mb-8 relative">
+                        <div className="bg-emerald-500/10 p-3 rounded-2xl text-emerald-400 group-hover:scale-110 transition-transform duration-500">
+                            <FlaskConical size={24} />
+                        </div>
+                        <div className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${phStatus.color} border-current bg-transparent`}>
+                            {phStatus.label}
+                        </div>
+                    </div>
+
+                    <div className="relative">
+                        <h3 className="text-sm font-bold text-foreground/50 uppercase tracking-widest mb-1">{t('dashboard.ph') || 'pH Level'}</h3>
+                        <div className="flex items-baseline gap-2">
+                            <span className="text-5xl font-black text-foreground tracking-tight group-hover:text-emerald-400 transition-colors duration-300">{ph}</span>
+                            <span className="text-sm font-bold text-foreground/30">pH</span>
+                        </div>
+
+                        <div className="mt-6 h-2 w-full bg-emerald-950/30 rounded-full overflow-hidden">
+                            <div
+                                className="h-full bg-emerald-500 rounded-full transition-all duration-1000 ease-out"
+                                style={{ width: `${Math.min((ph / 14) * 100, 100)}%` }}
+                            ></div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Temperature Box */}
+                <div className="group relative bg-gradient-to-br from-red-500/5 to-transparent rounded-[2rem] p-6 border border-red-500/10 hover:border-red-500/30 transition-all duration-500 hover:shadow-[0_0_30px_rgba(239,68,68,0.1)]">
+                    <div className="absolute inset-0 bg-gradient-to-br from-red-500/0 to-red-500/0 group-hover:from-red-500/5 group-hover:to-transparent rounded-[2rem] transition-all duration-500"></div>
+
+                    <div className="flex justify-between items-start mb-8 relative">
+                        <div className="bg-red-500/10 p-3 rounded-2xl text-red-500 group-hover:scale-110 transition-transform duration-500">
+                            <Thermometer size={24} />
+                        </div>
+                        <div className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${tempStatus.color} border-current bg-transparent`}>
+                            {tempStatus.label}
+                        </div>
+                    </div>
+
+                    <div className="relative">
+                        <h3 className="text-sm font-bold text-foreground/50 uppercase tracking-widest mb-1">{t('dashboard.temperature') || 'Temperature'}</h3>
+                        <div className="flex items-baseline gap-2">
+                            <span className="text-5xl font-black text-foreground tracking-tight group-hover:text-red-500 transition-colors duration-300">{temp}</span>
+                            <span className="text-sm font-bold text-foreground/30">°C</span>
+                        </div>
+
+                        <div className="mt-6 h-2 w-full bg-red-950/30 rounded-full overflow-hidden">
+                            <div
+                                className="h-full bg-red-500 rounded-full transition-all duration-1000 ease-out"
+                                style={{ width: `${Math.min((temp / 50) * 100, 100)}%` }}
                             ></div>
                         </div>
                     </div>
