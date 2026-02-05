@@ -211,10 +211,10 @@ async function sendTelegramAlert(chatId, message) {
         })
 
         if (response.ok) {
-            console.log(`✅ Telegram Alert Sent to ${chatId}`)
+            console.log(`🚀 [TELEGRAM] Success! Alert sent to ${chatId}`);
         } else {
-            const errData = await response.json()
-            console.error('❌ Failed to send Telegram message:', errData.description)
+            const errData = await response.json();
+            console.error(`❌ [TELEGRAM] Failed to send to ${chatId}:`, errData.description);
         }
     } catch (err) {
         console.error('❌ Failed to send Telegram Alert:', err.message)

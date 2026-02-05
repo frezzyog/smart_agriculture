@@ -173,21 +173,40 @@ data_processor = SensorDataProcessor()
 # ============================================
 
 class SensorData(BaseModel):
-    deviceId: str
-    moisture: Optional[float] = None
-    temperature: Optional[float] = None
-    humidity: Optional[float] = None
-    rain: Optional[float] = None
-    nitrogen: Optional[float] = None
-    phosphorus: Optional[float] = None
-    potassium: Optional[float] = None
-    pH: Optional[float] = None
-    ec: Optional[float] = None  # New field for 7-in-1 sensor
-    lightIntensity: Optional[float] = None
+    deviceId: Optional[str] = None
+    moisture: Optional[Any] = None
+    temperature: Optional[Any] = None
+    humidity: Optional[Any] = None
+    rain: Optional[Any] = None
+    nitrogen: Optional[Any] = None
+    phosphorus: Optional[Any] = None
+    potassium: Optional[Any] = None
+    pH: Optional[Any] = None
+    ec: Optional[Any] = None
+    lightIntensity: Optional[Any] = None
+
+    # Helper to clean N/A and map temp to temperature
+    @classmethod
+    def model_validate(cls, obj: Any, *args, **kwargs):
+        if isinstance(obj, dict):
+            # Map 'temp' to 'temperature' if needed
+            if 'temp' in obj and 'temperature' not in obj:
+                obj['temperature'] = obj['temp']
+            
+            # Convert "N/A" or strings to None/Float
+            for key, value in obj.items():
+                if value == "N/A" or value == "null" or value == "":
+                    obj[key] = None
+                elif isinstance(value, str):
+                    try:
+                        obj[key] = float(value)
+                    except:
+                        obj[key] = None
+        return super().model_validate(obj, *args, **kwargs)
 
 class InterpretRequest(BaseModel):
     deviceId: str
-    sensorData: SensorData
+    sensorData: Dict[str, Any] # Use dict to allow the custom validation above
 
 class InterpretResponse(BaseModel):
     soilHealth: str
@@ -247,7 +266,9 @@ async def health_check():
 async def interpret_sensor_data(request: InterpretRequest):
     """Real-time interpretation of sensor data with weather-aware irrigation"""
     try:
-        sensor_data = request.sensorData.model_dump()
+        # CLEAN AND VALIDATE DATA
+        clean_data = SensorData.model_validate(request.sensorData)
+        sensor_data = clean_data.model_dump()
         device_id = request.deviceId
         
         # ============================================
