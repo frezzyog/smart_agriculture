@@ -31,11 +31,22 @@ const SoilSensorCard = ({ moisture, status }) => {
         glowColorClass = 'bg-emerald-500/10 group-hover:bg-emerald-500/20'
     }
 
+    // Status Logic Helpers (Converted from User's C++)
+    const getMoistureStatus = (m) => {
+        if (m < 20) return { label: 'VERY DRY', color: 'text-red-500' }
+        if (m < 40) return { label: 'DRY', color: 'text-yellow-500' }
+        if (m < 70) return { label: 'OPTIMAL', color: 'text-emerald-500' }
+        if (m < 85) return { label: 'WET', color: 'text-blue-500' }
+        return { label: 'WATERLOGGED', color: 'text-red-500' }
+    }
+
+    const moistureStatus = getMoistureStatus(moistureNum)
+
     return (
         <div className={`bg-card rounded-[2.5rem] p-6 md:p-8 border transition-all duration-500 shadow-xl shadow-black/20 relative overflow-hidden group ${isCritical || isWarning ? borderColorClass + ' ' + shadowColorClass : borderColorClass}`}>
             <div className={`absolute -top-20 -right-20 w-40 h-40 rounded-full blur-[80px] transition-all duration-700 ${glowColorClass}`}></div>
 
-            <div className="flex justify-between items-start mb-8 relative z-10">
+            <div className="flex justify-between items-start mb-6 md:mb-8 relative z-10">
                 <div>
                     <h3 className="text-xl md:text-2xl font-bold text-foreground tracking-tight leading-none">{t('dashboard.soil_moisture')}</h3>
                     <p className="text-foreground/40 text-xs md:text-sm font-medium mt-2">{t('dashboard.moisture_level')}</p>
@@ -50,11 +61,16 @@ const SoilSensorCard = ({ moisture, status }) => {
                     <div className="flex items-end justify-between mb-1">
                         <span className="text-xs font-bold text-foreground/60 uppercase tracking-[0.2em]">{t('dashboard.moisture_percentage')}</span>
                     </div>
-                    <div className="flex items-baseline gap-1">
-                        <span className={`text-4xl md:text-5xl font-black tracking-tighter drop-shadow-sm ${colorClass}`}>
-                            {moisture}
-                        </span>
-                        <span className={`text-xl font-bold ${colorClass.replace('text-', 'text-')}/60`}>%</span>
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-baseline gap-1">
+                            <span className={`text-4xl md:text-5xl font-black tracking-tighter drop-shadow-sm ${colorClass}`}>
+                                {moisture}
+                            </span>
+                            <span className={`text-xl font-bold ${colorClass.replace('text-', 'text-')}/60`}>%</span>
+                        </div>
+                        <div className={`text-[10px] md:text-xs font-black uppercase tracking-wider ${moistureStatus.color} py-1.5 px-3 rounded-xl bg-white/5 border border-white/5`}>
+                            {moistureStatus.label}
+                        </div>
                     </div>
                 </div>
             </div>
