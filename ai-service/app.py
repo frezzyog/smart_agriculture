@@ -38,11 +38,9 @@ has_gemini = validate_api_key(GEMINI_API_KEY)
 
 # CORRECT MODEL NAMES
 GEMINI_MODELS = [
-    "gemini-2.5-flash",
-    "gemini-2.0-flash",
     "gemini-1.5-flash",
+    "gemini-2.0-flash-exp",
     "gemini-1.5-pro",
-    "gemini-pro",
 ]
 
 # Track state
@@ -86,10 +84,16 @@ async def call_gemini(prompt: str) -> Optional[str]:
                     json={
                         "contents": [{"parts": [{"text": prompt}]}],
                         "generationConfig": {
-                            "temperature": 0.7,
-                            "maxOutputTokens": 2048,
-                            "topP": 0.9
-                        }
+                            "temperature": 0.5, # Lower temperature for more stable long responses
+                            "maxOutputTokens": 4096,
+                            "topP": 0.95
+                        },
+                        "safetySettings": [
+                            {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
+                            {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
+                            {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
+                            {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"}
+                        ]
                     },
                     timeout=30.0,
                     headers={"Content-Type": "application/json"}
@@ -99,11 +103,18 @@ async def call_gemini(prompt: str) -> Optional[str]:
                     data = response.json()
                     candidates = data.get("candidates", [])
                     if candidates:
-                        parts = candidates[0].get("content", {}).get("parts", [])
+                        candidate = candidates[0]
+                        parts = candidate.get("content", {}).get("parts", [])
+                        finish_reason = candidate.get("finishReason")
+                        
                         if parts:
                             full_text = "".join([p.get("text", "") for p in parts if "text" in p])
                             working_model = model
-                            print(f"✅ Success with {model}")
+                            print(f"✅ Success with {model} (Length: {len(full_text)}, FinishReason: {finish_reason})")
+                            
+                            if finish_reason == "MAX_TOKENS":
+                                print("⚠️ WARNING: Response was cut off due to MAX_TOKENS!")
+                                
                             return full_text
                 
                 elif response.status_code == 429:
