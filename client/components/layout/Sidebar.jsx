@@ -59,7 +59,7 @@ const Sidebar = () => {
                 <div className="flex items-center justify-between mb-10">
                     <div className="flex items-center gap-3">
                         <div className="w-36 h-36 flex items-center justify-center -ml-6 mb-2">
-                            <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
+                            <img src="/logo.png" alt="Logo" className="w-full h-full object-contain scale-150" />
                         </div>
                         <div>
                             <h1 className="text-xl font-bold tracking-tight text-foreground leading-none">{t('sidebar.title')}</h1>
