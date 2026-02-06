@@ -48,9 +48,10 @@ const FertilizerMonitor = ({ nitrogen, phosphorus, potassium, ec, ph, temp }) =>
         return { label: 'VERY HIGH', color: 'text-red-500', gradient: 'from-red-500/20 to-transparent' }
     }
 
+    // Temperature thresholds adjusted for Cambodian tropical climate
     const getTempStatus = (val) => {
-        if (val < 15) return { label: 'COLD', color: 'text-blue-500', gradient: 'from-blue-500/20 to-transparent' }
-        if (val > 35) return { label: 'HOT', color: 'text-red-500', gradient: 'from-red-500/20 to-transparent' }
+        if (val < 18) return { label: 'COLD', color: 'text-blue-500', gradient: 'from-blue-500/20 to-transparent' }
+        if (val > 38) return { label: 'HOT', color: 'text-red-500', gradient: 'from-red-500/20 to-transparent' }
         return { label: 'OPTIMAL', color: 'text-emerald-500', gradient: 'from-emerald-500/20 to-transparent' }
     }
 
