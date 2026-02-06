@@ -474,7 +474,7 @@ async def interpret_sensor_data(request: InterpretRequest):
                             alerts.append({
                                 "severity": "WARNING",
                                 "type": "NPK_LOW",
-                                "title": f"🌱 កង្វះសារធាតុចិញ្ចឹម ({deficiency_str})",
+                                "title": f"🌱 កង្វះសារធាតុ ({deficiency_str}) ➔ ម៉ូទ័រកំពុងស្រោចជី...",
                                 "message": f"[{current_time_str}] រកឃើញ៖ {deficiency_str}។ ប្រព័ន្ធបាន **បើកម៉ូទ័របូមជី (Fertilizer Pump ON)** ដើម្បីផ្គត់ផ្គង់សារធាតុចិញ្ចឹម។"
                             })
                             recommend_action = True
