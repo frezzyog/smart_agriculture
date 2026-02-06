@@ -28,7 +28,7 @@ export default function SignupForm() {
             if (data?.user) {
                 // Sync to our Prisma backend and send welcome SMS
                 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-                await fetch(`${apiUrl}/api/auth/register`, {
+                const syncResponse = await fetch(`${apiUrl}/api/auth/register`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -39,11 +39,21 @@ export default function SignupForm() {
                         role
                     })
                 });
+
+                const syncResult = await syncResponse.json();
+
+                if (!syncResponse.ok) {
+                    console.error('Backend sync failed:', syncResult);
+                    throw new Error(syncResult.error || 'Failed to sync user to backend database');
+                }
+
+                console.log('✅ User successfully registered and synced:', syncResult);
             }
 
             // Redirect automatically handled by layout or manually here
             router.push('/dashboard');
         } catch (err) {
+            console.error('Signup error:', err);
             setError(err.message);
         } finally {
             setLoading(false);

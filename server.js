@@ -864,36 +864,71 @@ app.post('/api/auth/register', async (req, res) => {
     try {
         const { userId, email, name, phone, role } = req.body
 
+        console.log('📝 User Registration Request:', { userId, email, name, phone, role })
+
         if (!userId) {
             return res.status(400).json({ error: 'User ID is required' })
         }
 
-        // 1. Sync user to Prisma database
-        const user = await prisma.user.upsert({
-            where: { id: userId },
-            update: {
-                name,
-                email,
-                phone,
-                role: (role || 'USER').toUpperCase()
-            },
-            create: {
-                id: userId,
-                name,
-                email,
-                phone,
-                password: 'SUPABASE_AUTH', // Managed by Supabase
-                role: (role || 'USER').toUpperCase()
-            }
-        })
+        // 1. Sync user to Prisma database (PostgreSQL via Prisma)
+        let prismaUser = null
+        try {
+            prismaUser = await prisma.user.upsert({
+                where: { id: userId },
+                update: {
+                    name,
+                    email,
+                    phone,
+                    role: (role || 'USER').toUpperCase()
+                },
+                create: {
+                    id: userId,
+                    name,
+                    email,
+                    phone,
+                    password: 'SUPABASE_AUTH', // Managed by Supabase
+                    role: (role || 'USER').toUpperCase()
+                }
+            })
+            console.log('✅ User synced to Prisma database:', prismaUser.id)
+        } catch (prismaError) {
+            console.error('⚠️ Prisma sync failed (continuing):', prismaError.message)
+        }
 
-        // 2. Send Welcome Telegram Alert
+        // 2. ALSO sync to Supabase public.users table (for expenses foreign key)
+        try {
+            const { data: supabaseUser, error: supabaseError } = await supabase
+                .from('users')
+                .upsert({
+                    id: userId,
+                    email,
+                    name,
+                    phone,
+                    password: 'SUPABASE_AUTH',
+                    role: (role || 'USER').toUpperCase(),
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString()
+                }, {
+                    onConflict: 'id'
+                })
+                .select()
+
+            if (supabaseError) {
+                console.error('⚠️ Supabase public.users sync failed:', supabaseError.message)
+            } else {
+                console.log('✅ User synced to Supabase public.users table')
+            }
+        } catch (supabaseError) {
+            console.error('⚠️ Supabase sync error (continuing):', supabaseError.message)
+        }
+
+        // 3. Send Welcome Telegram Alert
         if (hasTelegram) {
             const welcomeMsg = `<b>🍀 សូមស្វាគមន៍មកកាន់ Smart Agriculture 4.0, ${name}!</b>\n\nគណនីរបស់អ្នកត្រូវបានភ្ជាប់ទៅប្រព័ន្ធជូនដំណឹង AI របស់យើងហើយ។ យើងនឹងជូនដំណឹងអ្នកនៅទីនេះ ប្រសិនបើដីរបស់អ្នកត្រូវការការយកចិត្តទុកដាក់។ រីករាយនឹងការធ្វើកសិកម្ម!`
 
             // If user already linked Telegram (unlikely here but good for consistency)
-            if (user.telegramChatId) {
-                await sendTelegramAlert(user.telegramChatId, welcomeMsg)
+            if (prismaUser?.telegramChatId) {
+                await sendTelegramAlert(prismaUser.telegramChatId, welcomeMsg)
             } else {
                 // Fallback to Admin
                 const ADMIN_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
@@ -903,10 +938,10 @@ app.post('/api/auth/register', async (req, res) => {
             }
         }
 
-        res.json({ success: true, user })
+        res.json({ success: true, user: prismaUser || { id: userId, email, name } })
     } catch (error) {
         console.error('❌ Error in user registration sync:', error)
-        res.status(500).json({ error: 'Failed to sync user data' })
+        res.status(500).json({ error: 'Failed to sync user data: ' + error.message })
     }
 })
 
