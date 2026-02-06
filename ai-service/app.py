@@ -166,6 +166,10 @@ fertilizer_model = FertilizerPredictor()
 zone_optimizer = ZoneOptimizer()
 data_processor = SensorDataProcessor()
 
+# Track active pump cycles to prevent alert spamming
+# Structure: { device_id: { "fertilizer_end": datetime, "water_end": datetime } }
+device_pump_states = {}
+
 # ============================================
 # PYDANTIC MODELS
 # ============================================
@@ -408,13 +412,7 @@ async def interpret_sensor_data(request: InterpretRequest):
         can_fertilize = True # Enable "Combo Mode" for demo
         # Note: In real parallel mode, we can send multiple commands, but here we prioritize telling user about both.
         
-        if sensor_data.get('nitrogen', 200) < 130:
-            alerts.append({
-                "severity": "WARNING",
-                "type": "NPK_LOW",
-                "title": "🌱 រកឃើញកម្រិតជីទាប (N)",
-                "message": f"អាសូតគឺ {sensor_data.get('nitrogen', 0)} ppm។ ប្រព័ន្ធអាចនឹងបើកម៉ូទ័របូមជី។"
-            })
+        # STANDALONE NPK CHECKS REMOVED - Integrated into main logic below to prevent duplicate alerts
         
         # pH THRESHOLDS: 6.0 - 7.0
         if sensor_data.get('pH'):
@@ -449,14 +447,45 @@ async def interpret_sensor_data(request: InterpretRequest):
                              "message": f"ប៉ុន្តែមានភ្លៀងខ្លាំងនៅថ្ងៃស្អែក ({tomorrow_rain_probability}%)។ ការដាក់ជីត្រូវបានពន្យារពេល។"
                         })
                     else:
-                        alerts.append({
-                            "severity": "WARNING",
-                            "type": "NPK_LOW",
-                            "title": "🌱 រកឃើញកម្រិតជីទាប",
-                            "message": "ប្រព័ន្ធបានបើកម៉ូទ័របូមជី ដើម្បីផ្គត់ផ្គង់សារធាតុចិញ្ចឹមឲ្យដំណាំ។"
-                        })
-                        recommend_action = True
-                        actions.append({"type": "fertilizer", "deviceId": device_id, "command": {"type": "FERTILIZER", "status": "ON", "duration": 180}})
+                        # Check if fertilizer pump is already running/in cooldown
+                        current_time = datetime.now()
+                        device_state = device_pump_states.get(device_id, {})
+                        fert_end = device_state.get("fertilizer_end")
+                        
+                        is_pumping = fert_end and current_time < fert_end
+                        
+                        if is_pumping:
+                            # Pump is already running, suppress duplicate alerts
+                            # Optional: Add INFO alert just for dashboard feedback if needed, 
+                            # but filtering it out ensures Telegram is silent as requested.
+                            pass
+                        else:
+                            # Pump not running, generate NEW Alert + Action
+                            
+                            # IDENTIFY SPECIFIC DEFICIENCIES
+                            deficiencies = []
+                            if sensor_data.get('nitrogen', 0) < 130: deficiencies.append(f"Nitrogen ({sensor_data.get('nitrogen')} mg/kg)")
+                            if sensor_data.get('phosphorus', 0) < 30: deficiencies.append(f"Phosphorus ({sensor_data.get('phosphorus')} mg/kg)")
+                            if sensor_data.get('potassium', 0) < 150: deficiencies.append(f"Potassium ({sensor_data.get('potassium')} mg/kg)")
+                            
+                            deficiency_str = ", ".join(deficiencies) if deficiencies else "General Low EC"
+                            current_time_str = current_time.strftime("%I:%M %p")
+                            
+                            alerts.append({
+                                "severity": "WARNING",
+                                "type": "NPK_LOW",
+                                "title": f"🌱 កង្វះសារធាតុចិញ្ចឹម ({deficiency_str})",
+                                "message": f"[{current_time_str}] រកឃើញ៖ {deficiency_str}។ ប្រព័ន្ធបាន **បើកម៉ូទ័របូមជី (Fertilizer Pump ON)** ដើម្បីផ្គត់ផ្គង់សារធាតុចិញ្ចឹម។"
+                            })
+                            recommend_action = True
+                            duration = 180 # 3 minutes
+                            actions.append({"type": "fertilizer", "deviceId": device_id, "command": {"type": "FERTILIZER", "status": "ON", "duration": duration}})
+                            
+                            # Update Pump State
+                            if device_id not in device_pump_states:
+                                device_pump_states[device_id] = {}
+                            device_pump_states[device_id]["fertilizer_end"] = current_time + timedelta(seconds=duration)
+
                 else:
                     # If dry, add warning alert but don't trigger pump (water takes priority)
                     alerts.append({
