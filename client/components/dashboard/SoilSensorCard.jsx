@@ -7,8 +7,8 @@ import { useTranslation } from 'react-i18next'
 const SoilSensorCard = ({ moisture, status }) => {
     const { t } = useTranslation()
     const moistureNum = Number(moisture)
-    const isCritical = moistureNum < 30
-    const isWarning = moistureNum >= 30 && moistureNum < 60
+    const isCritical = moistureNum < 50
+    const isWarning = moistureNum >= 50 && moistureNum < 60
 
     let colorClass, bgColorClass, borderColorClass, shadowColorClass, glowColorClass
     if (isCritical) {
@@ -33,10 +33,10 @@ const SoilSensorCard = ({ moisture, status }) => {
 
     // Status Logic Helpers (Converted from User's C++)
     const getMoistureStatus = (m) => {
-        if (m < 20) return { label: 'VERY DRY', color: 'text-red-500' }
-        if (m < 40) return { label: 'DRY', color: 'text-yellow-500' }
-        if (m < 70) return { label: 'OPTIMAL', color: 'text-emerald-500' }
-        if (m < 85) return { label: 'WET', color: 'text-blue-500' }
+        if (m < 50) return { label: 'VERY DRY', color: 'text-red-500' }
+        if (m < 60) return { label: 'DRY', color: 'text-yellow-500' }
+        if (m <= 80) return { label: 'OPTIMAL', color: 'text-emerald-500' }
+        if (m <= 90) return { label: 'WET', color: 'text-blue-500' }
         return { label: 'WATERLOGGED', color: 'text-red-500' }
     }
 

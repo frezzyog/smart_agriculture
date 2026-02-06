@@ -388,14 +388,21 @@ void checkOfflineRules() {
     Serial.printf("  ✅ Soil wet (%.2f%%). Water OFF.\n", val_moisture);
   }
 
-  // Only activate fertilizer when EC is truly LOW (< 400), not just below optimal
-  if (val_ec > 0 && val_ec < 400 && val_moisture > 40) {
-    digitalWrite(RELAY_2_PIN, LOW);
-    Serial.printf("  🧪 Fertilizer Pump ON (EC: %.0f - LOW)\n", val_ec);
-  }
-  else if (val_ec > 1200) {
+  // Fertilizer Control (Offline Mode)
+  // Safety First: If EC is too high, FORCE OFF
+  if (val_ec > 1200) {
     digitalWrite(RELAY_2_PIN, HIGH);
     Serial.println("  ✅ Nutrients balanced. Fertilizer OFF.");
+  }
+  // Trigger ON if EC is LOW (< 400) OR Nutrients are LOW (and moisture is decent)
+  else if (val_moisture > 40 && (
+           (val_ec > 0 && val_ec < 400) || 
+           (val_n > 0 && val_n < 90) || 
+           (val_p > 0 && val_p < 35) || 
+           (val_k > 0 && val_k < 150))) {
+    
+    digitalWrite(RELAY_2_PIN, LOW);
+    Serial.printf("  🧪 Fertilizer Pump ON (Nutrients Low - EC: %.0f)\n", val_ec);
   }
 }
 
@@ -475,13 +482,38 @@ void loop() {
           Serial.printf("✅ [AUTO-ONLINE] Water Pump OFF (%.1f%%)\n", val_moisture);
         }
 
-        // 2. Fertilizer Pump Control - Only when EC is LOW (< 400)
-        if (val_ec > 0 && val_ec < 400) {
-          digitalWrite(RELAY_2_PIN, LOW); // ON
-          Serial.printf("🧪 [AUTO-ONLINE] Fertilizer Pump ON (EC: %.0f - LOW)\n", val_ec);
-        } else if (val_ec > 1200) {
+        // 2. Fertilizer Pump Control
+        // Safety First: If EC is too high, FORCE OFF regardless of NPK
+        if (val_ec > 1200) {
           digitalWrite(RELAY_2_PIN, HIGH); // OFF
-          Serial.println("✅ [AUTO-ONLINE] Fertilizer Pump OFF (EC Balanced)");
+          Serial.println("✅ [AUTO-ONLINE] Fertilizer Pump OFF (EC Balanced/High)");
+        } 
+        // Trigger ON if EC is LOW (< 400) OR Nutrients are LOW
+        else if ((val_ec > 0 && val_ec < 400) || 
+                 (val_n > 0 && val_n < 90) || 
+                 (val_p > 0 && val_p < 35) || 
+                 (val_k > 0 && val_k < 150)) {
+          
+          digitalWrite(RELAY_2_PIN, LOW); // ON
+          
+          String reason = "";
+          if (val_ec < 400) reason = "EC Low";
+          else if (val_n < 90) reason = "Nitrogen Low";
+          else if (val_p < 35) reason = "Phosphorus Low";
+          else reason = "Potassium Low";
+
+          Serial.printf("🧪 [AUTO-ONLINE] Fertilizer Pump ON (%s)\n", reason.c_str());
+        } 
+        else {
+           // In optimal range, ensure it doesn't get stuck ON if logic falls through, 
+           // BUT simplistic hysteresis usually leaves it alone here. 
+           // However, for strict control, if we are "Optimal", we should probably be OFF 
+           // unless we want to keep pumping until High.
+           // Let's assume if we are not Low and not High, we drift (or turned off by High).
+           // But to be safe against ghost states:
+           if (val_ec > 1000) { // Soft limit before hard stop
+             digitalWrite(RELAY_2_PIN, HIGH);
+           }
         }
       }
     } else {

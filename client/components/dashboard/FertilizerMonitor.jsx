@@ -15,43 +15,40 @@ const FertilizerMonitor = ({ nitrogen, phosphorus, potassium, ec, ph, temp }) =>
     }
 
     const getNStatus = (val) => {
-        if (val < 40) return { label: 'LOW', color: 'text-red-500', gradient: 'from-red-500/20 to-transparent' }
-        if (val < 90) return { label: 'MODERATE', color: 'text-yellow-500', gradient: 'from-yellow-500/20 to-transparent' }
-        if (val < 150) return { label: 'OPTIMAL', color: 'text-emerald-500', gradient: 'from-emerald-500/20 to-transparent' }
+        if (val < 30) return { label: 'LOW', color: 'text-red-500', gradient: 'from-red-500/20 to-transparent' }
+        if (val <= 55) return { label: 'OPTIMAL', color: 'text-emerald-500', gradient: 'from-emerald-500/20 to-transparent' }
         return { label: 'EXCESS', color: 'text-red-500', gradient: 'from-red-500/20 to-transparent' }
     }
 
     const getPStatus = (val) => {
         if (val < 15) return { label: 'LOW', color: 'text-red-500', gradient: 'from-red-500/20 to-transparent' }
-        if (val < 35) return { label: 'MODERATE', color: 'text-yellow-500', gradient: 'from-yellow-500/20 to-transparent' }
-        if (val < 70) return { label: 'OPTIMAL', color: 'text-emerald-500', gradient: 'from-emerald-500/20 to-transparent' }
+        if (val <= 35) return { label: 'OPTIMAL', color: 'text-emerald-500', gradient: 'from-emerald-500/20 to-transparent' }
         return { label: 'EXCESS', color: 'text-red-500', gradient: 'from-red-500/20 to-transparent' }
     }
 
     const getKStatus = (val) => {
         if (val < 80) return { label: 'LOW', color: 'text-red-500', gradient: 'from-red-500/20 to-transparent' }
-        if (val < 150) return { label: 'MODERATE', color: 'text-yellow-500', gradient: 'from-yellow-500/20 to-transparent' }
-        if (val < 280) return { label: 'OPTIMAL', color: 'text-emerald-500', gradient: 'from-emerald-500/20 to-transparent' }
+        if (val <= 125) return { label: 'OPTIMAL', color: 'text-emerald-500', gradient: 'from-emerald-500/20 to-transparent' }
         return { label: 'EXCESS', color: 'text-red-500', gradient: 'from-red-500/20 to-transparent' }
     }
 
     const getECStatus = (val) => {
-        if (val < 400) return { label: 'LOW ACTIVITY', color: 'text-yellow-500' }
-        if (val < 1200) return { label: 'OPTIMAL', color: 'text-emerald-500' }
+        if (val < 1200) return { label: 'LOW', color: 'text-yellow-500' }
+        if (val <= 1650) return { label: 'OPTIMAL', color: 'text-emerald-500' }
         return { label: 'HIGH ALKALINITY', color: 'text-red-500' }
     }
 
     const getPHStatus = (val) => {
-        if (val < 5.5) return { label: 'ACIDIC', color: 'text-red-500', gradient: 'from-red-500/20 to-transparent' }
-        if (val <= 7.0) return { label: 'OPTIMAL', color: 'text-emerald-500', gradient: 'from-emerald-500/20 to-transparent' }
-        if (val <= 8.0) return { label: 'ALKALINE', color: 'text-yellow-500', gradient: 'from-yellow-500/20 to-transparent' }
-        return { label: 'VERY HIGH', color: 'text-red-500', gradient: 'from-red-500/20 to-transparent' }
+        if (val < 6.0) return { label: 'ACIDIC', color: 'text-red-500', gradient: 'from-red-500/20 to-transparent' }
+        if (val <= 6.8) return { label: 'OPTIMAL', color: 'text-emerald-500', gradient: 'from-emerald-500/20 to-transparent' }
+        if (val <= 7.5) return { label: 'NEUTRAL/BASE', color: 'text-yellow-500', gradient: 'from-yellow-500/20 to-transparent' }
+        return { label: 'ALKALINE', color: 'text-red-500', gradient: 'from-red-500/20 to-transparent' }
     }
 
-    // Temperature thresholds adjusted for Cambodian tropical climate
     const getTempStatus = (val) => {
         if (val < 18) return { label: 'COLD', color: 'text-blue-500', gradient: 'from-blue-500/20 to-transparent' }
-        if (val > 38) return { label: 'HOT', color: 'text-red-500', gradient: 'from-red-500/20 to-transparent' }
+        if (val > 28) return { label: 'HOT', color: 'text-red-500', gradient: 'from-red-500/20 to-transparent' }
+        if (val > 24) return { label: 'WARM', color: 'text-yellow-500', gradient: 'from-yellow-500/20 to-transparent' }
         return { label: 'OPTIMAL', color: 'text-emerald-500', gradient: 'from-emerald-500/20 to-transparent' }
     }
 

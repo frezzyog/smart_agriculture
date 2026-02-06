@@ -10,13 +10,14 @@ class SensorDataProcessor:
     def __init__(self):
         # Updated optimal ranges based on MAFF / FAO / CARDI standards (Lettuce farming)
         self.optimal_ranges = {
-            'moisture': (60, 80),      # % (65-75% is target, 60-80% is safe range)
-            'temperature': (18, 24),   # °C (MAFF/FAO standard)
-            'humidity': (60, 70),      # %
-            'pH': (6.0, 7.0),          # (CARDI standard for Cambodian soil)
-            'nitrogen': (150, 200),    # mg/kg (ppm)
-            'phosphorus': (30, 50),    # mg/kg (ppm)
-            'potassium': (150, 250),   # mg/kg (ppm)
+            'moisture': (60, 80),      # % (Lettuce standard)
+            'temperature': (18, 24),   # °C (MAFF standard)
+            'humidity': (60, 80),      # %
+            'pH': (6.0, 6.8),          # (Optimal for nutrient lock-up prevention)
+            'ec': (1200, 1600),        # µS/cm (1.2 - 1.6 mS/cm)
+            'nitrogen': (30, 50),      # mg/kg
+            'phosphorus': (15, 30),    # mg/kg
+            'potassium': (80, 120),    # mg/kg
         }
     
     def assess_soil_health(self, moisture=None, pH=None, nitrogen=None, phosphorus=None, potassium=None):

@@ -347,7 +347,7 @@ async def interpret_sensor_data(request: InterpretRequest):
                 "message": "ការស្រោចទឹក និងការផ្គត់ផ្គង់ជីត្រូវបានផ្អាកជាបណ្តោះអាសន្ន ដើម្បីការពារសុខភាពដំណាំ។" if is_heavy_rain else "ប្រព័ន្ធបានបញ្ឈប់ម៉ូទ័របូមទឹក និងម៉ូទ័របូមជី ដើម្បីជៀសវាងការស្រោចទឹកលើសកម្រិត។"
             })
         
-        if moisture < 45 or stress_level > 80:
+        if moisture < 50 or stress_level > 80:
             # Critical situation - needs immediate action
             if skip_irrigation_due_to_rain:
                 # Rain detected or expected - add info alert instead of triggering pump
@@ -365,13 +365,13 @@ async def interpret_sensor_data(request: InterpretRequest):
                 alerts.append({
                     "severity": "CRITICAL",
                     "type": "MOISTURE_CRITICAL",
-                    "title": "💧 សំណើមដីទាប",
-                    "message": "ប្រព័ន្ធបានបើកម៉ូទ័របូមទឹកដោយស្វ័យប្រវត្តិ ដើម្បីផ្គត់ផ្គង់ទឹកឲ្យដំណាំ។"
+                    "title": "💧 សំណើមដីទាបខ្លាំង",
+                    "message": "សាឡាត់មានឫសរាក់ មិនអាចទ្រាំទ្រដីស្ងួតបានទេ។ បើកម៉ូទ័រទឹកជាបន្ទាន់។"
                 })
                 recommend_action = True
                 actions.append({"type": "irrigation", "deviceId": device_id, "command": {"type": "WATER", "status": "ON", "duration": 420}})
                 
-        elif moisture < 50:
+        elif moisture < 60:
             if skip_irrigation_due_to_rain:
                 alerts.append({
                     "severity": "INFO",
@@ -384,7 +384,7 @@ async def interpret_sensor_data(request: InterpretRequest):
                     "severity": "WARNING",
                     "type": "MOISTURE_LOW",
                     "title": "💧 សំណើមដីទាប",
-                    "message": "សំណើមដីបានធ្លាក់ចុះ។ ប្រព័ន្ធនឹងបូមទឹកឆាប់ៗនេះ។"
+                    "message": "សំណើមដី ( < 60%) ទាបជាងស្តង់ដារ។ ប្រព័ន្ធនឹងបូមទឹកឆាប់ៗនេះ។"
                 })
         else:
              # Moisture OK or High
@@ -392,10 +392,12 @@ async def interpret_sensor_data(request: InterpretRequest):
                  alerts.append({
                     "severity": "INFO",
                     "type": "SYSTEM_INFO",
-                    "title": "⚠️ សំណើមដីខ្ពស់",
-                    "message": "ប្រព័ន្ធបានបញ្ឈប់ម៉ូទ័របូមទឹក ដើម្បីជៀសវាងការស្រោចទឹកលើសកម្រិត។"
+                    "title": "⚠️ សំណើមដីខ្ពស់ (Active Interrupt)",
+                    "message": "ប្រព័ន្ធបានបញ្ឈប់ម៉ូទ័របូមទឹកភ្លាមៗ ដើម្បីជៀសវាងការជោកជាំ (Moisture > 80%)។"
                 })
-        
+                 # SAFETY INTERRUPT: Force Water Pump OFF immediately
+                 actions.append({"type": "irrigation", "deviceId": device_id, "command": {"type": "WATER", "status": "OFF", "duration": 0}})
+
         # Add weather info to alerts if rain is expected
         if tomorrow_rain_probability > 30 and not rain_detected:
             alerts.append({
@@ -414,19 +416,25 @@ async def interpret_sensor_data(request: InterpretRequest):
         
         # STANDALONE NPK CHECKS REMOVED - Integrated into main logic below to prevent duplicate alerts
         
-        # pH THRESHOLDS: 6.0 - 7.0
+        # pH THRESHOLDS: 6.0 - 6.8
         if sensor_data.get('pH'):
-            if sensor_data['pH'] < 5.8 or sensor_data['pH'] > 7.2:
+            if sensor_data['pH'] < 6.0 or sensor_data['pH'] > 6.8:
                 alerts.append({
                     "severity": "WARNING",
                     "type": "PH_WARNING",
                     "title": "⚠️ បញ្ហា pH ដី",
-                    "message": f"pH ដីគឺ {sensor_data['pH']}។ ស្ពៃក្តោបត្រូវការ pH ៦.០-៧.០។"
+                    "message": f"pH ដីគឺ {sensor_data['pH']}។ សាឡាត់ត្រូវការ pH ៦.០-៦.៨។"
                 })
         
         # EC THRESHOLDS: 1.2 - 1.6 dS/m (1200-1600 µS/cm)
         if sensor_data.get('ec'):
-            if sensor_data['ec'] < 1000:
+            # NEW INTELLIGENCE: Trigger if overall EC is low OR any specific nutrient is low
+            is_n_low = sensor_data.get('nitrogen', 100) < 30
+            is_p_low = sensor_data.get('phosphorus', 100) < 15
+            is_k_low = sensor_data.get('potassium', 100) < 80
+            is_ec_low = sensor_data['ec'] < 1200
+
+            if is_ec_low or is_n_low or is_p_low or is_k_low:
                 if can_fertilize:
                     # Check for current rain OR heavy rain forecast
                     if rain_detected:
@@ -456,17 +464,15 @@ async def interpret_sensor_data(request: InterpretRequest):
                         
                         if is_pumping:
                             # Pump is already running, suppress duplicate alerts
-                            # Optional: Add INFO alert just for dashboard feedback if needed, 
-                            # but filtering it out ensures Telegram is silent as requested.
                             pass
                         else:
                             # Pump not running, generate NEW Alert + Action
                             
                             # IDENTIFY SPECIFIC DEFICIENCIES
                             deficiencies = []
-                            if sensor_data.get('nitrogen', 0) < 130: deficiencies.append(f"Nitrogen ({sensor_data.get('nitrogen')} mg/kg)")
-                            if sensor_data.get('phosphorus', 0) < 30: deficiencies.append(f"Phosphorus ({sensor_data.get('phosphorus')} mg/kg)")
-                            if sensor_data.get('potassium', 0) < 150: deficiencies.append(f"Potassium ({sensor_data.get('potassium')} mg/kg)")
+                            if sensor_data.get('nitrogen', 0) < 30: deficiencies.append(f"Nitrogen ({sensor_data.get('nitrogen')} mg/kg < 30)")
+                            if sensor_data.get('phosphorus', 0) < 15: deficiencies.append(f"Phosphorus ({sensor_data.get('phosphorus')} mg/kg < 15)")
+                            if sensor_data.get('potassium', 0) < 80: deficiencies.append(f"Potassium ({sensor_data.get('potassium')} mg/kg < 80)")
                             
                             deficiency_str = ", ".join(deficiencies) if deficiencies else "General Low EC"
                             current_time_str = current_time.strftime("%I:%M %p")
@@ -498,9 +504,11 @@ async def interpret_sensor_data(request: InterpretRequest):
                  alerts.append({
                     "severity": "CRITICAL",
                     "type": "PH_WARNING",
-                    "title": "⚠️ កម្រិតជាតិប្រៃក្នុងដីខ្ពស់",
-                    "message": f"EC គឺ {sensor_data['ec']} µS/cm។ ត្រូវលាងសម្អាតដោយទឹកស្អាត។"
+                    "title": "⚠️ កម្រិតជាតិប្រៃក្នុងដីខ្ពស់ (Active Interrupt)",
+                    "message": f"EC គឺ {sensor_data['ec']} µS/cm។ ប្រព័ន្ធបានបិទម៉ូទ័របូមជីភ្លាមៗ។"
                 })
+                 # SAFETY INTERRUPT: Force Fertilizer Pump OFF immediately
+                 actions.append({"type": "fertilizer", "deviceId": device_id, "command": {"type": "FERTILIZER", "status": "OFF", "duration": 0}})
         
         recommendation = data_processor.generate_recommendation(
             soil_health=soil_health,
@@ -615,12 +623,15 @@ def build_prompt(message: str, sensor_data: dict, expenses: list) -> str:
     
     return f"""You are AgriSmart AI, an agricultural expert specialized in Cambodian lettuce farming.
     
-FACTS & STANDARDS (MAFF/CARDI):
-• Optimal Soil Temp: 18°C - 24°C (Danger > 27°C)
-• Optimal Moisture: 65% - 75% (Critical < 50%)
-• Optimal pH: 6.0 - 7.0 (CARDI standard)
-• Optimal EC: 1200 - 1600 µS/cm (Low < 1000, Saline > 2000)
-• Nutrient Targets (ppm): Nitrogen 150-200, Phosphorus 30-50, Potassium 150-250
+FACTS & STANDARDS (MAFF/CARDI - CAMBODIA SPECIFIC):
+• EC: 1200 – 1600 µS/cm (Low < 1200: Plant starving, High > 1600: Tip burn)
+• Nitrogen (N): 30 – 50 mg/kg (Essential for dark green color. Low = Pale leaves.)
+• Phosphorus (P): 15 – 30 mg/kg (High P needed early; low stunts size.)
+• Potassium (K): 80 – 120 mg/kg (Helps lettuce stay crisp in heat.)
+• pH: 6.0 – 6.8 (Above 7.5 nutrients "lock up", common in local tap water.)
+• Soil Temp: 18°C – 24°C (Above 28°C causes bitterness and "bolting".)
+• Moisture: 60% – 80% (Lettuce has shallow roots; cannot tolerate dry topsoil.)
+• Nutrient Targets (mg/kg): Nitrogen 30-50, Phosphorus 15-30, Potassium 80-120
 
 CURRENT FARM DATA:
 • Moisture: {sensor_data.get('moisture', 'N/A')}%
@@ -655,24 +666,24 @@ def rule_based_chat(message: str, sensor_data: dict, expenses: list) -> dict:
     if any(w in msg for w in ["moisture", "water", "irrigation", "dry", "wet", "ទឹក", "សំណើម", "ស្រោច"]):
         m = sensor_data.get('moisture')
         if m is not None:
-            if m < 50:
-                reply = f"🔴 **ស្ថានភាពសំណើមដី៖ ស្ងួតខ្លាំង ({m}%)**\n\nលោកកសិករ! កម្រិតសំណើមនេះទាបជាងស្តង់ដារ (៦៥-៧៥%)។ ប្រព័ន្ធបានបើកម៉ូទ័របូមទឹកជូនដោយស្វ័យប្រវត្តិដើម្បីការពារដំណាំក្រិន។"
+            if m < 60:
+                reply = f"🔴 **ស្ថានភាពសំណើមដី៖ ស្ងួត ({m}%)**\n\nលោកកសិករ! សាឡាត់មានឫសរាក់ មិនអាចទ្រាំនឹងដីស្ងួតបានទេ។ ប្រព័ន្ធបានបើកម៉ូទ័របូមទឹកជូន។"
             elif m > 80:
                 reply = f"🔵 **ស្ថានភាពសំណើមដី៖ ជោកខ្លាំង ({m}%)**\n\nលោកកសិករគួរកាត់បន្ថយការស្រោចទឹក ព្រោះសំណើមខ្ពស់ពេកអាចធ្វើឱ្យសាឡាត់រលួយឫសបាន។"
             else:
-                reply = f"🟢 **ស្ថានភាពសំណើមដី៖ ល្អប្រសើរ ({m}%)**\n\nសំណើមដីស្ថិតក្នុងកម្រិតត្រឹមត្រូវតាមបច្ចេកទេសរបស់ CARDI និង MAFF (៦០-៨០%)។"
+                reply = f"🟢 **ស្ថានភាពសំណើមដី៖ ល្អប្រសើរ ({m}%)**\n\nសំណើមដី (៦០-៨០%) គឺត្រឹមត្រូវណាស់សម្រាប់ដំណាំសាឡាត់។"
         else:
             reply = "💧 មិនទាន់មានទិន្នន័យសំណើមដីនៅឡើយទេ។ សូមលោកកសិករពិនិត្យការភ្ជាប់សិនស័រ។"
     
     elif any(w in msg for w in ["temperature", "temp", "hot", "cold", "កម្ដៅ", "ក្តៅ", "សីតុណ្ហភាព"]):
         t = sensor_data.get('temperature')
         if t:
-            if t > 27:
-                reply = f"🔥 **កម្រិតកម្ដៅ៖ ខ្ពស់ពេក ({t}°C)**\n\nសីតុណ្ហភាពលើសពី ២៧°C អាចធ្វើឱ្យសាឡាត់ខូច។ MAFF ណែនាំឱ្យលោកកសិករប្រើចំបើងគ្របគល់ ឬបន្ថែមសំណាញ់បាំងថ្ងៃ។"
+            if t > 28:
+                reply = f"🔥 **កម្រិតកម្ដៅ៖ ខ្ពស់ពេក ({t}°C)**\n\nសីតុណ្ហភាពលើសពី ២៨°C អាចធ្វើឱ្យសាឡាត់ល្វីង ឬដងផ្កា (Bolts)។ សូមប្រើចំបើងគ្របគល់ ឬបន្ថែមសំណាញ់បាំងថ្ងៃ។"
             elif 18 <= t <= 24:
-                reply = f"🌡️ **កម្រិតកម្ដៅ៖ ល្អណាស់ ({t}°C)**\n\nសីតុណ្ហភាពនេះគឺល្អបំផុតសម្រាប់សាឡាត់លូតលាស់យ៉ាងឆាប់រហ័ស។"
+                reply = f"🌡️ **កម្រិតកម្ដៅ៖ ល្អណាស់ ({t}°C)**\n\nសីតុណ្ហភាពនេះ (១៨-២៤°C) គឺល្អបំផុតសម្រាប់សាឡាត់។"
             else:
-                reply = f"🌡️ **សីតុណ្ហភាពបច្ចុប្បន្ន៖ {t}°C**\n\nស្ថិតក្នុងកម្រិតមធ្យម មិនមានបញ្ហាចោទឡើយ។"
+                reply = f"🌡️ **សីតុណ្ហភាពបច្ចុប្បន្ន៖ {t}°C**\n\nស្ថិតក្នុងកម្រិតមធ្យម។ ប្រយ័ត្នកុំឱ្យលើស ២៨°C។"
         else:
             reply = "🌡️ មិនទាន់មានទិន្នន័យសីតុណ្ហភាពនៅឡើយទេ។"
     
@@ -681,13 +692,13 @@ def rule_based_chat(message: str, sensor_data: dict, expenses: list) -> dict:
         p = sensor_data.get('phosphorus', 'N/A')
         k = sensor_data.get('potassium', 'N/A')
         ec = sensor_data.get('ec', 'N/A')
-        reply = f"🌱 **ស្ថានភាពជីក្នុងដី (ppm):**\n• Nitrogen (N): {n} (ស្តង់ដារ: ១៥០-២០០)\n• Phosphorus (P): {p} (ស្តង់ដារ: ៣០-៥០)\n• Potassium (K): {k} (ស្តង់ដារ: ១៥០-២៥០)\n• កម្រិតចម្លង EC: {ec} µS/cm"
+        reply = f"🌱 **ស្ថានភាពជីក្នុងដី (mg/kg):**\n• Nitrogen (N): {n} (ស្តង់ដារ: ៣០-៥០)\n• Phosphorus (P): {p} (ស្តង់ដារ: ១៥-៣០)\n• Potassium (K): {k} (ស្តង់ដារ: ៨០-១២០)\n• EC: {ec} µS/cm (១២០០-១៦០០)"
     
     elif any(w in msg for w in ["ph", "acid", "alkaline", "ដី"]):
         ph = sensor_data.get('pH')
         if ph:
-            status = "ល្អ (Neutral) ✅" if 6.0 <= ph <= 7.0 else ("ដីអាស៊ីត ⚠️" if ph < 6.0 else "ដីបាស ⚠️")
-            reply = f"⚗️ **កម្រិត pH ដី៖ {ph}** ({status})\n\nតាមស្តង់ដារ CARDI កម្រិត pH ពី ៦.០ ដល់ ៧.០ គឺល្អបំផុតសម្រាប់សាឡាត់។"
+            status = "ល្អ (Neutral) ✅" if 6.0 <= ph <= 6.8 else ("ដីអាស៊ីត (Acidic) ⚠️" if ph < 6.0 else "ដីបាស (Alkaline) ⚠️")
+            reply = f"⚗️ **កម្រិត pH ដី៖ {ph}** ({status})\n\nសាឡាត់ត្រូវការ pH ៦.០-៦.៨។ បើលើស ៧.៥ ជីនឹងមិនអាចរលាយបានទេ។"
         else:
             reply = "⚗️ មិនមានទិន្នន័យកម្រិត pH ដីនៅឡើយទេ។"
     
@@ -697,9 +708,9 @@ def rule_based_chat(message: str, sensor_data: dict, expenses: list) -> dict:
     
     elif any(w in msg for w in ["status", "overview", "summary", "ស្ថានភាព", "សរុប"]):
         reply = f"""📊 **សេចក្ដីសរុបស្ថានភាពកសិដ្ឋាន៖**
-• សំណើមដី៖ {sensor_data.get('moisture', 'N/A')}% (ល្អ ៦៥-៧៥%)
+• សំណើមដី៖ {sensor_data.get('moisture', 'N/A')}% (ល្អ ៦០-៨០%)
 • សីតុណ្ហភាព៖ {sensor_data.get('temperature', 'N/A')}°C (ល្អ ១៨-២៤°C)
-• កម្រិត pH ដី៖ {sensor_data.get('pH', 'N/A')} (ល្អ ៦.០-៧.០)
+• កម្រិត pH ដី៖ {sensor_data.get('pH', 'N/A')} (ល្អ ៦.០-៦.៨)
 • សុខភាពដី៖ {sensor_data.get('soilHealth', 'មិនច្បាស់លាស់')}"""
     
     elif any(w in msg for w in ["hello", "hi", "hey", "help", "ជំរាបសួរ", "សួរ"]):
