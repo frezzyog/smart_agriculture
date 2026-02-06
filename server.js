@@ -661,33 +661,15 @@ app.get('/api/expenses', async (req, res) => {
 app.post('/api/expenses', async (req, res) => {
     try {
         const { title, category, amount, date, userId } = req.body
-        let user_id = userId || req.headers['x-user-id']
+        const user_id = userId || req.headers['x-user-id']
 
-        // 1. Resolve User ID
+        console.log(`📝 Creating expense for user: ${user_id}`)
+
         if (!user_id) {
-            // Fallback to first user
-            const { data: users } = await supabase.from('users').select('id').limit(1)
-            user_id = users && users.length > 0 ? users[0].id : null
-
-            if (!user_id) throw new Error('No user found in database to link expense to')
-        } else {
-            // Verify user exists to avoid Foreign Key error
-            const { data: userExists } = await supabase
-                .from('users')
-                .select('id')
-                .eq('id', user_id)
-                .single()
-
-            if (!userExists) {
-                console.log(`⚠️ User ${user_id} not found in public.users, attempting fallback...`)
-                const { data: users } = await supabase.from('users').select('id').limit(1)
-                user_id = users && users.length > 0 ? users[0].id : null
-
-                if (!user_id) throw new Error(`User ${userId} does not exist and no fallback users found`)
-            }
+            throw new Error('User ID is required to create an expense')
         }
 
-        // 2. Insert Expense
+        // Insert Expense directly - let database handle foreign key validation
         const { data: expense, error } = await supabase
             .from('expenses')
             .insert({
@@ -703,9 +685,15 @@ app.post('/api/expenses', async (req, res) => {
 
         if (error) {
             console.error('Supabase Insert Error:', error)
+
+            // If foreign key error, provide helpful message
+            if (error.code === '23503') {
+                throw new Error(`User not found in database. Please log out and log in again.`)
+            }
             throw new Error(error.message)
         }
 
+        console.log(`✅ Expense created: ${expense.id}`)
         res.json(expense)
     } catch (error) {
         console.error('Error creating expense:', error.message)
