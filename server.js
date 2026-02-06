@@ -661,23 +661,38 @@ app.get('/api/expenses', async (req, res) => {
 app.post('/api/expenses', async (req, res) => {
     try {
         const { title, category, amount, date, userId } = req.body
-        const user_id = userId || req.headers['x-user-id']
+        let user_id = userId || req.headers['x-user-id']
 
+        // 1. Resolve User ID
         if (!user_id) {
             // Fallback to first user
             const { data: users } = await supabase.from('users').select('id').limit(1)
-            const fallbackUserId = users && users.length > 0 ? users[0].id : null
-            if (!fallbackUserId) throw new Error('No user found')
-            req.body.user_id = fallbackUserId
+            user_id = users && users.length > 0 ? users[0].id : null
+
+            if (!user_id) throw new Error('No user found in database to link expense to')
         } else {
-            req.body.user_id = user_id
+            // Verify user exists to avoid Foreign Key error
+            const { data: userExists } = await supabase
+                .from('users')
+                .select('id')
+                .eq('id', user_id)
+                .single()
+
+            if (!userExists) {
+                console.log(`⚠️ User ${user_id} not found in public.users, attempting fallback...`)
+                const { data: users } = await supabase.from('users').select('id').limit(1)
+                user_id = users && users.length > 0 ? users[0].id : null
+
+                if (!user_id) throw new Error(`User ${userId} does not exist and no fallback users found`)
+            }
         }
 
+        // 2. Insert Expense
         const { data: expense, error } = await supabase
             .from('expenses')
             .insert({
                 id: crypto.randomUUID(),
-                user_id: req.body.user_id,
+                user_id: user_id,
                 title,
                 category,
                 amount,
@@ -686,11 +701,15 @@ app.post('/api/expenses', async (req, res) => {
             .select()
             .single()
 
-        if (error) throw error
+        if (error) {
+            console.error('Supabase Insert Error:', error)
+            throw new Error(error.message)
+        }
+
         res.json(expense)
     } catch (error) {
-        console.error('Error creating expense:', error)
-        res.status(500).json({ error: 'Failed to create expense' })
+        console.error('Error creating expense:', error.message)
+        res.status(500).json({ error: error.message || 'Failed to create expense' })
     }
 })
 

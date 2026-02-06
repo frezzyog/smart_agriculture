@@ -50,7 +50,8 @@ const AddTransactionModal = ({ isOpen, onClose, onSuccess }) => {
             })
         } catch (error) {
             console.error('Error adding transaction:', error)
-            toast.error(error.message || t('expenses_page.modal.error'))
+            const errorMsg = error.response?.data?.error || error.message || t('expenses_page.modal.error')
+            toast.error(errorMsg)
         } finally {
             setLoading(false)
         }
