@@ -72,7 +72,7 @@ const FertilizerMonitor = ({ nitrogen, phosphorus, potassium, ec, ph, temp }) =>
                 <div>
                     <h2 className="text-3xl font-black text-foreground tracking-tight flex items-center gap-3">
                         <Zap className="text-yellow-400 fill-yellow-400/20" size={32} />
-                        {t('dashboard.soil_7in1')}
+                        {t('dashboard.soil_integrated_sensor')}
                     </h2>
                     <p className="text-foreground/40 mt-2 font-medium">Real-time Nutrient Analysis & Conductivity</p>
                 </div>

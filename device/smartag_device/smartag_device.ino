@@ -38,6 +38,7 @@ const char* device_id   = "SMARTAG-001";
 // ============================================
 #define MAX485_RX_PIN  16
 #define MAX485_TX_PIN  17
+#define MAX485_DE_RE   4   // Connect DE and RE to this pin
 
 // Analog Sensors
 #define RAIN_PIN       32
@@ -64,12 +65,21 @@ WiFiClient espClient;
 PubSubClient mqtt(espClient);
 ModbusMaster node;
 
+// RS485 Flow Control Callbacks
+void preTransmission() {
+  digitalWrite(MAX485_DE_RE, HIGH); // Switch to TRANSMIT
+}
+
+void postTransmission() {
+  digitalWrite(MAX485_DE_RE, LOW);  // Switch to RECEIVE
+}
+
 unsigned long lastPublish = 0;
 unsigned long lastReconnectAttempt = 0;
 
 // RS485 Sensor Values
 float val_moisture = 0;
-float val_temp = 0;
+float val_temp = 25.0;  // Default to room temperature (25°C) until first reading
 float val_ec   = 0;
 float val_ph   = -1;   // -1 means N/A
 float val_n    = 0;
@@ -222,6 +232,7 @@ void readSevenInOneSensor() {
   if (result1 != node.ku8MBSuccess) {
     Serial.print("⚠️ ERROR reading block 0x0000. Code: ");
     Serial.println(result1, HEX);
+    Serial.printf("⚠️ Keeping previous values: Temp=%.1f°C, EC=%.0f\n", val_temp, val_ec);
     return;
   }
 
@@ -234,7 +245,18 @@ void readSevenInOneSensor() {
 
   // Confirmed mapping (moisture is read from ANALOG sensor, not RS485)
   val_ec       = reg[2];
-  val_temp     = reg[3] * 0.1;
+  
+  // Temperature debugging
+  uint16_t tempRaw = reg[3];
+  Serial.printf("🌡 Temperature RAW: %d (0x%04X)\n", tempRaw, tempRaw);
+  
+  if (tempRaw > 0 && tempRaw < 1000) {  // Sanity check (0-100°C range)
+    val_temp = tempRaw * 0.1;
+    Serial.printf("🌡 Temperature CONVERTED: %.1f°C ✅\n", val_temp);
+  } else {
+    Serial.printf("⚠️ Temperature RAW value %d seems invalid, keeping previous: %.1f°C\n", tempRaw, val_temp);
+  }
+  
   float rs485_moisture = reg[7] * 0.01;  // Store for reference only
 
   // -------------------------------
@@ -383,7 +405,13 @@ void setup() {
   Serial.begin(115200);
 
   Serial2.begin(9600, SERIAL_8N1, MAX485_RX_PIN, MAX485_TX_PIN);
+  
+  pinMode(MAX485_DE_RE, OUTPUT);
+  digitalWrite(MAX485_DE_RE, LOW); // Start in Receive mode
+
   node.begin(1, Serial2);
+  node.preTransmission(preTransmission);
+  node.postTransmission(postTransmission);
 
   pinMode(RELAY_1_PIN, OUTPUT);
   pinMode(RELAY_2_PIN, OUTPUT);

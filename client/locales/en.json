@@ -74,7 +74,7 @@
         "raining": "Currently Raining",
         "no_rain": "Clear Conditions",
         "intensity": "Intensity",
-        "soil_7in1": "Soil Integrated Sensor",
+        "soil_integrated_sensor": "Soil Integrated Sensor",
         "comprehensive_monitor": "Advanced NPK & Environment Grid",
         "nitrogen": "Nitrogen",
         "phosphorus": "Phosphorus",

@@ -52,7 +52,7 @@ export function useRealtimeSensorData() {
                 potassium: data.potassium ?? prev.potassium,
                 pH: data.pH ?? prev.pH,
                 ec: data.ec ?? prev.ec,
-                temp: data.temp ?? prev.temp,
+                temp: data.temp ?? data.temperature ?? prev.temp,
                 humidity: data.humidity ?? prev.humidity,
                 battery: data.battery ?? prev.battery,
                 voltage: data.voltage ?? prev.voltage,
