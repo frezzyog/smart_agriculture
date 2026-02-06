@@ -388,9 +388,10 @@ void checkOfflineRules() {
     Serial.printf("  ✅ Soil wet (%.2f%%). Water OFF.\n", val_moisture);
   }
 
-  if (val_ec > 0 && val_ec < 800 && val_moisture > 40) {
+  // Only activate fertilizer when EC is truly LOW (< 400), not just below optimal
+  if (val_ec > 0 && val_ec < 400 && val_moisture > 40) {
     digitalWrite(RELAY_2_PIN, LOW);
-    Serial.printf("  🧪 Fertilizer Pump ON (EC: %.0f)\n", val_ec);
+    Serial.printf("  🧪 Fertilizer Pump ON (EC: %.0f - LOW)\n", val_ec);
   }
   else if (val_ec > 1200) {
     digitalWrite(RELAY_2_PIN, HIGH);
@@ -474,10 +475,10 @@ void loop() {
           Serial.printf("✅ [AUTO-ONLINE] Water Pump OFF (%.1f%%)\n", val_moisture);
         }
 
-        // 2. Fertilizer Pump Control (Independent - SIMULTANEOUS)
-        if (val_ec > 0 && val_ec < 800) {
+        // 2. Fertilizer Pump Control - Only when EC is LOW (< 400)
+        if (val_ec > 0 && val_ec < 400) {
           digitalWrite(RELAY_2_PIN, LOW); // ON
-          Serial.printf("🧪 [AUTO-ONLINE] Fertilizer Pump ON (EC: %.0f)\n", val_ec);
+          Serial.printf("🧪 [AUTO-ONLINE] Fertilizer Pump ON (EC: %.0f - LOW)\n", val_ec);
         } else if (val_ec > 1200) {
           digitalWrite(RELAY_2_PIN, HIGH); // OFF
           Serial.println("✅ [AUTO-ONLINE] Fertilizer Pump OFF (EC Balanced)");
