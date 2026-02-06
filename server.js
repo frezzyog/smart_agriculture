@@ -334,17 +334,18 @@ async function saveSensorData(deviceId, data) {
 
             // Send ONE combined SMS for all alerts if no pump action was triggered
             // (If pump was triggered, a separate specific SMS is sent later)
-            if (smsSummaries.length > 0 && !aiAnalysis.recommendAction) {
+            // Send ONE combined SMS for all alerts
+            if (smsSummaries.length > 0) {
                 const combinedMsg = `<b>🌾 ដំណឹងពី SmartAg</b>\n\n${smsSummaries.map(s => `• ${s}`).join('\n')}\n\nសូមពិនិត្យមើលផ្ទាំងគ្រប់គ្រងរបស់អ្នកសម្រាប់ព័ត៌មានលម្អិត។`
 
-                // Alert the specific user if they have linked Telegram
-                if (device.user?.telegramChatId) {
+                // Alert the specific user if they have linked Telegram (AND no action pending, to avoid double notify)
+                if (device.user?.telegramChatId && !aiAnalysis.recommendAction) {
                     await sendTelegramAlert(device.user.telegramChatId, combinedMsg);
                 }
 
-                // Also alert Admin (legacy behavior)
+                // ALWAYS Alert Admin for critical/warning events (Field Test Mode)
                 const ADMIN_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
-                if (ADMIN_CHAT_ID && ADMIN_CHAT_ID !== device.user?.telegramChatId) {
+                if (ADMIN_CHAT_ID) {
                     await sendTelegramAlert(ADMIN_CHAT_ID, `<b>[ADMIN] Alert for ${device.name}:</b>\n\n${combinedMsg}`);
                 }
             }
